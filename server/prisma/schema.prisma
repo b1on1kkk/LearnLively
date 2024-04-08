@@ -9,11 +9,11 @@ datasource db {
 
 model chat_members {
   id        Int      @id @default(autoincrement())
-  chat_id   Int?
-  user_id   Int?
+  chat_id   Int
+  user_id   Int
   joined_at DateTime @db.Timestamp(6)
-  chats     chats?   @relation(fields: [chat_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users     users?   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  chats     chats    @relation(fields: [chat_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users     users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model chats {
@@ -26,35 +26,35 @@ model chats {
 
 model friends {
   id                             Int      @id @default(autoincrement())
-  user_id                        Int?
-  friend_id                      Int?
+  user_id                        Int
+  friend_id                      Int
   created_at                     DateTime @db.Timestamp(6)
-  users_friends_friend_idTousers users?   @relation("friends_friend_idTousers", fields: [friend_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users_friends_user_idTousers   users?   @relation("friends_user_idTousers", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_friends_friend_idTousers users    @relation("friends_friend_idTousers", fields: [friend_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_friends_user_idTousers   users    @relation("friends_user_idTousers", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model group_messages {
   id         Int      @id @default(autoincrement())
-  chat_id    Int?
-  user_id    Int?
+  chat_id    Int
+  user_id    Int
   content    String
-  is_edited  Boolean?
-  is_readed  Boolean?
+  is_edited  Boolean
+  is_readed  Boolean
   created_at DateTime @db.Timestamp(6)
-  chats      chats?   @relation(fields: [chat_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users      users?   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  chats      chats    @relation(fields: [chat_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model private_messages {
   id                                         Int      @id @default(autoincrement())
-  sender_id                                  Int?
-  recipient_id                               Int?
+  sender_id                                  Int
+  recipient_id                               Int
   content                                    String
-  is_edited                                  Boolean?
-  is_readed                                  Boolean?
+  is_edited                                  Boolean
+  is_readed                                  Boolean
   created_at                                 DateTime @db.Timestamp(6)
-  users_private_messages_recipient_idTousers users?   @relation("private_messages_recipient_idTousers", fields: [recipient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users_private_messages_sender_idTousers    users?   @relation("private_messages_sender_idTousers", fields: [sender_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_private_messages_recipient_idTousers users    @relation("private_messages_recipient_idTousers", fields: [recipient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_private_messages_sender_idTousers    users    @relation("private_messages_sender_idTousers", fields: [sender_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model users {
@@ -62,10 +62,10 @@ model users {
   name                                                  String             @db.VarChar(255)
   lastname                                              String             @db.VarChar(255)
   surname                                               String             @db.VarChar(255)
-  role                                                  roles?
+  role                                                  roles
   email                                                 String             @unique @db.VarChar(255)
-  end_semester                                          Int?
-  now_semester                                          Int?
+  end_semester                                          Int
+  now_semester                                          Int
   department                                            String             @db.VarChar(255)
   password                                              String             @db.VarChar(255)
   img_hash_name                                         String             @db.VarChar(255)
@@ -76,9 +76,18 @@ model users {
   group_messages                                        group_messages[]
   private_messages_private_messages_recipient_idTousers private_messages[] @relation("private_messages_recipient_idTousers")
   private_messages_private_messages_sender_idTousers    private_messages[] @relation("private_messages_sender_idTousers")
+  refresh_token                                         refresh_token[]
+}
+
+model refresh_token {
+  id            Int      @id @default(autoincrement())
+  user_id       Int
+  refresh_token String   @db.VarChar(255)
+  created_at    DateTime @db.Timestamp(6)
+  users         users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum roles {
-  teacher
   student
+  teacher
 }

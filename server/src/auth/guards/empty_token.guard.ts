@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
+import { Request } from 'express';
 
 @Injectable()
 export class EmptyTokenGuard implements CanActivate {
@@ -15,23 +16,24 @@ export class EmptyTokenGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const request: { [key: string]: string } = context
-      .switchToHttp()
-      .getRequest();
-    const cookies = Object.values(request.cookies);
+    const request: Request = context.switchToHttp().getRequest();
 
-    if (cookies.length > 0) {
+    if (Object.keys(request.cookies).includes('jwt_lg')) {
       try {
-        cookies.forEach((cookie) => {
-          if (cookie.split('.').length === 3 && this.jwtService.verify(cookie))
-            throw new Error();
+        this.jwtService.verify(request.cookies['jwt_lg'], {
+          secret: process.env.JWT_SECRET_KEY,
         });
       } catch (error) {
         throw new HttpException(
-          'Sorry, but your jwt token is not valid/forged or you logged in already',
+          'Your jwt token is not valid or forged. Delete this token!',
           HttpStatus.FORBIDDEN,
         );
       }
+
+      throw new HttpException(
+        'You are already logged in!',
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     return true;

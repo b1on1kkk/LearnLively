@@ -4,8 +4,9 @@ import { ApiService } from './api.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { JwtStrategy } from 'src/auth/strategies/jwt.strategy';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from 'prisma/prisma.service';
-import { StudentsInterceptor } from './interceptors/students.interceptor';
+import { PrismaClient } from '@prisma/client';
+import { SharedService } from './helpers/SharedService.helper';
+import { ErrorCatcherInterceptor } from 'src/auth/interceptors/error_catcher.interceptor';
 
 @Module({
   imports: [],
@@ -13,9 +14,10 @@ import { StudentsInterceptor } from './interceptors/students.interceptor';
     JwtAuthGuard,
     JwtStrategy,
     JwtService,
-    PrismaService,
-    StudentsInterceptor,
+    PrismaClient,
     ApiService,
+    SharedService,
+    ErrorCatcherInterceptor,
   ],
   controllers: [ApiController],
 })

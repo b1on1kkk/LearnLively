@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class ApiService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaClient) {}
 
   async getUsers(user_id: number) {
     return await this.prisma.users.findMany({
@@ -11,6 +11,18 @@ export class ApiService {
         id: {
           not: user_id,
         },
+      },
+      select: {
+        id: true,
+        name: true,
+        lastname: true,
+        surname: true,
+        role: true,
+        email: true,
+        end_semester: true,
+        now_semester: true,
+        department: true,
+        img_hash_name: true,
       },
     });
   }
