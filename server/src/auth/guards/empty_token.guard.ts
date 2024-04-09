@@ -25,7 +25,7 @@ export class EmptyTokenGuard implements CanActivate {
         });
       } catch (error) {
         throw new HttpException(
-          'Your jwt token is not valid or forged. Delete this token!',
+          'Your jwt token is invalid or forged. Delete this token!',
           HttpStatus.FORBIDDEN,
         );
       }
