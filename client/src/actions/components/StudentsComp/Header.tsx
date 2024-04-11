@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useReducer, useState } from "react";
 
 import {
   Button,
@@ -7,19 +7,28 @@ import {
   DropdownMenu,
   DropdownTrigger
 } from "@nextui-org/react";
-import {
-  ChevronDown,
-  Filter,
-  GraduationCap,
-  Hash,
-  Landmark,
-  Mail,
-  UserRound,
-  UsersRound
-} from "lucide-react";
+import { ChevronDown, Filter } from "lucide-react";
+
+import { HeaderFilterButton } from "./HeaderFilterButton";
+
+import { sortingReducer } from "../../reducers/Students/sortingReducer";
+
+import { HEADER } from "../../constants/Students/header";
+import { DROPDOWN_FILTER } from "../../constants/Students/dropdown_filter";
 
 export const Header = () => {
   const [dropdownStatus, setDropdownStatus] = useState<boolean>(false);
+
+  const [state, dispatch] = useReducer(sortingReducer, {
+    nameSorting: {
+      value: "asc",
+      status: false
+    },
+    idSorting: {
+      value: "asc",
+      status: false
+    }
+  });
 
   return (
     <header className="flex flex-col gap-8">
@@ -32,12 +41,15 @@ export const Header = () => {
         <div>
           <Dropdown
             onOpenChange={(e) => setDropdownStatus(e)}
-            classNames={{ base: "shadow-2xl", content: "bg-[#050615]" }}
+            classNames={{
+              base: "shadow-2xl text text-slate-400",
+              content: "bg-[#050615]"
+            }}
           >
             <DropdownTrigger>
               <Button
                 variant="bordered"
-                className="min-w-[150px] bg-[#050615] gap-5 justify-start border-slate-900"
+                className="min-w-[150px] bg-[#050615] gap-5 justify-start border-slate-900 text-slate-400 font-semibold"
               >
                 <div className="flex w-full h-full items-center">
                   <div className="flex flex-1 gap-2">
@@ -60,59 +72,82 @@ export const Header = () => {
               closeOnSelect={false}
               classNames={{ base: "bg-[#050615]" }}
             >
-              <DropdownItem
-                key="friends"
-                description="You'll see only your friends."
-                startContent={<UsersRound />}
-                classNames={{ wrapper: "hover:bg-gray-900" }}
-              >
-                All my friends.
-              </DropdownItem>
-              <DropdownItem
-                key="not_my_friends"
-                description="You'll see only new people to you."
-                startContent={<UserRound />}
-                classNames={{ wrapper: "hover:bg-gray-900" }}
-              >
-                People new to me.
-              </DropdownItem>
+              {DROPDOWN_FILTER.map((item) => {
+                return (
+                  <DropdownItem
+                    key={item.key}
+                    description={item.description}
+                    startContent={item.startContent}
+                    classNames={{ wrapper: "hover:bg-gray-900" }}
+                  >
+                    {item.text}
+                  </DropdownItem>
+                );
+              })}
             </DropdownMenu>
           </Dropdown>
         </div>
       </div>
 
       <div>
-        <div className="flex p-6 bg-[#050615] rounded-2xl uppercase text-sm border-2 border-slate-900 shadow-xl">
-          <div className="flex-[2] flex items-center gap-1">
-            <div>
-              <UserRound width={16} height={16} />
-            </div>
-            <span>student name</span>
-          </div>
-          <div className="flex-1 flex items-center gap-1">
-            <div>
-              <Hash width={16} height={16} />
-            </div>
-            <span>id number</span>
-          </div>
-          <div className="flex-[2] flex items-center gap-1">
-            <div>
-              <Mail width={16} height={16} />
-            </div>
-            <span>email</span>
-          </div>
-          <div className="flex-1 flex items-center gap-1">
-            <div>
-              <GraduationCap width={16} height={16} />
-            </div>
-            <span>semester</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div>
-              <Landmark width={16} height={16} />
-            </div>
-            <span>departament</span>
-          </div>
+        <div className="flex p-6 bg-[#050615] rounded-2xl uppercase text-sm border-2 border-slate-900 shadow-xl gap-3">
+          {HEADER.map((item) => {
+            if (item.filter !== "none") {
+              // next, if you need to create more filtering fields - just add necessary
+
+              return (
+                <div className={item.className} key={item.id}>
+                  <HeaderFilterButton
+                    status={
+                      item.filter === "id"
+                        ? state.idSorting.status
+                        : state.nameSorting.status
+                    }
+                    value={
+                      item.filter === "id"
+                        ? state.idSorting.value
+                        : state.nameSorting.value
+                    }
+                    title={item.title}
+                    onClick={() => {
+                      dispatch({
+                        type: item.type!,
+                        payload:
+                          item.filter === "id"
+                            ? {
+                                ...state,
+                                idSorting: {
+                                  value:
+                                    state.idSorting.value === "asc"
+                                      ? "desc"
+                                      : "asc",
+                                  status: true
+                                }
+                              }
+                            : {
+                                ...state,
+                                nameSorting: {
+                                  value:
+                                    state.nameSorting.value === "asc"
+                                      ? "desc"
+                                      : "asc",
+                                  status: true
+                                }
+                              }
+                      });
+                    }}
+                  />
+                </div>
+              );
+            }
+
+            return (
+              <div className={item.className} key={item.id}>
+                <div>{item.icon}</div>
+                <span>{item.title}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </header>

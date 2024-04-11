@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { NAVIGATION_TABS } from "../../constants/aside_dashboard/navigation";
-import type { TNavigationTabs } from "../../interfaces/NavbarInterfaces/TNavigationTabs";
+import { NAVIGATION_TABS } from "../../constants/MainApp/navigation";
+import type { TNavigationTabs } from "../../interfaces/MainApp/TNavigationTabs";
 
 export const Navigation = () => {
   const [navigationTabs, setNavigationTabs] =

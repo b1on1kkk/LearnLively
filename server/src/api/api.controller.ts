@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Param,
   Req,
   Res,
   UseGuards,
@@ -39,6 +40,12 @@ export class ApiController {
         maxAge: 259200000,
       })
       .json(await this.apiService.getUsers(encoded_values.id));
+  }
+
+  @Get('avatars/:image_name')
+  async getAvatar(@Param('image_name') filename: string, @Res() res: Response) {
+    const filePath = `./avatars/${filename}`;
+    res.sendFile(filePath, { root: '.' });
   }
 
   @Get('chats')

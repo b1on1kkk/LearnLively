@@ -7,7 +7,7 @@ export const Main = () => {
         isBlurred
         alt="user avatar"
         width={160}
-        src="https://nextui-docs-v2.vercel.app/images/album-cover.png"
+        src="http://localhost:3000/api/avatars/_29ae5d7d-5ce6-479e-b750-7aee6db7870e.jpg"
       ></Image>
 
       <div className="flex flex-col items-center mt-4">

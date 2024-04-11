@@ -7,9 +7,17 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaClient } from '@prisma/client';
 import { SharedService } from './helpers/SharedService.helper';
 import { ErrorCatcherInterceptor } from 'src/auth/interceptors/error_catcher.interceptor';
+import { MulterModule } from '@nestjs/platform-express';
+import { join } from 'path';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
-  imports: [],
+  imports: [
+    MulterModule.register({ dest: join(__dirname, '../../', 'avatars') }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '../../', 'avatars'),
+    }),
+  ],
   providers: [
     JwtAuthGuard,
     JwtStrategy,

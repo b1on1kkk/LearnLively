@@ -10,7 +10,7 @@ import {
   Radio
 } from "lucide-react";
 
-import type { TNavigationTabs } from "../../interfaces/NavbarInterfaces/TNavigationTabs";
+import type { TNavigationTabs } from "../../interfaces/MainApp/TNavigationTabs";
 
 export const NAVIGATION_TABS: Array<TNavigationTabs> = [
   {

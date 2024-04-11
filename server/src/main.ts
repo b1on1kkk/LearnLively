@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from 'path';
 import { ValidationPipe } from '@nestjs/common';
 
 import * as cookieParser from 'cookie-parser';
@@ -15,7 +14,6 @@ async function bootstrap() {
     },
   });
 
-  app.useStaticAssets(join(__dirname, '..', 'avatars'), { prefix: '/avatar' });
   app.useGlobalPipes(new ValidationPipe());
   app.use(cookieParser());
   app.enableCors();
