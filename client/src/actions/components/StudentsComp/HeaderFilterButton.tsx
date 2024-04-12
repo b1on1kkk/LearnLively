@@ -17,7 +17,7 @@ export const HeaderFilterButton = ({
 }: THeaderFilterButton) => {
   return (
     <Button
-      className="uppercase bg-transparent text-slate-400"
+      className="uppercase bg-transparent text-slate-400 hover:bg-gray-600 hover:text-white"
       onClick={onClick}
     >
       <div>

@@ -27,19 +27,19 @@ export class ApiController {
   /////////////////////////GET/////////////////////////
 
   @Get('students')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @UseInterceptors(ErrorCatcherInterceptor)
   async getUsers(@Req() req: Request, @Res() res: Response) {
-    const encoded_values: EncodedJwt = await this.jwtService.decode(
-      req.cookies.jwt_lg,
-    );
+    // const encoded_values: EncodedJwt = await this.jwtService.decode(
+    //   req.cookies.jwt_lg,
+    // );
 
     return res
       .cookie('jwt_lg', this.sharedService.getCookie(), {
         httpOnly: true,
         maxAge: 259200000,
       })
-      .json(await this.apiService.getUsers(encoded_values.id));
+      .json(await this.apiService.getUsers(0));
   }
 
   @Get('avatars/:image_name')
