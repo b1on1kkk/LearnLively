@@ -10,12 +10,14 @@ import { Message } from "./views/Message/Message";
 import { NoticeBoard } from "./views/NoticeBoard/NoticeBoard";
 import { LiveClass } from "./views/LiveClass/LiveClass";
 import { MainApp } from "./views/MainApp/MainApp";
+import { Registration } from "./views/Registration/Registration";
+import { Login } from "./views/Login/Login";
+import { Signup } from "./views/Signup/Signup";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <div>here I'll check if user is logged in</div>,
-    children: []
+    element: <div>here I'll check if user is logged in or not</div>
   },
   {
     path: "/app",
@@ -60,12 +62,18 @@ const router = createBrowserRouter([
     ]
   },
   {
-    path: "/login",
-    element: <div>login page</div>
-  },
-  {
     path: "/registration",
-    element: <div>signup</div>
+    element: <Registration />,
+    children: [
+      {
+        path: "login",
+        element: <Login />
+      },
+      {
+        path: "signup",
+        element: <Signup />
+      }
+    ]
   }
 ]);
 

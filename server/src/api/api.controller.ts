@@ -48,6 +48,15 @@ export class ApiController {
     res.sendFile(filePath, { root: '.' });
   }
 
+  @Get('pictures/:image_name')
+  async getPictures(
+    @Param('image_name') filename: string,
+    @Res() res: Response,
+  ) {
+    const filePath = `./assets/${filename}`;
+    res.sendFile(filePath, { root: '.' });
+  }
+
   @Get('chats')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(ErrorCatcherInterceptor)
