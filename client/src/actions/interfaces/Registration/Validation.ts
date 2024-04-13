@@ -41,3 +41,34 @@ export interface FormValidityAction {
     key: string;
   };
 }
+
+export interface TRegistrationError {
+  error_code: string | null;
+}
+
+export interface TRegistrationContext {
+  errorSetter: (e: TRegistrationError | null) => void;
+}
+
+export interface GlobalContent {
+  user: User | Record<string, never>;
+  userSetter: (c: User) => void;
+}
+
+export interface User {
+  id: number;
+  name: string;
+  lastname: string;
+  surname: string;
+  role: "student" | "teacher";
+  email: string;
+  end_semester: number;
+  now_semester: number;
+  department: string;
+  img_hash_name: string;
+}
+
+export interface TUserCheck {
+  user: User;
+  result: boolean;
+}

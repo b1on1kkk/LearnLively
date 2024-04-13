@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import { Dashboard } from "./views/Dashboard/Dashboard";
@@ -14,71 +15,134 @@ import { Registration } from "./views/Registration/Registration";
 import { Login } from "./views/Login/Login";
 import { Signup } from "./views/Signup/Signup";
 
+import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute";
+import { RegistrationGuard } from "./components/RegistrationGuard/RegistrationGuard";
+
+import { MyGlobalContext } from "./context/GlobalContext/globalContext";
+
+import type { User } from "./interfaces/Registration/Validation";
+
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <div>here I'll check if user is logged in or not</div>
-  },
-  {
-    path: "/app",
-    element: <MainApp />,
+    element: (
+      <ProtectedRoute>
+        <MainApp />
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: "dashboard",
-        element: <Dashboard />
+        element: (
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        )
       },
       {
         path: "courses",
-        element: <Courses />
+        element: (
+          <ProtectedRoute>
+            <Courses />
+          </ProtectedRoute>
+        )
       },
       {
         path: "routine",
-        element: <Routine />
+        element: (
+          <ProtectedRoute>
+            <Routine />
+          </ProtectedRoute>
+        )
       },
       {
         path: "exam",
-        element: <Exam />
+        element: (
+          <ProtectedRoute>
+            <Exam />
+          </ProtectedRoute>
+        )
       },
       {
         path: "results",
-        element: <Results />
+        element: (
+          <ProtectedRoute>
+            <Results />
+          </ProtectedRoute>
+        )
       },
       {
         path: "students",
-        element: <Students />
+        element: (
+          <ProtectedRoute>
+            <Students />
+          </ProtectedRoute>
+        )
       },
       {
         path: "message",
-        element: <Message />
+        element: (
+          <ProtectedRoute>
+            <Message />
+          </ProtectedRoute>
+        )
       },
       {
         path: "notice_board",
-        element: <NoticeBoard />
+        element: (
+          <ProtectedRoute>
+            <NoticeBoard />
+          </ProtectedRoute>
+        )
       },
       {
         path: "live_class",
-        element: <LiveClass />
+        element: (
+          <ProtectedRoute>
+            <LiveClass />
+          </ProtectedRoute>
+        )
       }
     ]
   },
   {
     path: "/registration",
-    element: <Registration />,
+    element: (
+      <RegistrationGuard>
+        <Registration />
+      </RegistrationGuard>
+    ),
     children: [
       {
         path: "login",
-        element: <Login />
+        element: (
+          <RegistrationGuard>
+            <Login />
+          </RegistrationGuard>
+        )
       },
       {
         path: "signup",
-        element: <Signup />
+        element: (
+          <RegistrationGuard>
+            <Signup />
+          </RegistrationGuard>
+        )
       }
     ]
   }
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  const [user, userSetter] = useState<User | Record<string, never>>({});
+
+  console.log(user);
+
+  return (
+    <MyGlobalContext.Provider value={{ user, userSetter }}>
+      <RouterProvider router={router} />
+    </MyGlobalContext.Provider>
+  );
 }
 
 export default App;

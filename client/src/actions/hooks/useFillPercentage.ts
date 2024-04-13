@@ -3,7 +3,7 @@ import { percentageCalculator } from "../utils/Registration/percentageCalculator
 
 import type { SignState } from "../interfaces/Registration/Validation";
 
-export const useFillPercentage = (
+const useFillPercentage = (
   state: SignState,
   policy: boolean,
   to_add: number
@@ -16,3 +16,5 @@ export const useFillPercentage = (
 
   return fillPercentage;
 };
+
+export default useFillPercentage;

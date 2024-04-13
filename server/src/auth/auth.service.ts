@@ -38,7 +38,7 @@ export class AuthService {
 
     return this.jwtService.sign(
       { id: user.id },
-      { secret: process.env.JWT_SECRET_KEY, expiresIn: '30s' },
+      { secret: process.env.JWT_SECRET_KEY, expiresIn: '5m' },
     );
   }
 
@@ -102,31 +102,55 @@ export class AuthService {
     );
   }
 
-  // just for testing
-  // async refresh(cookies: { [key: string]: string } | undefined) {
-  //   if (cookies) {
-  //     const keys = Object.keys(cookies);
+  async getUser(cookies: { [key: string]: string } | undefined) {
+    if (cookies) {
+      const keys = Object.keys(cookies);
 
-  //     if (keys.includes('jwt_lg')) {
-  //       const decoded: {
-  //         id: number;
-  //         iat: number;
-  //         exp: number;
-  //       } = this.jwtService.decode(cookies['jwt_lg']);
+      try {
+        if (keys.includes('jwt_lg')) {
+          const decoded: {
+            id: number;
+            iat: number;
+            exp: number;
+          } = this.jwtService.decode(cookies['jwt_lg']);
 
-  //       const refresh_token = await this.prisma.refresh_token.findFirst({
-  //         where: { user_id: decoded.id },
-  //       });
+          const refresh_token = await this.prisma.refresh_token.findFirst({
+            where: { user_id: decoded.id },
+          });
 
-  //       if (refresh_token && refresh_token.refresh_token) {
-  //         return this.jwtService.sign(
-  //           { id: decoded.id },
-  //           { secret: process.env.JWT_SECRET_KEY, expiresIn: '30s' },
-  //         );
-  //       }
-  //     }
-  //   }
+          if (refresh_token) {
+            const user = await this.prisma.users.findFirst({
+              where: { id: refresh_token.user_id },
+              select: {
+                id: true,
+                name: true,
+                lastname: true,
+                surname: true,
+                role: true,
+                email: true,
+                end_semester: true,
+                now_semester: true,
+                department: true,
+                img_hash_name: true,
+              },
+            });
 
-  //   return '';
-  // }
+            return {
+              user: user,
+              new_token: this.jwtService.sign(
+                { id: user.id },
+                { secret: process.env.JWT_SECRET_KEY, expiresIn: '5m' },
+              ),
+            };
+          }
+        }
+
+        return false;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    return false;
+  }
 }

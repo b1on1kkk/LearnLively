@@ -10,7 +10,9 @@ const useStudents = () => {
     queryKey: ["api", "students"],
     queryFn: () =>
       axios
-        .get<Array<Student>>(`${QUERY_ROOT}api/students`)
+        .get<Array<Student>>(`${QUERY_ROOT}api/students`, {
+          withCredentials: true
+        })
         .then((res) => res.data)
   });
 };

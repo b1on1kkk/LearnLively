@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   Post,
   Req,
@@ -16,6 +17,7 @@ import { Response, Request } from 'express';
 import { EmptyTokenGuard } from './guards/empty_token.guard';
 import { SignUpDTO } from './dto/signup_payload.dto';
 import { ErrorCatcherInterceptor } from './interceptors/error_catcher.interceptor';
+
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -63,20 +65,21 @@ export class AuthController {
   }
 
   // just for testing
-  // @Get('refresh')
-  // @UseInterceptors(ErrorCatcherInterceptor)
-  // async refresh(@Req() req: Request, @Res() res: Response) {
-  //   const token = await this.authService.refresh(req.cookies);
+  @HttpCode(200)
+  @Get('user')
+  @UseInterceptors(ErrorCatcherInterceptor)
+  async getUser(@Req() req: Request, @Res() res: Response) {
+    const data = await this.authService.getUser(req.cookies);
 
-  //   if (token) {
-  //     return res
-  //       .cookie('jwt_lg', token, {
-  //         httpOnly: true,
-  //         maxAge: 259200000,
-  //       })
-  //       .json({ text: 'Jwt was refreshed', status: 200 });
-  //   }
+    if (data) {
+      return res
+        .cookie('jwt_lg', data.new_token, {
+          httpOnly: true,
+          maxAge: 259200000,
+        })
+        .json({ user: data.user, result: true });
+    }
 
-  //   throw new HttpException('There is nothing to refresh', 400);
-  // }
+    return res.json({ user: {}, result: false });
+  }
 }

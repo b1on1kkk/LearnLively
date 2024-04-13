@@ -1,39 +1,57 @@
-import { useReducer, useState } from "react";
-import { useFillPercentage } from "../../hooks/useFillPercentage";
-import { useValidityCorrectness } from "../../hooks/useValidityCorrectness";
+import { Link } from "react-router-dom";
+import { useEffect, useReducer, useState } from "react";
 
-import { Button, Input, Progress, Switch } from "@nextui-org/react";
+import { Button, Input, Progress, Spinner, Switch } from "@nextui-org/react";
 import { UserRound, Mail, KeyRound, Eye, EyeOff } from "lucide-react";
+
+import useCreateUser from "../../hooks/useCreateUser";
+import useFillPercentage from "../../hooks/useFillPercentage";
+import useValidityCorrectness from "../../hooks/useValidityCorrectness";
+import useRegistrationContext from "../../hooks/useRegistrationContext";
 
 import { signReducer } from "../../reducers/Registration/registrationReducer";
 import { formValidityReducer } from "../../reducers/Registration/formValidityReducer";
-
-import { Link } from "react-router-dom";
-
-import {
-  SignActionKind,
-  WhatToValidity
-} from "../../interfaces/Registration/Validation";
 
 import {
   FORM_VALIDITY_INITIAL,
   INITIAL_SIGN
 } from "../../constants/Registration/signup";
 
+import {
+  SignActionKind,
+  WhatToValidity
+} from "../../interfaces/Registration/Validation";
+
 export const Signup = () => {
+  const { errorSetter } = useRegistrationContext();
+  const createUser = useCreateUser();
+
   const [isVisible, setIsVisible] = useState<boolean>(true);
+  const [policy, setPolicy] = useState<boolean>(false);
+
+  // validation
   const [state, dispatch] = useReducer(signReducer, INITIAL_SIGN);
   const [formValidity, setFormValidity] = useReducer(
     formValidityReducer,
     FORM_VALIDITY_INITIAL
   );
-  const [policy, setPolicy] = useState<boolean>(false);
 
+  // utils
   const fillPercentage = useFillPercentage(state, policy, 17);
   const validityCorrectness = useValidityCorrectness(formValidity);
 
+  useEffect(() => {
+    if (createUser.error) {
+      errorSetter({
+        error_code: createUser.error.code!
+      });
+      return;
+    }
+    errorSetter(null);
+  }, [createUser.error, errorSetter]);
+
   return (
-    <div className="px-52">
+    <>
       <div className="mb-7">
         <h1 className="font-semibold text-2xl">Register</h1>
       </div>
@@ -41,6 +59,7 @@ export const Signup = () => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          createUser.mutate(state);
         }}
         className="flex flex-col gap-5"
       >
@@ -209,36 +228,44 @@ export const Signup = () => {
 
         <div className="mt-5 mb-5">
           {fillPercentage === 100 && validityCorrectness ? (
-            <Button type="submit" color="secondary">
-              Create Account
+            <Button type="submit" color="secondary" className="min-w-[130px]">
+              {createUser.isPending ? (
+                <Spinner size="sm" />
+              ) : (
+                <span>Create Account</span>
+              )}
             </Button>
           ) : (
             <Progress
               label={
-                fillPercentage === 100 && !validityCorrectness
-                  ? "Check Correctness Of The Data!"
-                  : "Filling Progress Bar"
+                fillPercentage === 100 && !validityCorrectness ? (
+                  <span className="font-semibold text-red-700">
+                    Check Correctness Of The Data!
+                  </span>
+                ) : (
+                  "Filling Progress Bar"
+                )
               }
               classNames={{ label: "text-sm font-semibold", value: "text-sm" }}
               showValueLabel={true}
               value={fillPercentage}
               size="sm"
+              color="secondary"
             />
           )}
         </div>
-
-        <div>
-          <p className="text-center text-gray-600 text-sm font-semibold">
-            Already have an account?{" "}
-            <Link
-              to={"/registration/login"}
-              className="text-indigo-500 underline underline-offset-2"
-            >
-              Login now
-            </Link>
-          </p>
-        </div>
       </form>
-    </div>
+      <div className="mt-12">
+        <p className="text-center text-gray-600 text-sm font-semibold">
+          Already have an account?{" "}
+          <Link
+            to={"/registration/login"}
+            className="text-indigo-500 underline underline-offset-2"
+          >
+            Login now
+          </Link>
+        </p>
+      </div>
+    </>
   );
 };
