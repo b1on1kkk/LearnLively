@@ -1,4 +1,4 @@
-import { useReducer, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 
 import {
   Button,
@@ -29,6 +29,13 @@ export const Header = () => {
       status: false
     }
   });
+
+  // in future build
+  useEffect(() => {
+    if (state.idSorting.status || state.nameSorting.status) {
+      console.log(state);
+    }
+  }, [state]);
 
   return (
     <header className="flex flex-col gap-8">

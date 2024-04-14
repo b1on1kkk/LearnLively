@@ -2,14 +2,13 @@ import { Spinner, Button } from "@nextui-org/react";
 
 import { Plus } from "lucide-react";
 
+import { useStudentsContext } from "../../hooks/useStudentsContext";
+
 import type { TMainStudents } from "../../interfaces/Students/Main";
 
-export const Main = ({
-  students,
-  isLoading,
-  isError,
-  setChosenUser
-}: TMainStudents) => {
+export const Main = ({ students, isLoading, isError }: TMainStudents) => {
+  const { chosenUser, setChosenUser } = useStudentsContext();
+
   return (
     <main className="mt-3 h-full bg-[#050615] rounded-2xl shadow-2xl px-6 mb-3 border-slate-900 border-2 overflow-auto">
       {isLoading && (
@@ -25,7 +24,9 @@ export const Main = ({
               <li className="flex items-center py-1 gap-2" key={idx}>
                 <Button
                   className="text-sm text-slate-500 font-semibold w-full bg-transparent justify-start text-start h-unit-2xl hover:bg-gray-600 hover:text-white flex-1"
-                  onClick={() => setChosenUser(idx)}
+                  onClick={() => {
+                    if (chosenUser !== idx) setChosenUser(idx);
+                  }}
                 >
                   <span className="flex-[2]">
                     {student.name} {student.lastname} {student.surname}

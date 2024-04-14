@@ -15,5 +15,9 @@ export interface TMainStudents {
   isLoading: boolean;
   isError: boolean;
   students: Student[] | undefined;
+}
+
+export interface TStudentsContext {
+  chosenUser: number | null;
   setChosenUser: (c: number) => void;
 }

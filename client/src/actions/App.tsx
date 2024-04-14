@@ -136,8 +136,6 @@ const router = createBrowserRouter([
 function App() {
   const [user, userSetter] = useState<User | Record<string, never>>({});
 
-  console.log(user);
-
   return (
     <MyGlobalContext.Provider value={{ user, userSetter }}>
       <RouterProvider router={router} />
