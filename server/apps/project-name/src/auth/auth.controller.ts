@@ -1,8 +1,8 @@
+import { Response, Request } from 'express';
 import {
   Body,
   Controller,
   Delete,
-  Get,
   HttpCode,
   Post,
   Req,
@@ -10,13 +10,15 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { LoginPayloadDTO } from './dto/login_payload.dto';
+
 import { AuthService } from './auth.service';
 
-import { Response, Request } from 'express';
 import { EmptyTokenGuard } from './guards/empty_token.guard';
-import { SignUpDTO } from './dto/signup_payload.dto';
-import { ErrorCatcherInterceptor } from './interceptors/error_catcher.interceptor';
+
+import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.interceptor';
+
+import type { LoginPayloadDTO } from './dto/login_payload.dto';
+import type { SignUpDTO } from './dto/signup_payload.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -62,24 +64,5 @@ export class AuthController {
         secure: true,
       })
       .json(await this.authService.logout(req.cookies));
-  }
-
-  // just for testing
-  @HttpCode(200)
-  @Get('user')
-  @UseInterceptors(ErrorCatcherInterceptor)
-  async getUser(@Req() req: Request, @Res() res: Response) {
-    const data = await this.authService.getUser(req.cookies);
-
-    if (data) {
-      return res
-        .cookie('jwt_lg', data.new_token, {
-          httpOnly: true,
-          maxAge: 259200000,
-        })
-        .json({ user: data.user, result: true });
-    }
-
-    return res.json({ user: {}, result: false });
   }
 }

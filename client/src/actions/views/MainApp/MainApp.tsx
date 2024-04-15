@@ -1,3 +1,5 @@
+import useGlobalContext from "../../hooks/useGlobalContext";
+
 import { Outlet } from "react-router";
 
 import { Header } from "../../components/NavigationComp/Header";
@@ -5,11 +7,22 @@ import { Main } from "../../components/NavigationComp/Main";
 import { Navigation } from "../../components/NavigationComp/Navigation";
 
 export const MainApp = () => {
+  const { asideMenuResize } = useGlobalContext();
+
   return (
     <main className="flex h-screen">
       {/* aside navigation tab */}
-      <aside className="w-[280px] border-r-2 border-slate-900">
-        <div className="h-full p-7 flex flex-col">
+      <aside
+        className={`
+        w-[${
+          asideMenuResize ? 60 : 280
+        }px] border-r-2 border-slate-900 overflow-hidden transition-width duration-150`}
+      >
+        <div
+          className={`h-full ${
+            !asideMenuResize ? "p-7" : "py-7"
+          } flex flex-col`}
+        >
           {/* header with label and hamburger */}
           <Header />
 

@@ -4,6 +4,8 @@ import { Injectable } from '@nestjs/common';
 export class SharedService {
   private new_cookie: string;
 
+  constructor() {}
+
   setCookie(cookie: string) {
     this.new_cookie = cookie;
   }

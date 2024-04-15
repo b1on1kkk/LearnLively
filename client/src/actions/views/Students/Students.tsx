@@ -1,6 +1,7 @@
 import { useState } from "react";
-
 import useStudents from "../../hooks/useStudents";
+
+import { UserSearch } from "lucide-react";
 
 import { Header } from "../../components/StudentsComp/Header";
 import { Main } from "../../components/StudentsComp/Main";
@@ -10,10 +11,9 @@ import { AsideUserButtons } from "../../components/StudentsComp/AsideUserButtons
 import { AsideAcademicInfo } from "../../components/StudentsComp/AsideAcademicInfo";
 import { AsideFooter } from "../../components/StudentsComp/AsideFooter";
 
-import { QUERY_ROOT } from "../../constants/Query/query";
-
-import { UserSearch } from "lucide-react";
 import { StudentsContext } from "../../context/Students/StudentsContext";
+
+import { QUERY_ROOT } from "../../constants/Query/query";
 
 export const Students = () => {
   const { data: students, isError, isLoading } = useStudents();
@@ -35,7 +35,7 @@ export const Students = () => {
         </div>
 
         {/* aside menu about each user */}
-        <div className="z-10 flex-1 bg-[#050615] rounded-2xl shadow-2xl border-2 border-slate-900 p-5 flex flex-col min-w-72">
+        <div className="z-10 flex-1 bg-[#050615] rounded-2xl shadow-2xl border-2 border-slate-900 p-5 flex flex-col max-w-72">
           {chosenUser !== null && students ? (
             <>
               {/* image and name */}

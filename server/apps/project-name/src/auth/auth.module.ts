@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { JwtModule, JwtService } from '@nestjs/jwt';
-import { PrismaClient } from '@prisma/client';
+import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { EmptyTokenGuard } from './guards/empty_token.guard';
-import { ErrorCatcherInterceptor } from './interceptors/error_catcher.interceptor';
-import { SharedService } from 'src/api/helpers/SharedService.helper';
+import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.interceptor';
+import { SharedModule } from '@sharedService/shared';
+import { PrismaModule } from '@prismaORM/prisma';
 
 @Module({
   imports: [
@@ -14,16 +14,11 @@ import { SharedService } from 'src/api/helpers/SharedService.helper';
     JwtModule.register({
       secret: process.env.JWT_SECRET_KEY,
     }),
+    SharedModule,
+    PrismaModule,
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    PrismaClient,
-    EmptyTokenGuard,
-    ErrorCatcherInterceptor,
-    JwtService,
-    SharedService,
-  ],
+  providers: [AuthService, EmptyTokenGuard, ErrorCatcherInterceptor],
   exports: [],
 })
 export class AuthModule {}

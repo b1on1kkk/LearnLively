@@ -135,9 +135,12 @@ const router = createBrowserRouter([
 
 function App() {
   const [user, userSetter] = useState<User | Record<string, never>>({});
+  const [asideMenuResize, setAsideMenuResize] = useState<boolean>(false);
 
   return (
-    <MyGlobalContext.Provider value={{ user, userSetter }}>
+    <MyGlobalContext.Provider
+      value={{ user, asideMenuResize, userSetter, setAsideMenuResize }}
+    >
       <RouterProvider router={router} />
     </MyGlobalContext.Provider>
   );

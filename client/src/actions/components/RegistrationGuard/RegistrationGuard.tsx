@@ -7,6 +7,7 @@ import { Loading } from "../../views/Loading/Loading";
 
 export const RegistrationGuard = ({ children }: { children: ReactElement }) => {
   const { user, userSetter } = useGlobalContext();
+
   const { isError, isLoading } = useCheckUserAuth(userSetter);
 
   if (isLoading) return <Loading></Loading>;

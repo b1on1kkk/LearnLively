@@ -1,4 +1,4 @@
-import { Spinner, Button } from "@nextui-org/react";
+import { Spinner, Button, Tooltip } from "@nextui-org/react";
 
 import { Plus } from "lucide-react";
 
@@ -38,9 +38,20 @@ export const Main = ({ students, isLoading, isError }: TMainStudents) => {
                   </span>
                   <span>{student.department}</span>
                 </Button>
-                <Button className="min-w-0 p-0 px-2.5 bg-transparent hover:bg-green-500 text-slate-500 hover:text-white">
-                  <Plus width={20} height={20}></Plus>
-                </Button>
+                <Tooltip
+                  placement="right"
+                  content="Add to friends list"
+                  delay={0}
+                  closeDelay={0}
+                  classNames={{
+                    content:
+                      "bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90%"
+                  }}
+                >
+                  <Button className="min-w-0 p-0 px-2.5 bg-transparent hover:bg-green-500 text-slate-500 hover:text-white">
+                    <Plus width={20} height={20}></Plus>
+                  </Button>
+                </Tooltip>
               </li>
             );
           })}

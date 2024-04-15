@@ -51,8 +51,10 @@ export interface TRegistrationContext {
 }
 
 export interface GlobalContent {
+  asideMenuResize: boolean;
   user: User | Record<string, never>;
   userSetter: (c: User) => void;
+  setAsideMenuResize: (c: boolean) => void;
 }
 
 export interface User {

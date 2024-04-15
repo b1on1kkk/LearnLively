@@ -10,7 +10,7 @@ const useCheckUserAuth = (userSetter: (c: User) => void) => {
     queryKey: ["auth", "user_check"],
     queryFn: () =>
       axios
-        .get(`${QUERY_ROOT}auth/user`, { withCredentials: true })
+        .get(`${QUERY_ROOT}api/user`, { withCredentials: true })
         .then((res) => {
           userSetter(res.data.user);
           return res.data;

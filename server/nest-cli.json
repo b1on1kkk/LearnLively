@@ -1,8 +1,77 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src",
+  "sourceRoot": "apps/project-name/src",
   "compilerOptions": {
-    "deleteOutDir": true
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/project-name/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/project-name",
+  "projects": {
+    "project-name": {
+      "type": "application",
+      "root": "apps/project-name",
+      "entryFile": "main",
+      "sourceRoot": "apps/project-name/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/project-name/tsconfig.app.json"
+      }
+    },
+    "websocket-server": {
+      "type": "application",
+      "root": "apps/websocket-server",
+      "entryFile": "main",
+      "sourceRoot": "apps/websocket-server/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/websocket-server/tsconfig.app.json"
+      }
+    },
+    "jwt-auth-guard": {
+      "type": "library",
+      "root": "libs/jwt-auth-guard",
+      "entryFile": "index",
+      "sourceRoot": "libs/jwt-auth-guard/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/jwt-auth-guard/tsconfig.lib.json"
+      }
+    },
+    "error-catcher": {
+      "type": "library",
+      "root": "libs/error-catcher",
+      "entryFile": "index",
+      "sourceRoot": "libs/error-catcher/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/error-catcher/tsconfig.lib.json"
+      }
+    },
+    "shared-service": {
+      "type": "library",
+      "root": "libs/shared-service",
+      "entryFile": "index",
+      "sourceRoot": "libs/shared-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/shared-service/tsconfig.lib.json"
+      }
+    },
+    "shared": {
+      "type": "library",
+      "root": "libs/shared",
+      "entryFile": "index",
+      "sourceRoot": "libs/shared/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/shared/tsconfig.lib.json"
+      }
+    },
+    "prisma": {
+      "type": "library",
+      "root": "libs/prisma",
+      "entryFile": "index",
+      "sourceRoot": "libs/prisma/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/prisma/tsconfig.lib.json"
+      }
+    }
   }
 }

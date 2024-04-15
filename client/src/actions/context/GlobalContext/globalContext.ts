@@ -4,5 +4,7 @@ import type { GlobalContent } from "../../interfaces/Registration/Validation";
 
 export const MyGlobalContext = createContext<GlobalContent>({
   user: {},
-  userSetter: () => {}
+  asideMenuResize: false,
+  userSetter: () => {},
+  setAsideMenuResize: () => {}
 });
