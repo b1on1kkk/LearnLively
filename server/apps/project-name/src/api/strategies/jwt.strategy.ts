@@ -29,6 +29,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: Request) {
     try {
       if (Object.keys(payload.cookies).includes('jwt_lg')) {
+        if (
+          this.sharedService.cookieExpirationChecker(payload.cookies['jwt_lg'])
+        ) {
+          this.sharedService.setCookie(payload.cookies['jwt_lg']);
+
+          return payload;
+        }
+
         const decoded = this.jwtService.decode(payload.cookies['jwt_lg']);
 
         const refresh_token_data = await this.prisma.refresh_token.findFirst({

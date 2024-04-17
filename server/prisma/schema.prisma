@@ -25,12 +25,13 @@ model chats {
 }
 
 model friends {
-  id                             Int      @id @default(autoincrement())
+  id                             Int           @id @default(autoincrement())
   user_id                        Int
   friend_id                      Int
-  created_at                     DateTime @db.Timestamp(6)
-  users_friends_friend_idTousers users    @relation("friends_friend_idTousers", fields: [friend_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users_friends_user_idTousers   users    @relation("friends_user_idTousers", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  status                         friend_status
+  created_at                     DateTime      @db.Timestamp(6)
+  users_friends_friend_idTousers users         @relation("friends_friend_idTousers", fields: [friend_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_friends_user_idTousers   users         @relation("friends_user_idTousers", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model group_messages {
@@ -90,4 +91,10 @@ model refresh_token {
 enum roles {
   student
   teacher
+}
+
+enum friend_status {
+  pending
+  accepted
+  rejected
 }

@@ -1,9 +1,12 @@
 import { Request, Response } from 'express';
 import {
+  Body,
   Controller,
   Get,
+  HttpCode,
   NotFoundException,
   Param,
+  Post,
   Req,
   Res,
   UseGuards,
@@ -20,6 +23,7 @@ import { SharedService } from '@sharedService/shared/shared.service';
 import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.interceptor';
 
 import type { EncodedJwt } from './interfaces/encoded_jwt.interface';
+import type { FriendRequestDTO } from './interfaces/friendRequest.interface';
 
 @Controller('api')
 export class ApiController {
@@ -40,7 +44,7 @@ export class ApiController {
 
     if (data) {
       return res
-        .cookie('jwt_lg', data.new_token, {
+        .cookie('jwt_lg', data.token, {
           httpOnly: true,
           maxAge: 259200000,
         })
@@ -101,5 +105,18 @@ export class ApiController {
         maxAge: 259200000,
       })
       .json(await this.apiService.getStudents(encoded_values.id));
+  }
+
+  /////////////////////////POST/////////////////////////
+
+  @HttpCode(200)
+  @Post('friend_request')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(ErrorCatcherInterceptor)
+  async sendFriendRequest(
+    @Body() student: FriendRequestDTO,
+    @Res() res: Response,
+  ) {
+    return res.json(await this.apiService.sendFriendRequest(student));
   }
 }

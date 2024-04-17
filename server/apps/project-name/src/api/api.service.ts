@@ -3,11 +3,15 @@ import { JwtService } from '@nestjs/jwt';
 
 import { PrismaService } from '@prismaORM/prisma';
 
+import type { FriendRequestDTO } from './interfaces/friendRequest.interface';
+import { SharedService } from '@sharedService/shared';
+
 @Injectable()
 export class ApiService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly sharedService: SharedService,
   ) {}
 
   async getUser(cookies: { [key: string]: string } | undefined) {
@@ -27,7 +31,10 @@ export class ApiService {
 
         if (refresh_token) {
           const user = await this.prisma.users.findFirst({
-            where: { id: refresh_token.user_id },
+            where: {
+              id: refresh_token.user_id,
+              role: 'student',
+            },
             select: {
               id: true,
               name: true,
@@ -39,12 +46,48 @@ export class ApiService {
               now_semester: true,
               department: true,
               img_hash_name: true,
+              created_at: true,
+              friends_friends_user_idTousers: {
+                where: {
+                  OR: [
+                    { user_id: refresh_token.user_id },
+                    { friend_id: refresh_token.user_id },
+                  ],
+                },
+                select: {
+                  status: true,
+                  friend_id: true,
+                  user_id: true,
+                },
+              },
+              friends_friends_friend_idTousers: {
+                where: {
+                  OR: [
+                    { user_id: refresh_token.user_id },
+                    { friend_id: refresh_token.user_id },
+                  ],
+                },
+                select: {
+                  status: true,
+                  friend_id: true,
+                  user_id: true,
+                },
+              },
             },
           });
 
+          // if cookie is still alive - do not generate new, just return old alive one
+          if (this.sharedService.cookieExpirationChecker(cookies['jwt_lg'])) {
+            return {
+              user: user,
+              token: cookies['jwt_lg'],
+            };
+          }
+
+          // in other cases - generate new and return new one
           return {
             user: user,
-            new_token: this.jwtService.sign(
+            token: this.jwtService.sign(
               { id: user.id },
               { secret: process.env.JWT_SECRET_KEY, expiresIn: '5m' },
             ),
@@ -59,7 +102,7 @@ export class ApiService {
   }
 
   async getStudents(user_id: number) {
-    const students = await this.prisma.users.findMany({
+    return await this.prisma.users.findMany({
       where: {
         id: {
           not: user_id,
@@ -78,31 +121,62 @@ export class ApiService {
         department: true,
         img_hash_name: true,
         created_at: true,
-        _count: {
+        friends_friends_friend_idTousers: {
+          where: {
+            OR: [{ user_id: user_id }, { friend_id: user_id }],
+          },
           select: {
-            friends_friends_friend_idTousers: {
-              where: {
-                user_id: user_id,
-              },
-            },
-            friends_friends_user_idTousers: {
-              where: {
-                friend_id: user_id,
-              },
-            },
+            status: true,
+            friend_id: true,
+            user_id: true,
+          },
+        },
+        friends_friends_user_idTousers: {
+          where: {
+            OR: [{ user_id: user_id }, { friend_id: user_id }],
+          },
+          select: {
+            status: true,
+            friend_id: true,
+            user_id: true,
           },
         },
       },
     });
 
-    const formattedStudents = students.map((student) => ({
-      ...student,
-      isFriend:
-        student._count.friends_friends_friend_idTousers +
-          student._count.friends_friends_user_idTousers >
-        0,
-    }));
+    // return await this.prisma.users.findMany({
+    //   where: {
+    //     id: {
+    //       not: user_id,
+    //     },
+    //     role: 'student',
+    //   },
+    //   select: {
+    //     id: true,
+    //     name: true,
+    //     lastname: true,
+    //     surname: true,
+    //     role: true,
+    //     email: true,
+    //     end_semester: true,
+    //     now_semester: true,
+    //     department: true,
+    //     img_hash_name: true,
+    //     created_at: true,
+    //   },
+    // });
+  }
 
-    return formattedStudents;
+  async sendFriendRequest(student: FriendRequestDTO) {
+    await this.prisma.friends.create({
+      data: {
+        user_id: student.sender_id,
+        friend_id: student.recipient,
+        status: 'pending',
+        created_at: new Date(),
+      },
+    });
+
+    return await this.getStudents(student.sender_id);
   }
 }

@@ -1,4 +1,4 @@
-import useGlobalContext from "../../hooks/useGlobalContext";
+import useConnectSocket from "../../hooks/useConnectSocket";
 
 import { Outlet } from "react-router";
 
@@ -7,22 +7,14 @@ import { Main } from "../../components/NavigationComp/Main";
 import { Navigation } from "../../components/NavigationComp/Navigation";
 
 export const MainApp = () => {
-  const { asideMenuResize } = useGlobalContext();
+  // create socket connection only when user is logged in
+  const { socket } = useConnectSocket("http://localhost:3001/");
 
   return (
     <main className="flex h-screen">
       {/* aside navigation tab */}
-      <aside
-        className={`
-        w-[${
-          asideMenuResize ? 60 : 280
-        }px] border-r-2 border-slate-900 overflow-hidden transition-width duration-150`}
-      >
-        <div
-          className={`h-full ${
-            !asideMenuResize ? "p-7" : "py-7"
-          } flex flex-col`}
-        >
+      <aside className="border-r-2 border-slate-900 overflow-hidden transition-width duration-150">
+        <div className="h-full p-7 flex flex-col">
           {/* header with label and hamburger */}
           <Header />
 

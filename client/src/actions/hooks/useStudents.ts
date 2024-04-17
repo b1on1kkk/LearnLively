@@ -13,7 +13,8 @@ const useStudents = () => {
         .get<Array<Student>>(`${QUERY_ROOT}api/students`, {
           withCredentials: true
         })
-        .then((res) => res.data)
+        .then((res) => res.data),
+    refetchOnWindowFocus: false
   });
 };
 

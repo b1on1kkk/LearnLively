@@ -20,7 +20,7 @@ import { RegistrationGuard } from "./components/RegistrationGuard/RegistrationGu
 
 import { MyGlobalContext } from "./context/GlobalContext/globalContext";
 
-import type { User } from "./interfaces/Registration/Validation";
+import type { Student } from "./interfaces/Students/Main";
 
 const router = createBrowserRouter([
   {
@@ -134,13 +134,10 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  const [user, userSetter] = useState<User | Record<string, never>>({});
-  const [asideMenuResize, setAsideMenuResize] = useState<boolean>(false);
+  const [user, userSetter] = useState<Student | Record<string, never>>({});
 
   return (
-    <MyGlobalContext.Provider
-      value={{ user, asideMenuResize, userSetter, setAsideMenuResize }}
-    >
+    <MyGlobalContext.Provider value={{ user, userSetter }}>
       <RouterProvider router={router} />
     </MyGlobalContext.Provider>
   );

@@ -1,3 +1,5 @@
+import { Student } from "../Students/Main";
+
 export enum SignActionKind {
   NAME = "NAME",
   LASTNAME = "LASTNAME",
@@ -51,10 +53,8 @@ export interface TRegistrationContext {
 }
 
 export interface GlobalContent {
-  asideMenuResize: boolean;
-  user: User | Record<string, never>;
-  userSetter: (c: User) => void;
-  setAsideMenuResize: (c: boolean) => void;
+  user: Student | Record<string, never>;
+  userSetter: (c: Student) => void;
 }
 
 export interface User {
@@ -71,6 +71,6 @@ export interface User {
 }
 
 export interface TUserCheck {
-  user: User;
+  user: Student;
   result: boolean;
 }
