@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import { percentageCalculator } from "../utils/Registration/percentageCalculator";
 
 import type { SignState } from "../interfaces/Registration/Validation";

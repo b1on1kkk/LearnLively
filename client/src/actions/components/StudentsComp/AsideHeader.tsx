@@ -1,8 +1,6 @@
 import { Image } from "@nextui-org/react";
 import type { TAsideHeader } from "../../interfaces/Students/Aside";
 
-// "http://localhost:3000/api/avatars/_29ae5d7d-5ce6-479e-b750-7aee6db7870e.jpg"
-
 export const AsideHeader = ({
   image_link,
   name,

@@ -1,13 +1,7 @@
 import { Button } from "@nextui-org/react";
-
 import { ArrowDownZa, ArrowUpZa, UserRound } from "lucide-react";
 
-interface THeaderFilterButton {
-  value: string;
-  status: boolean;
-  title: string;
-  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
-}
+import type { THeaderFilterButton } from "../../interfaces/Students/SortReducer";
 
 export const HeaderFilterButton = ({
   onClick,

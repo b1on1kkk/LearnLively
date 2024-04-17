@@ -19,8 +19,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute";
 import { RegistrationGuard } from "./components/RegistrationGuard/RegistrationGuard";
 
 import { MyGlobalContext } from "./context/GlobalContext/globalContext";
-
-import type { Student } from "./interfaces/Students/Main";
+import type { User } from "./interfaces/Registration/Validation";
 
 const router = createBrowserRouter([
   {
@@ -134,7 +133,7 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  const [user, userSetter] = useState<Student | Record<string, never>>({});
+  const [user, userSetter] = useState<User | null>(null);
 
   return (
     <MyGlobalContext.Provider value={{ user, userSetter }}>

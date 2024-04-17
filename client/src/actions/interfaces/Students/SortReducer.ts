@@ -47,3 +47,10 @@ export interface TDropdownFilter {
   startContent: ReactElement;
   text: string;
 }
+
+export interface THeaderFilterButton {
+  value: string;
+  status: boolean;
+  title: string;
+  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+}

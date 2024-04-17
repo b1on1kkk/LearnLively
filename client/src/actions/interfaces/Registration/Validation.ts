@@ -1,5 +1,3 @@
-import { Student } from "../Students/Main";
-
 export enum SignActionKind {
   NAME = "NAME",
   LASTNAME = "LASTNAME",
@@ -53,8 +51,17 @@ export interface TRegistrationContext {
 }
 
 export interface GlobalContent {
-  user: Student | Record<string, never>;
-  userSetter: (c: Student) => void;
+  user: User | null;
+  userSetter: (c: User | null) => void;
+}
+
+interface RequestsSendedByUser {
+  friend_id: number;
+  status: "pending" | "rejected" | "accepted";
+}
+interface RequestsSendedToUser {
+  user_id: number;
+  status: "pending" | "rejected" | "accepted";
 }
 
 export interface User {
@@ -64,13 +71,12 @@ export interface User {
   surname: string;
   role: "student" | "teacher";
   email: string;
-  end_semester: number;
-  now_semester: number;
-  department: string;
   img_hash_name: string;
+  friends_friends_friend_idTousers: RequestsSendedToUser[];
+  friends_friends_user_idTousers: RequestsSendedByUser[];
 }
 
 export interface TUserCheck {
-  user: Student;
+  user: User | null;
   result: boolean;
 }

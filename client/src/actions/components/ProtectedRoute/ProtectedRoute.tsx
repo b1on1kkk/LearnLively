@@ -1,25 +1,21 @@
 import { ReactElement } from "react";
 import { Navigate } from "react-router-dom";
 
-import { Loading } from "../../views/Loading/Loading";
-
 import useCheckUserAuth from "../../hooks/useCheckUserAuth";
 import useGlobalContext from "../../hooks/useGlobalContext";
 
+import { Loading } from "../../views/Loading/Loading";
+
 export const ProtectedRoute = ({ children }: { children: ReactElement }) => {
-  const { user, userSetter } = useGlobalContext();
+  const { userSetter } = useGlobalContext();
+  const { data, isError, isLoading } = useCheckUserAuth(userSetter);
 
-  const userValues = Object.values(user).length;
+  if (isLoading) return <Loading></Loading>;
 
-  if (userValues === 0) {
-    const { isError, isLoading } = useCheckUserAuth(userSetter);
+  if (isError) return <Navigate to="/registration/login" replace />;
 
-    if (isLoading) return <Loading></Loading>;
+  if (data && data!.result) return children;
 
-    if (isError) return <Navigate to="/registration/login" replace />;
-  }
-
-  if (userValues > 0) return children;
-
-  return <Navigate to="/registration/login" replace />;
+  if (data && !data.result)
+    return <Navigate to="/registration/login" replace />;
 };

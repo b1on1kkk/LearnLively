@@ -29,7 +29,7 @@ export const HEADER: Array<THeader> = [
   },
   {
     id: 3,
-    className: "flex-[2] flex items-center gap-1 text-slate-400 font-semibold",
+    className: "flex-[3] flex items-center gap-1 text-slate-400 font-semibold",
     filter: "none",
     title: "semester",
     icon: <GraduationCap width={16} height={16} />

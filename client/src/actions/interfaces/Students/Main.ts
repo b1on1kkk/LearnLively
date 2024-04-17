@@ -1,8 +1,5 @@
-export interface UserFriend {
-  status: "pending" | "rejected" | "accepted";
-  user_id: number;
-  friend_id: number;
-}
+import { TooltipProps } from "@nextui-org/react";
+import { ReactElement } from "react";
 
 export interface Student {
   id: number;
@@ -15,17 +12,22 @@ export interface Student {
   now_semester: number;
   department: string;
   img_hash_name: string;
-  friends_friends_friend_idTousers: UserFriend[];
-  friends_friends_user_idTousers: UserFriend[];
+  created_at: Date;
 }
 
 export interface TMainStudents {
   isLoading: boolean;
   isError: boolean;
-  students: Student[] | null;
+  students: Student[] | undefined;
 }
 
 export interface TStudentsContext {
   chosenUser: number | null;
   setChosenUser: (c: number) => void;
+}
+
+export interface TRequestsButton extends TooltipProps {
+  onClick: () => void;
+  status: "accept" | "reject";
+  image: ReactElement;
 }

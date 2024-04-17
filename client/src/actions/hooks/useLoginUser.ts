@@ -1,8 +1,10 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
-import { SignState } from "../interfaces/Registration/Validation";
-import { QUERY_ROOT } from "../constants/Query/query";
 import { useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+import { QUERY_ROOT } from "../constants/Query/query";
+
+import type { SignState } from "../interfaces/Registration/Validation";
 
 const useLoginUser = () => {
   const queryClient = useQueryClient();

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import useStudents from "../../hooks/useStudents";
 
 import { UserSearch } from "lucide-react";
@@ -14,20 +14,10 @@ import { AsideFooter } from "../../components/StudentsComp/AsideFooter";
 import { StudentsContext } from "../../context/Students/StudentsContext";
 
 import { QUERY_ROOT } from "../../constants/Query/query";
-import { Button } from "@nextui-org/react";
-import { Student } from "../../interfaces/Students/Main";
 
 export const Students = () => {
-  const { data, isError, isLoading, refetch } = useStudents();
+  const { data: students, isError, isLoading } = useStudents();
   const [chosenUser, setChosenUser] = useState<null | number>(null);
-
-  const [students, setStudents] = useState<Student[] | null>(null);
-
-  useEffect(() => {
-    if (data) {
-      setStudents([...data]);
-    }
-  }, [data, refetch]);
 
   return (
     <div className="flex h-screen relative px-8 pb-6 pt-12 gap-8">
@@ -43,8 +33,6 @@ export const Students = () => {
           {/* pagination */}
           <Footer />
         </div>
-
-        <Button onClick={() => refetch()}>123</Button>
 
         {/* aside menu about each user */}
         <div className="z-10 flex-1 bg-[#050615] rounded-2xl shadow-2xl border-2 border-slate-900 p-5 flex flex-col max-w-72">

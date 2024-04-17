@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { PrismaService } from '@prismaORM/prisma';
@@ -30,47 +30,35 @@ export class ApiService {
         });
 
         if (refresh_token) {
-          const user = await this.prisma.users.findFirst({
+          const user = await this.prisma.users.findUnique({
             where: {
-              id: refresh_token.user_id,
-              role: 'student',
+              id: decoded.id,
             },
             select: {
               id: true,
               name: true,
               lastname: true,
+              email: true,
               surname: true,
               role: true,
-              email: true,
-              end_semester: true,
-              now_semester: true,
-              department: true,
-              img_hash_name: true,
-              created_at: true,
-              friends_friends_user_idTousers: {
+              friends_friends_friend_idTousers: {
+                // incoming friend requests
                 where: {
-                  OR: [
-                    { user_id: refresh_token.user_id },
-                    { friend_id: refresh_token.user_id },
-                  ],
+                  status: 'pending',
                 },
                 select: {
-                  status: true,
-                  friend_id: true,
                   user_id: true,
+                  status: true,
                 },
               },
-              friends_friends_friend_idTousers: {
+              friends_friends_user_idTousers: {
+                // outgoing friend requests
                 where: {
-                  OR: [
-                    { user_id: refresh_token.user_id },
-                    { friend_id: refresh_token.user_id },
-                  ],
+                  status: 'pending',
                 },
                 select: {
-                  status: true,
                   friend_id: true,
-                  user_id: true,
+                  status: true,
                 },
               },
             },
@@ -102,81 +90,53 @@ export class ApiService {
   }
 
   async getStudents(user_id: number) {
-    return await this.prisma.users.findMany({
-      where: {
-        id: {
-          not: user_id,
+    try {
+      return await this.prisma.users.findMany({
+        where: {
+          id: {
+            not: user_id,
+          },
+          role: 'student',
         },
-        role: 'student',
-      },
-      select: {
-        id: true,
-        name: true,
-        lastname: true,
-        surname: true,
-        role: true,
-        email: true,
-        end_semester: true,
-        now_semester: true,
-        department: true,
-        img_hash_name: true,
-        created_at: true,
-        friends_friends_friend_idTousers: {
-          where: {
-            OR: [{ user_id: user_id }, { friend_id: user_id }],
-          },
-          select: {
-            status: true,
-            friend_id: true,
-            user_id: true,
-          },
+        select: {
+          id: true,
+          name: true,
+          lastname: true,
+          surname: true,
+          role: true,
+          email: true,
+          end_semester: true,
+          now_semester: true,
+          department: true,
+          img_hash_name: true,
+          created_at: true,
         },
-        friends_friends_user_idTousers: {
-          where: {
-            OR: [{ user_id: user_id }, { friend_id: user_id }],
-          },
-          select: {
-            status: true,
-            friend_id: true,
-            user_id: true,
-          },
-        },
-      },
-    });
-
-    // return await this.prisma.users.findMany({
-    //   where: {
-    //     id: {
-    //       not: user_id,
-    //     },
-    //     role: 'student',
-    //   },
-    //   select: {
-    //     id: true,
-    //     name: true,
-    //     lastname: true,
-    //     surname: true,
-    //     role: true,
-    //     email: true,
-    //     end_semester: true,
-    //     now_semester: true,
-    //     department: true,
-    //     img_hash_name: true,
-    //     created_at: true,
-    //   },
-    // });
+      });
+    } catch (error) {
+      throw new HttpException(
+        'Something goes wrong :(',
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
   }
 
   async sendFriendRequest(student: FriendRequestDTO) {
-    await this.prisma.friends.create({
-      data: {
-        user_id: student.sender_id,
-        friend_id: student.recipient,
-        status: 'pending',
-        created_at: new Date(),
-      },
-    });
+    try {
+      await this.prisma.friends.create({
+        data: {
+          user_id: student.sender_id,
+          friend_id: student.recipient,
+          status: 'pending',
+          created_at: new Date(),
+        },
+      });
 
-    return await this.getStudents(student.sender_id);
+      return { text: 'Friend request send', status: 200 };
+    } catch (error) {
+      throw new HttpException(
+        'Something goes wrong :(',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

@@ -1,8 +1,4 @@
-export interface TAsideAcademicInfo {
-  semester_now: number;
-  semester_end: number;
-  department: string;
-}
+import type { TAsideAcademicInfo } from "../../interfaces/Students/Aside";
 
 export const AsideAcademicInfo = ({
   semester_now,

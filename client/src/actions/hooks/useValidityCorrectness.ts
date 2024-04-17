@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { checkInputValidity } from "../utils/Registration/checkInputValidity";
+
 import type { FormValidityState } from "../interfaces/Registration/Validation";
 
 const useValidityCorrectness = (state: FormValidityState) => {

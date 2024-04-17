@@ -1,7 +1,9 @@
-import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
-import { SignState } from "../interfaces/Registration/Validation";
+import { useMutation } from "@tanstack/react-query";
+
 import { QUERY_ROOT } from "../constants/Query/query";
+
+import type { SignState } from "../interfaces/Registration/Validation";
 
 const useCreateUser = () => {
   return useMutation<null, AxiosError, SignState>({

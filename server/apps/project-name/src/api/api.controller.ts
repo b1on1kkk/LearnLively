@@ -51,7 +51,7 @@ export class ApiController {
         .json({ user: data.user, result: true });
     }
 
-    return res.json({ user: {}, result: false });
+    return res.json({ user: null, result: false });
   }
 
   @Get('avatars/:image_name')
