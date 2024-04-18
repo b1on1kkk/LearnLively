@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { WebsocketServerController } from './websocket-server.controller';
 import { WebsocketServerService } from './websocket-server.service';
-import { SocketService } from '../socket/socket.service';
+import { PrismaModule } from '@prismaORM/prisma';
+import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.interceptor';
 
 @Module({
-  imports: [],
+  imports: [PrismaModule],
   controllers: [WebsocketServerController],
-  providers: [WebsocketServerService, SocketService],
+  providers: [WebsocketServerService, ErrorCatcherInterceptor],
 })
 export class WebsocketServerModule {}

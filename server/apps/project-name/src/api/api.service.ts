@@ -3,7 +3,6 @@ import { JwtService } from '@nestjs/jwt';
 
 import { PrismaService } from '@prismaORM/prisma';
 
-import type { FriendRequestDTO } from './interfaces/friendRequest.interface';
 import { SharedService } from '@sharedService/shared';
 
 @Injectable()
@@ -116,26 +115,6 @@ export class ApiService {
       throw new HttpException(
         'Something goes wrong :(',
         HttpStatus.BAD_GATEWAY,
-      );
-    }
-  }
-
-  async sendFriendRequest(student: FriendRequestDTO) {
-    try {
-      await this.prisma.friends.create({
-        data: {
-          user_id: student.sender_id,
-          friend_id: student.recipient,
-          status: 'pending',
-          created_at: new Date(),
-        },
-      });
-
-      return { text: 'Friend request send', status: 200 };
-    } catch (error) {
-      throw new HttpException(
-        'Something goes wrong :(',
-        HttpStatus.BAD_REQUEST,
       );
     }
   }

@@ -4,7 +4,7 @@ import { Outlet, useLocation, Link } from "react-router-dom";
 
 import { ShieldAlert } from "lucide-react";
 
-import { RegistrationContext } from "../../context/Registration/registrationContext";
+import { RegistrationContext } from "../../context/RegistrationContext/registrationContext";
 
 import { QUERY_ROOT } from "../../constants/Query/query";
 

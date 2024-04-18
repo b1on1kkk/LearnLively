@@ -1,17 +1,23 @@
 import useGlobalContext from "../../hooks/useGlobalContext";
 import useStudentsContext from "../../hooks/useStudentsContext";
-import useSendFriendRequest from "../../hooks/useSendFriendRequest";
 
 import { RequestsButton } from "./RequestsButton";
 import { Spinner, Button } from "@nextui-org/react";
 import { Plus, CircleCheckBig, UserRoundPlus, UserRoundX } from "lucide-react";
 
 import type { TMainStudents } from "../../interfaces/Students/Main";
+import { useSocketContext } from "../../hooks/useSocketContext";
+import { useEffect } from "react";
 
 export const Main = ({ students, isLoading, isError }: TMainStudents) => {
   const { chosenUser, setChosenUser } = useStudentsContext();
-  const { user } = useGlobalContext();
-  const { mutate } = useSendFriendRequest();
+  const { user, userSetter } = useGlobalContext();
+  const { socket } = useSocketContext();
+
+  // listen if new data comes
+  useEffect(() => {
+    socket?.getNewUser(userSetter);
+  }, [socket]);
 
   return (
     <main className="mt-3 h-full bg-[#050615] rounded-2xl shadow-2xl px-6 mb-3 border-slate-900 border-2 overflow-auto">
@@ -84,11 +90,16 @@ export const Main = ({ students, isLoading, isError }: TMainStudents) => {
                               content="Send friend request"
                               status="accept"
                               image={<Plus width={20} height={20} />}
-                              onClick={async () => {
-                                await mutate({
+                              onClick={() => {
+                                socket?.sendFriendRequest({
                                   sender_id: user.id,
                                   recipient: student.id
                                 });
+
+                                //  mutate({
+                                //   sender_id: user.id,
+                                //   recipient: student.id
+                                // });
                               }}
                             />
                           )}
@@ -101,8 +112,8 @@ export const Main = ({ students, isLoading, isError }: TMainStudents) => {
                       content="Send friend request"
                       status="accept"
                       image={<Plus width={20} height={20} />}
-                      onClick={async () => {
-                        await mutate({
+                      onClick={() => {
+                        socket?.sendFriendRequest({
                           sender_id: user.id,
                           recipient: student.id
                         });

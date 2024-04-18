@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 
 import { SocketAPI } from "../api/socket-api";
+import { User } from "../interfaces/Registration/Validation";
 
-const useConnectSocket = (url: string) => {
+const useConnectSocket = (url: string, user: User | null) => {
   const [socket, setSocket] = useState<SocketAPI | null>(null);
 
   const connectSocket = () => {
-    if (!socket) {
+    if (!socket && user) {
       setSocket(new SocketAPI(url));
     }
   };

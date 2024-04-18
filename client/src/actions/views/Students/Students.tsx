@@ -11,7 +11,7 @@ import { AsideUserButtons } from "../../components/StudentsComp/AsideUserButtons
 import { AsideAcademicInfo } from "../../components/StudentsComp/AsideAcademicInfo";
 import { AsideFooter } from "../../components/StudentsComp/AsideFooter";
 
-import { StudentsContext } from "../../context/Students/StudentsContext";
+import { StudentsContext } from "../../context/StudentsContext/StudentsContext";
 
 import { QUERY_ROOT } from "../../constants/Query/query";
 
