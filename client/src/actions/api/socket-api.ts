@@ -1,7 +1,8 @@
 import { Socket, io } from "socket.io-client";
 
-import type { User } from "../interfaces/Registration/Validation";
-import type { TSendFriendRequest } from "./interfaces/sendFriendRequest";
+import type { Student } from "../interfaces/Students/Main";
+import type { TSendFriendRequest } from "../interfaces/api/sendFriendRequest";
+import type { TFriendRequest } from "../interfaces/api/acceptFriendRequest";
 
 export class SocketAPI {
   private socket: Socket | null;
@@ -10,6 +11,7 @@ export class SocketAPI {
     this.socket = io(url);
   }
 
+  ////////////////////////////////////////emitters////////////////////////////////////////////////
   public connectUser(user_id: number) {
     this.socket?.emit("userConnected", {
       user_id
@@ -24,9 +26,19 @@ export class SocketAPI {
     this.socket?.emit("sendFriendRequest", dto);
   }
 
-  public getNewUser(setUser: (c: User | null) => void) {
-    this.socket?.on("newUser", (data: User) => {
-      setUser(data);
+  public acceptFriendRequest(dto: TFriendRequest) {
+    this.socket?.emit("acceptFriendRequest", dto);
+  }
+
+  public rejectFriendRequest(dto: TFriendRequest) {
+    this.socket?.emit("rejectFriendRequest", dto);
+  }
+
+  ////////////////////////////////////////listeners////////////////////////////////////////////////
+
+  public getNewStudents(setStudents: (c: Array<Student> | null) => void) {
+    this.socket?.on("newStudents", (data: Array<Student>) => {
+      setStudents(data);
     });
   }
 }

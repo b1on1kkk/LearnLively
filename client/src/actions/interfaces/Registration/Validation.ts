@@ -55,15 +55,6 @@ export interface GlobalContent {
   userSetter: (c: User | null) => void;
 }
 
-interface RequestsSendedByUser {
-  friend_id: number;
-  status: "pending" | "rejected" | "accepted";
-}
-interface RequestsSendedToUser {
-  user_id: number;
-  status: "pending" | "rejected" | "accepted";
-}
-
 export interface User {
   id: number;
   name: string;
@@ -72,8 +63,6 @@ export interface User {
   role: "student" | "teacher";
   email: string;
   img_hash_name: string;
-  friends_friends_friend_idTousers: RequestsSendedToUser[];
-  friends_friends_user_idTousers: RequestsSendedByUser[];
 }
 
 export interface TUserCheck {

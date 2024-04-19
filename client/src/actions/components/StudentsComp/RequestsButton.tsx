@@ -1,15 +1,19 @@
 import { Button, Tooltip } from "@nextui-org/react";
 
-import { requestButtonClassNames } from "../../constants/Students/styles";
-
 import type { TRequestsButton } from "../../interfaces/Students/Main";
+
+import {
+  positiveButtonClassNames,
+  negativeButtonClassNames
+} from "../../constants/Students/styles";
 
 export const RequestsButton = ({
   placement,
   content,
   onClick,
   status,
-  image
+  image,
+  classNameStatus
 }: TRequestsButton) => {
   return (
     <div>
@@ -18,7 +22,11 @@ export const RequestsButton = ({
         content={content}
         delay={0}
         closeDelay={0}
-        classNames={requestButtonClassNames}
+        classNames={
+          classNameStatus === "positive"
+            ? positiveButtonClassNames
+            : negativeButtonClassNames
+        }
       >
         <Button
           className={`min-w-0 p-0 px-2.5 bg-transparent ${

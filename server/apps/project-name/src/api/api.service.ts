@@ -40,26 +40,6 @@ export class ApiService {
               email: true,
               surname: true,
               role: true,
-              friends_friends_friend_idTousers: {
-                // incoming friend requests
-                where: {
-                  status: 'pending',
-                },
-                select: {
-                  user_id: true,
-                  status: true,
-                },
-              },
-              friends_friends_user_idTousers: {
-                // outgoing friend requests
-                where: {
-                  status: 'pending',
-                },
-                select: {
-                  friend_id: true,
-                  status: true,
-                },
-              },
             },
           });
 
@@ -90,27 +70,7 @@ export class ApiService {
 
   async getStudents(user_id: number) {
     try {
-      return await this.prisma.users.findMany({
-        where: {
-          id: {
-            not: user_id,
-          },
-          role: 'student',
-        },
-        select: {
-          id: true,
-          name: true,
-          lastname: true,
-          surname: true,
-          role: true,
-          email: true,
-          end_semester: true,
-          now_semester: true,
-          department: true,
-          img_hash_name: true,
-          created_at: true,
-        },
-      });
+      return await this.sharedService.getStudentsByPrisma(user_id);
     } catch (error) {
       throw new HttpException(
         'Something goes wrong :(',

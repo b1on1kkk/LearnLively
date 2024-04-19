@@ -1,8 +1,13 @@
 import { Button } from "@nextui-org/react";
 
 import type { TAsideFooter } from "../../interfaces/Students/Aside";
+import useStudentsContext from "../../hooks/useStudentsContext";
 
 export const AsideFooter = ({ onClickCreateFriends }: TAsideFooter) => {
+  const { chosenUser } = useStudentsContext();
+
+  console.log(chosenUser);
+
   return (
     <div className="flex-1 flex items-end">
       <Button

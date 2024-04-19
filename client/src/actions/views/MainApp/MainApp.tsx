@@ -16,14 +16,10 @@ export const MainApp = () => {
   const { socket } = useConnectSocket("http://localhost:3001/", user);
 
   useEffect(() => {
-    if (user) {
-      console.log(user);
-      console.log(socket);
-
-      socket?.connectUser(user.id);
-    }
+    if (user) socket?.connectUser(user.id);
   }, [user, socket]);
 
+  // if user close tab or leave - disable websocket connection
   useEffect(() => {
     function handlePageHide(e: PageTransitionEvent) {
       e.preventDefault();

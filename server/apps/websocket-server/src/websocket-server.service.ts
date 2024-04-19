@@ -1,3 +1,5 @@
+import { Server, Socket } from 'socket.io';
+
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@prismaORM/prisma';
 
@@ -9,14 +11,12 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 
-import type { ConnectedUserDTO } from '../dto/connectedUserDTO';
 import type { ActiveUsersDTO } from '../dto/activeUsersDTO';
+import type { ConnectedUserDTO } from '../dto/connectedUserDTO';
+import type { StudentDataDTO } from '../dto/studentDataDTO';
 
-import { Server, Socket } from 'socket.io';
-import { SendFriendRequestDTO } from '../dto/sendFriendRequestDTO';
-import { getUserByPrisma } from '../utils/getUserByPrisma';
-import { DisconnectedUserDTO } from '../dto/disconnectedUserDTO';
 import { binaryUserSearchByUserId } from '../utils/binaryUserSearchBySocketId';
+import { WebsocketUtils } from '../utils/websocketUtils.service';
 
 @Injectable()
 @WebSocketGateway({ cors: { origin: '*' } })
@@ -25,7 +25,10 @@ export class WebsocketServerService {
   private server: Server;
   private ActiveUsers: Array<ActiveUsersDTO>;
 
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly websocketUtilsService: WebsocketUtils,
+  ) {
     this.ActiveUsers = [];
   }
 
@@ -47,10 +50,7 @@ export class WebsocketServerService {
   }
 
   @SubscribeMessage('userDisconnect')
-  disconnectionMessage(
-    @MessageBody() dto: DisconnectedUserDTO,
-    @ConnectedSocket() client: Socket,
-  ) {
+  disconnectionMessage(@ConnectedSocket() client: Socket) {
     if (this.ActiveUsers.length > 0) {
       console.log('worked', client.id);
 
@@ -64,14 +64,9 @@ export class WebsocketServerService {
 
   @SubscribeMessage('sendFriendRequest')
   async sendFriendRequest(
-    @MessageBody() dto: SendFriendRequestDTO,
+    @MessageBody() dto: StudentDataDTO,
     @ConnectedSocket() client: Socket,
   ) {
-    const recipientSocketId = binaryUserSearchByUserId(
-      this.ActiveUsers,
-      dto.recipient,
-    );
-
     await this.prisma.friends.create({
       data: {
         user_id: dto.sender_id,
@@ -81,14 +76,48 @@ export class WebsocketServerService {
       },
     });
 
-    const user = await getUserByPrisma(this.prisma, dto.sender_id);
-    this.server.to(client.id).emit('newUser', user);
+    await this.websocketUtilsService.studentData(
+      this.ActiveUsers,
+      dto,
+      this.server,
+      client,
+    );
+  }
 
-    if (recipientSocketId !== null) {
-      const user2 = await getUserByPrisma(this.prisma, dto.recipient);
-      this.server
-        .to(this.ActiveUsers[recipientSocketId].socket_id)
-        .emit('newUser', user2);
-    }
+  @SubscribeMessage('acceptFriendRequest')
+  async acceptFriendRequest(
+    @MessageBody() dto: StudentDataDTO,
+    @ConnectedSocket() client: Socket,
+  ) {
+    await this.prisma.friends.update({
+      where: {
+        id: dto.request_id,
+      },
+      data: {
+        status: 'accepted',
+      },
+    });
+
+    await this.websocketUtilsService.studentData(
+      this.ActiveUsers,
+      dto,
+      this.server,
+      client,
+    );
+  }
+
+  @SubscribeMessage('rejectFriendRequest')
+  async rejectFriendRequest(
+    @MessageBody() dto: StudentDataDTO,
+    @ConnectedSocket() client: Socket,
+  ) {
+    await this.prisma.friends.delete({ where: { id: dto.request_id } });
+
+    await this.websocketUtilsService.studentData(
+      this.ActiveUsers,
+      dto,
+      this.server,
+      client,
+    );
   }
 }
