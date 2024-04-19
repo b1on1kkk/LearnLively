@@ -1,11 +1,7 @@
 import { Socket, io } from "socket.io-client";
 
-import { User } from "../interfaces/Registration/Validation";
-
-interface TSendFriendRequest {
-  sender_id: number;
-  recipient: number;
-}
+import type { User } from "../interfaces/Registration/Validation";
+import type { TSendFriendRequest } from "./interfaces/sendFriendRequest";
 
 export class SocketAPI {
   private socket: Socket | null;
@@ -15,19 +11,13 @@ export class SocketAPI {
   }
 
   public connectUser(user_id: number) {
-    this.socket?.on("connect", () => {
-      this.socket?.emit("userConnected", {
-        user_id: user_id,
-        socket_id: this.socket.id
-      });
-      console.log("frontend connect", this.socket?.id);
+    this.socket?.emit("userConnected", {
+      user_id
     });
   }
 
-  public disconnectUser() {
-    this.socket?.on("disconnect", () => {
-      console.log("frontend disconnect");
-    });
+  public disconnectUser(user_id: number) {
+    this.socket?.emit("userDisconnect", { user_id });
   }
 
   public sendFriendRequest(dto: TSendFriendRequest) {
@@ -36,8 +26,6 @@ export class SocketAPI {
 
   public getNewUser(setUser: (c: User | null) => void) {
     this.socket?.on("newUser", (data: User) => {
-      console.log(data, "----------new user---------");
-
       setUser(data);
     });
   }

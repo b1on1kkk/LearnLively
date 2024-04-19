@@ -10,17 +10,20 @@ import {
 } from '@nestjs/websockets';
 
 import type { ConnectedUserDTO } from '../dto/connectedUserDTO';
+import type { ActiveUsersDTO } from '../dto/activeUsersDTO';
 
 import { Server, Socket } from 'socket.io';
-import { binaryUserSearch } from '../utils/binaryUserSearch';
 import { SendFriendRequestDTO } from '../dto/sendFriendRequestDTO';
+import { getUserByPrisma } from '../utils/getUserByPrisma';
+import { DisconnectedUserDTO } from '../dto/disconnectedUserDTO';
+import { binaryUserSearchByUserId } from '../utils/binaryUserSearchBySocketId';
 
 @Injectable()
 @WebSocketGateway({ cors: { origin: '*' } })
 export class WebsocketServerService {
   @WebSocketServer()
   private server: Server;
-  private ActiveUsers: Array<ConnectedUserDTO>;
+  private ActiveUsers: Array<ActiveUsersDTO>;
 
   constructor(private readonly prisma: PrismaService) {
     this.ActiveUsers = [];
@@ -31,21 +34,32 @@ export class WebsocketServerService {
     @MessageBody() dto: ConnectedUserDTO,
     @ConnectedSocket() client: Socket,
   ) {
-    const socket_id = binaryUserSearch(this.ActiveUsers, dto.user_id);
+    const idx = binaryUserSearchByUserId(this.ActiveUsers, dto.user_id);
 
-    if (!socket_id) {
-      this.ActiveUsers.push(dto);
-
+    if (idx === null) {
+      this.ActiveUsers.push({ ...dto, socket_id: client.id });
       this.ActiveUsers = this.ActiveUsers.sort((a, b) => a.user_id - b.user_id);
     } else {
-      const idx = this.ActiveUsers.findIndex(
-        (obj) => obj.socket_id === socket_id,
-      );
-
       this.ActiveUsers[idx].socket_id = client.id;
     }
 
     console.log(this.ActiveUsers);
+  }
+
+  @SubscribeMessage('userDisconnect')
+  disconnectionMessage(
+    @MessageBody() dto: DisconnectedUserDTO,
+    @ConnectedSocket() client: Socket,
+  ) {
+    if (this.ActiveUsers.length > 0) {
+      console.log('worked', client.id);
+
+      this.ActiveUsers = this.ActiveUsers.filter(
+        (user) => user.socket_id !== client.id,
+      );
+
+      console.log(this.ActiveUsers);
+    }
   }
 
   @SubscribeMessage('sendFriendRequest')
@@ -53,7 +67,10 @@ export class WebsocketServerService {
     @MessageBody() dto: SendFriendRequestDTO,
     @ConnectedSocket() client: Socket,
   ) {
-    const recipientSocketId = binaryUserSearch(this.ActiveUsers, dto.recipient);
+    const recipientSocketId = binaryUserSearchByUserId(
+      this.ActiveUsers,
+      dto.recipient,
+    );
 
     await this.prisma.friends.create({
       data: {
@@ -64,78 +81,14 @@ export class WebsocketServerService {
       },
     });
 
-    const user = await this.prisma.users.findUnique({
-      where: {
-        id: dto.sender_id,
-      },
-      select: {
-        id: true,
-        name: true,
-        lastname: true,
-        email: true,
-        surname: true,
-        role: true,
-        friends_friends_friend_idTousers: {
-          // incoming friend requests
-          where: {
-            status: 'pending',
-          },
-          select: {
-            user_id: true,
-            status: true,
-          },
-        },
-        friends_friends_user_idTousers: {
-          // outgoing friend requests
-          where: {
-            status: 'pending',
-          },
-          select: {
-            friend_id: true,
-            status: true,
-          },
-        },
-      },
-    });
-
+    const user = await getUserByPrisma(this.prisma, dto.sender_id);
     this.server.to(client.id).emit('newUser', user);
 
-    if (recipientSocketId) {
-      const user2 = await this.prisma.users.findUnique({
-        where: {
-          id: dto.recipient,
-        },
-        select: {
-          id: true,
-          name: true,
-          lastname: true,
-          email: true,
-          surname: true,
-          role: true,
-          friends_friends_friend_idTousers: {
-            // incoming friend requests
-            where: {
-              status: 'pending',
-            },
-            select: {
-              user_id: true,
-              status: true,
-            },
-          },
-          friends_friends_user_idTousers: {
-            // outgoing friend requests
-            where: {
-              status: 'pending',
-            },
-            select: {
-              friend_id: true,
-              status: true,
-            },
-          },
-        },
-      });
-
-      this.server.to(recipientSocketId).emit('newUser', user2);
+    if (recipientSocketId !== null) {
+      const user2 = await getUserByPrisma(this.prisma, dto.recipient);
+      this.server
+        .to(this.ActiveUsers[recipientSocketId].socket_id)
+        .emit('newUser', user2);
     }
   }
 }
