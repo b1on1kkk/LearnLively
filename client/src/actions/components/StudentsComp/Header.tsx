@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   Button,
@@ -9,33 +9,24 @@ import {
 } from "@nextui-org/react";
 import { ChevronDown, Filter } from "lucide-react";
 
-import { HeaderFilterButton } from "./HeaderFilterButton";
+import { userFiltration } from "../../utils/Students/userFiltration";
+import { selectedValueSplitting } from "../../utils/Students/selectedValueSplitting";
 
-import { sortingReducer } from "../../reducers/Students/sortingReducer";
-
-import { HEADER } from "../../constants/Students/header";
 import { DROPDOWN_FILTER } from "../../constants/Students/dropdown_filter";
+import { HEADER } from "../../constants/Students/header";
+import type { THeader } from "../../interfaces/Students/Header";
 
-export const Header = () => {
+export const Header = ({ tempStudents, setStudents }: THeader) => {
   const [dropdownStatus, setDropdownStatus] = useState<boolean>(false);
 
-  const [state, dispatch] = useReducer(sortingReducer, {
-    nameSorting: {
-      value: "asc",
-      status: false
-    },
-    idSorting: {
-      value: "asc",
-      status: false
-    }
-  });
+  const [selectedKeys, setSelectedKeys] = useState(new Set(["all_students"]));
+  const selectedValue = useMemo(() => {
+    return selectedValueSplitting(selectedKeys);
+  }, [selectedKeys]);
 
-  // in future build
   useEffect(() => {
-    if (state.idSorting.status || state.nameSorting.status) {
-      console.log(state);
-    }
-  }, [state]);
+    userFiltration(selectedValue, tempStudents, setStudents);
+  }, [selectedValue]);
 
   return (
     <header className="flex flex-col gap-8">
@@ -75,9 +66,10 @@ export const Header = () => {
             </DropdownTrigger>
             <DropdownMenu
               aria-label="Static Actions"
-              selectionMode="multiple"
-              closeOnSelect={false}
+              selectionMode="single"
               classNames={{ base: "bg-[#050615]" }}
+              selectedKeys={selectedKeys}
+              onSelectionChange={setSelectedKeys}
             >
               {DROPDOWN_FILTER.map((item) => {
                 return (
@@ -99,55 +91,6 @@ export const Header = () => {
       <div>
         <div className="flex p-6 bg-[#050615] rounded-2xl uppercase text-sm border-2 border-slate-900 shadow-xl gap-3">
           {HEADER.map((item) => {
-            if (item.filter !== "none") {
-              // next, if you need to create more filtering fields - just add necessary
-
-              return (
-                <div className={item.className} key={item.id}>
-                  <HeaderFilterButton
-                    status={
-                      item.filter === "id"
-                        ? state.idSorting.status
-                        : state.nameSorting.status
-                    }
-                    value={
-                      item.filter === "id"
-                        ? state.idSorting.value
-                        : state.nameSorting.value
-                    }
-                    title={item.title}
-                    onClick={() => {
-                      dispatch({
-                        type: item.type!,
-                        payload:
-                          item.filter === "id"
-                            ? {
-                                ...state,
-                                idSorting: {
-                                  value:
-                                    state.idSorting.value === "asc"
-                                      ? "desc"
-                                      : "asc",
-                                  status: true
-                                }
-                              }
-                            : {
-                                ...state,
-                                nameSorting: {
-                                  value:
-                                    state.nameSorting.value === "asc"
-                                      ? "desc"
-                                      : "asc",
-                                  status: true
-                                }
-                              }
-                      });
-                    }}
-                  />
-                </div>
-              );
-            }
-
             return (
               <div className={item.className} key={item.id}>
                 <div>{item.icon}</div>

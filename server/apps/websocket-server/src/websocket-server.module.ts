@@ -7,7 +7,6 @@ import { WebsocketUtils } from '../utils/websocketUtils.service';
 
 @Module({
   imports: [PrismaModule, SharedModule],
-  controllers: [],
   providers: [WebsocketServerService, ErrorCatcherInterceptor, WebsocketUtils],
 })
 export class WebsocketServerModule {}

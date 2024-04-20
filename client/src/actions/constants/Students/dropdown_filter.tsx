@@ -1,4 +1,4 @@
-import { UserRound, UsersRound } from "lucide-react";
+import { UsersRound, CircleEllipsis } from "lucide-react";
 
 import type { TDropdownFilter } from "../../interfaces/Students/SortReducer";
 
@@ -10,9 +10,15 @@ export const DROPDOWN_FILTER: Array<TDropdownFilter> = [
     text: "All my friends."
   },
   {
-    key: "not_my_friends",
-    description: "You'll see only new people to you.",
-    startContent: <UserRound />,
-    text: "People new to me."
+    key: "pending_requests",
+    description: "You'll see students you sent request.",
+    startContent: <CircleEllipsis />,
+    text: "All friend requests."
+  },
+  {
+    key: "all_students",
+    description: "You'll see all students.",
+    startContent: <UsersRound />,
+    text: "All students."
   }
 ];

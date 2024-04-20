@@ -1,9 +1,15 @@
-import { GraduationCap, Landmark, Mail } from "lucide-react";
+import { GraduationCap, Landmark, Mail, UserRound } from "lucide-react";
+import { ReactElement } from "react";
 
-import {
-  SortingActionKind,
-  THeader
-} from "../../interfaces/Students/SortReducer";
+type Filter = "name" | "id" | "none";
+
+export interface THeader {
+  id: number;
+  className: string;
+  filter: Filter;
+  title: string;
+  icon: ReactElement;
+}
 
 export const HEADER: Array<THeader> = [
   {
@@ -11,14 +17,14 @@ export const HEADER: Array<THeader> = [
     className: "flex-[3] flex items-center gap-1 text-slate-400 font-semibold",
     filter: "name",
     title: "student name",
-    type: SortingActionKind.NAME
+    icon: <UserRound width={16} height={16} />
   },
   {
     id: 1,
     className: "flex-[3] flex items-center gap-1 text-slate-400 font-semibold",
     filter: "id",
     title: "id number",
-    type: SortingActionKind.ID
+    icon: <UserRound width={16} height={16} />
   },
   {
     id: 2,

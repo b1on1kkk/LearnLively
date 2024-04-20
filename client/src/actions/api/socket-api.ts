@@ -38,8 +38,9 @@ export class SocketAPI {
 
   public getNewStudents(
     chosenUser: Student | null,
+    setChosenUser: (c: Student) => void,
     setStudents: (c: Array<Student> | null) => void,
-    setChosenUser: (c: Student) => void
+    setTempStudents: (c: Array<Student> | null) => void
   ) {
     this.socket?.on("newStudents", (data: Array<Student>) => {
       if (chosenUser) {
@@ -48,6 +49,7 @@ export class SocketAPI {
       }
 
       setStudents(data);
+      setTempStudents(data);
     });
   }
 }
