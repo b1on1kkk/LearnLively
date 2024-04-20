@@ -1,21 +1,76 @@
 import { Button } from "@nextui-org/react";
 
-import type { TAsideFooter } from "../../interfaces/Students/Aside";
+import useGlobalContext from "../../hooks/useGlobalContext";
 import useStudentsContext from "../../hooks/useStudentsContext";
 
-export const AsideFooter = ({ onClickCreateFriends }: TAsideFooter) => {
-  const { chosenUser } = useStudentsContext();
+import type { TAsideFooter } from "../../interfaces/Students/AsideFooter";
 
-  console.log(chosenUser);
+export const AsideFooter = ({ socketController }: TAsideFooter) => {
+  const { chosenUser } = useStudentsContext();
+  const { user } = useGlobalContext();
 
   return (
     <div className="flex-1 flex items-end">
-      <Button
-        className="w-full bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% text-lg font-semibold"
-        onClick={onClickCreateFriends}
-      >
-        Be friends!
-      </Button>
+      {chosenUser && user && (
+        <>
+          {chosenUser.friends_friends_friend_idTousers.length > 0 ? (
+            <>
+              {chosenUser.friends_friends_friend_idTousers[0].status ===
+              "pending" ? (
+                <Button className="w-full bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% text-lg font-semibold">
+                  Friend request was sent!
+                </Button>
+              ) : (
+                <Button className="w-full bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% text-lg font-semibold">
+                  Your friend!
+                </Button>
+              )}
+            </>
+          ) : chosenUser.friends_friends_user_idTousers.length > 0 ? (
+            <>
+              {chosenUser.friends_friends_user_idTousers[0].status ===
+              "pending" ? (
+                <div className="flex flex-col w-full text-center gap-2">
+                  <div>
+                    <p className="font-semibold">You have friend request!</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      className="flex-1 font-semibold bg-green-500"
+                      onClick={() =>
+                        socketController.acceptFriendRequest(chosenUser)
+                      }
+                    >
+                      Accept
+                    </Button>
+                    <Button
+                      className="flex-1 font-semibold bg-red-500"
+                      onClick={() =>
+                        socketController.rejectFriendRequest(chosenUser)
+                      }
+                    >
+                      Reject
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button className="w-full bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% text-lg font-semibold">
+                  Your friend!
+                </Button>
+              )}
+            </>
+          ) : (
+            <Button
+              className="w-full bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% text-lg font-semibold"
+              onClick={() =>
+                socketController.sendFriendRequest(user.id, chosenUser.id)
+              }
+            >
+              Be friends!
+            </Button>
+          )}
+        </>
+      )}
     </div>
   );
 };

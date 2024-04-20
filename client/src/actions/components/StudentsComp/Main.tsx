@@ -1,6 +1,4 @@
-import { useEffect } from "react";
 import useGlobalContext from "../../hooks/useGlobalContext";
-import useSocketContext from "../../hooks/useSocketContext";
 import useStudentsContext from "../../hooks/useStudentsContext";
 
 import { RequestsButton } from "./RequestsButton";
@@ -19,19 +17,10 @@ export const Main = ({
   students,
   isLoading,
   isError,
-  setStudents
+  socketController
 }: TMainStudents) => {
   const { chosenUser, setChosenUser } = useStudentsContext();
   const { user } = useGlobalContext();
-  const { socket } = useSocketContext();
-
-  // listen if new data comes
-  useEffect(() => {
-    console.log(socket);
-    socket?.getNewStudents(setStudents);
-  }, [socket]);
-
-  console.log(students);
 
   return (
     <main className="mt-3 h-full bg-[#050615] rounded-2xl shadow-2xl px-6 mb-3 border-slate-900 border-2 overflow-auto">
@@ -97,16 +86,9 @@ export const Main = ({
                             content="Accept request!"
                             status="accept"
                             image={<UserRoundPlus width={20} height={20} />}
-                            onClick={() => {
-                              const { id, user_id, friend_id } =
-                                student.friends_friends_user_idTousers[0];
-
-                              socket?.acceptFriendRequest({
-                                request_id: id,
-                                sender_id: friend_id,
-                                recipient: user_id
-                              });
-                            }}
+                            onClick={() =>
+                              socketController.acceptFriendRequest(student)
+                            }
                             classNameStatus="positive"
                           />
                           <RequestsButton
@@ -114,16 +96,9 @@ export const Main = ({
                             content="Cancel request!"
                             status="reject"
                             image={<UserRoundX width={20} height={20} />}
-                            onClick={() => {
-                              const { id, user_id, friend_id } =
-                                student.friends_friends_user_idTousers[0];
-
-                              socket?.rejectFriendRequest({
-                                request_id: id,
-                                sender_id: friend_id,
-                                recipient: user_id
-                              });
-                            }}
+                            onClick={() =>
+                              socketController.rejectFriendRequest(student)
+                            }
                             classNameStatus="negative"
                           />
                         </div>
@@ -144,12 +119,9 @@ export const Main = ({
                       content="Send friend request!"
                       status="accept"
                       image={<Plus width={20} height={20} />}
-                      onClick={() => {
-                        socket?.sendFriendRequest({
-                          sender_id: user.id,
-                          recipient: student.id
-                        });
-                      }}
+                      onClick={() =>
+                        socketController.sendFriendRequest(user.id, student.id)
+                      }
                       classNameStatus="positive"
                     />
                   )}

@@ -11,10 +11,6 @@ export interface TAsideUserButtons {
   onClickCall: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-export interface TAsideFooter {
-  onClickCreateFriends: (e: React.MouseEvent<HTMLButtonElement>) => void;
-}
-
 export interface TAsideAcademicInfo {
   semester_now: number;
   semester_end: number;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useStudents from "../../hooks/useStudents";
 
 import { UserSearch } from "lucide-react";
@@ -15,15 +15,28 @@ import { StudentsContext } from "../../context/StudentsContext/StudentsContext";
 
 import { QUERY_ROOT } from "../../constants/Query/query";
 import { Student } from "../../interfaces/Students/Main";
+import { SocketController } from "../../api/socket-controllers";
+import useSocketContext from "../../hooks/useSocketContext";
 
 export const Students = () => {
+  const { socket } = useSocketContext();
   const { data, isError, isLoading } = useStudents();
   const [chosenUser, setChosenUser] = useState<Student | null>(null);
   const [students, setStudents] = useState<Array<Student> | null>(null);
 
+  const socketController = useMemo(() => {
+    return new SocketController(socket);
+  }, [socket]);
+
   useEffect(() => {
     if (data) setStudents(data);
   }, [data]);
+
+  // listen if new data comes
+  useEffect(() => {
+    console.log(socket);
+    socket?.getNewStudents(chosenUser, setStudents, setChosenUser);
+  }, [socket, chosenUser]);
 
   return (
     <div className="flex h-screen relative px-8 pb-6 pt-12 gap-8">
@@ -38,7 +51,7 @@ export const Students = () => {
             students={students}
             isLoading={isLoading}
             isError={isError}
-            setStudents={setStudents}
+            socketController={socketController}
           />
 
           {/* pagination */}
@@ -47,7 +60,7 @@ export const Students = () => {
 
         {/* aside menu about each user */}
         <div className="z-10 flex-1 bg-[#050615] rounded-2xl shadow-2xl border-2 border-slate-900 p-5 flex flex-col max-w-72">
-          {chosenUser !== null ? (
+          {chosenUser ? (
             <>
               {/* image and name */}
               <AsideHeader
@@ -69,7 +82,7 @@ export const Students = () => {
               />
 
               {/* footer */}
-              <AsideFooter onClickCreateFriends={() => {}} />
+              <AsideFooter socketController={socketController} />
             </>
           ) : (
             <div className="h-full flex flex-col items-center justify-center gap-5 text-slate-400">

@@ -1,5 +1,6 @@
 import { TooltipProps } from "@nextui-org/react";
 import { ReactElement } from "react";
+import { SocketController } from "../../api/socket-controllers";
 
 interface RequestInitiator {
   id: number;
@@ -28,7 +29,7 @@ export interface TMainStudents {
   isLoading: boolean;
   isError: boolean;
   students: Array<Student> | null;
-  setStudents: (c: Array<Student> | null) => void;
+  socketController: SocketController;
 }
 
 export interface TStudentsContext {

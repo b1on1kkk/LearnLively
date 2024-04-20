@@ -42,9 +42,7 @@ export class WebsocketServerService {
     if (idx === null) {
       this.ActiveUsers.push({ ...dto, socket_id: client.id });
       this.ActiveUsers = this.ActiveUsers.sort((a, b) => a.user_id - b.user_id);
-    } else {
-      this.ActiveUsers[idx].socket_id = client.id;
-    }
+    } else this.ActiveUsers[idx].socket_id = client.id;
 
     console.log(this.ActiveUsers);
   }

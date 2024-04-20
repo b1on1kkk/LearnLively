@@ -36,8 +36,17 @@ export class SocketAPI {
 
   ////////////////////////////////////////listeners////////////////////////////////////////////////
 
-  public getNewStudents(setStudents: (c: Array<Student> | null) => void) {
+  public getNewStudents(
+    chosenUser: Student | null,
+    setStudents: (c: Array<Student> | null) => void,
+    setChosenUser: (c: Student) => void
+  ) {
     this.socket?.on("newStudents", (data: Array<Student>) => {
+      if (chosenUser) {
+        const student = data.find((student) => student.id === chosenUser.id);
+        setChosenUser(student!);
+      }
+
       setStudents(data);
     });
   }
