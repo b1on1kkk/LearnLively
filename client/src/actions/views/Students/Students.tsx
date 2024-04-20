@@ -4,7 +4,6 @@ import useSocketContext from "../../hooks/useSocketContext";
 
 import { Header } from "../../components/StudentsComp/Header";
 import { Main } from "../../components/StudentsComp/Main";
-import { Footer } from "../../components/StudentsComp/Footer";
 import { AsideStudentInf } from "../../components/StudentsComp/AsideStudentInf";
 
 import { StudentsContext } from "../../context/StudentsContext/StudentsContext";
@@ -59,9 +58,6 @@ export const Students = () => {
             isError={isError}
             socketController={socketController}
           />
-
-          {/* pagination */}
-          <Footer />
         </div>
 
         {/* aside menu about each user */}
