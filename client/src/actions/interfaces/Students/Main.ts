@@ -28,7 +28,6 @@ export interface Student {
 export interface TMainStudents {
   isLoading: boolean;
   isError: boolean;
-  students: Array<Student> | null;
   socketController: SocketController;
 }
 

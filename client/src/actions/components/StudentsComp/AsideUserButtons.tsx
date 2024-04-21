@@ -1,3 +1,4 @@
+import { Link, NavLink } from "react-router-dom";
 import { Button, Divider, Tooltip } from "@nextui-org/react";
 import {
   MessageSquareMore,
@@ -6,8 +7,9 @@ import {
   PhoneOff
 } from "lucide-react";
 
-import type { TAsideUserButtons } from "../../interfaces/Students/Aside";
 import useStudentsContext from "../../hooks/useStudentsContext";
+
+import type { TAsideUserButtons } from "../../interfaces/Students/Aside";
 
 export const AsideUserButtons = ({
   onClickCall,
@@ -26,13 +28,16 @@ export const AsideUserButtons = ({
             chosenUser.friends_friends_user_idTousers[0].status ===
               "accepted") ? (
             <>
-              <Button
-                startContent={<MessageSquareMore width={18} height={18} />}
-                className="bg-transparent text-xs font-semibold flex-1 hover:bg-gray-600 text-slate-600 hover:text-white"
-                onClick={onClickChat}
-              >
-                Chat
-              </Button>
+              <NavLink to={`/message/:${chosenUser.id}`}>
+                <Button
+                  startContent={<MessageSquareMore width={18} height={18} />}
+                  className="bg-transparent text-xs font-semibold flex-1 hover:bg-gray-600 text-slate-600 hover:text-white"
+                  onClick={onClickChat}
+                >
+                  Chat
+                </Button>
+              </NavLink>
+
               <Divider orientation="vertical" className="h-5" />
               <Button
                 startContent={<PhoneOutgoing width={18} height={18} />}

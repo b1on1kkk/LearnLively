@@ -40,6 +40,7 @@ export class ApiService {
               email: true,
               surname: true,
               role: true,
+              img_hash_name: true,
             },
           });
 

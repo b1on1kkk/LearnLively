@@ -1,13 +1,14 @@
 import { Button } from "@nextui-org/react";
 
-import useGlobalContext from "../../hooks/useGlobalContext";
 import useStudentsContext from "../../hooks/useStudentsContext";
 
 import type { TAsideFooter } from "../../interfaces/Students/AsideFooter";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 export const AsideFooter = ({ socketController }: TAsideFooter) => {
+  const user = useSelector((u: RootState) => u.user);
   const { chosenUser } = useStudentsContext();
-  const { user } = useGlobalContext();
 
   return (
     <div className="flex-1 flex items-end">

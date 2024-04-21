@@ -17,11 +17,12 @@ model chat_members {
 }
 
 model chats {
-  id             Int              @id @default(autoincrement())
-  type           String           @db.VarChar(255)
-  created_at     DateTime         @db.Timestamp(6)
-  chat_members   chat_members[]
-  group_messages group_messages[]
+  id            Int             @id @default(autoincrement())
+  type          chat_type
+  description   String          @db.VarChar(255)
+  created_at    DateTime        @db.Timestamp(6)
+  chat_members  chat_members[]
+  chat_messages chat_messages[]
 }
 
 model friends {
@@ -34,50 +35,24 @@ model friends {
   users_friends_user_idTousers   users         @relation("friends_user_idTousers", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model group_messages {
-  id         Int      @id @default(autoincrement())
-  chat_id    Int
-  user_id    Int
-  content    String
-  is_edited  Boolean
-  is_readed  Boolean
-  created_at DateTime @db.Timestamp(6)
-  chats      chats    @relation(fields: [chat_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model private_messages {
-  id                                         Int      @id @default(autoincrement())
-  sender_id                                  Int
-  recipient_id                               Int
-  content                                    String
-  is_edited                                  Boolean
-  is_readed                                  Boolean
-  created_at                                 DateTime @db.Timestamp(6)
-  users_private_messages_recipient_idTousers users    @relation("private_messages_recipient_idTousers", fields: [recipient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users_private_messages_sender_idTousers    users    @relation("private_messages_sender_idTousers", fields: [sender_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
 model users {
-  id                                                    Int                @id @default(autoincrement())
-  name                                                  String             @db.VarChar(255)
-  lastname                                              String             @db.VarChar(255)
-  surname                                               String             @db.VarChar(255)
-  role                                                  roles
-  email                                                 String             @unique @db.VarChar(255)
-  end_semester                                          Int
-  now_semester                                          Int
-  department                                            String             @db.VarChar(255)
-  password                                              String             @db.VarChar(255)
-  img_hash_name                                         String             @db.VarChar(255)
-  created_at                                            DateTime           @db.Timestamp(6)
-  chat_members                                          chat_members[]
-  friends_friends_friend_idTousers                      friends[]          @relation("friends_friend_idTousers")
-  friends_friends_user_idTousers                        friends[]          @relation("friends_user_idTousers")
-  group_messages                                        group_messages[]
-  private_messages_private_messages_recipient_idTousers private_messages[] @relation("private_messages_recipient_idTousers")
-  private_messages_private_messages_sender_idTousers    private_messages[] @relation("private_messages_sender_idTousers")
-  refresh_token                                         refresh_token[]
+  id                               Int             @id @default(autoincrement())
+  name                             String          @db.VarChar(255)
+  lastname                         String          @db.VarChar(255)
+  surname                          String          @db.VarChar(255)
+  role                             roles
+  email                            String          @unique @db.VarChar(255)
+  end_semester                     Int
+  now_semester                     Int
+  department                       String          @db.VarChar(255)
+  password                         String          @db.VarChar(255)
+  img_hash_name                    String          @db.VarChar(255)
+  created_at                       DateTime        @db.Timestamp(6)
+  chat_members                     chat_members[]
+  chat_messages                    chat_messages[]
+  friends_friends_friend_idTousers friends[]       @relation("friends_friend_idTousers")
+  friends_friends_user_idTousers   friends[]       @relation("friends_user_idTousers")
+  refresh_token                    refresh_token[]
 }
 
 model refresh_token {
@@ -86,6 +61,18 @@ model refresh_token {
   refresh_token String   @db.VarChar(255)
   created_at    DateTime @db.Timestamp(6)
   users         users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model chat_messages {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  chat_id    Int
+  content    String
+  is_edited  Boolean
+  is_readed  Boolean
+  created_at DateTime @db.Timestamp(6)
+  chats      chats    @relation(fields: [chat_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum roles {
@@ -97,4 +84,9 @@ enum friend_status {
   pending
   accepted
   rejected
+}
+
+enum chat_type {
+  private
+  group
 }

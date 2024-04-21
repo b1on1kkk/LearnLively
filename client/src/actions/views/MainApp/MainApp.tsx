@@ -1,6 +1,6 @@
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import useConnectSocket from "../../hooks/useConnectSocket";
-import useGlobalContext from "../../hooks/useGlobalContext";
 
 import { Outlet } from "react-router";
 
@@ -8,12 +8,13 @@ import { Header } from "../../components/NavigationComp/Header";
 import { Main } from "../../components/NavigationComp/Main";
 import { Navigation } from "../../components/NavigationComp/Navigation";
 
-import { MySocketContext } from "../../context/SocketContext/SocketContext";
+import { RootState } from "../../store/store";
 
 export const MainApp = () => {
-  // create socket connection only when user is logged in
-  const { user } = useGlobalContext();
-  const { socket } = useConnectSocket("http://localhost:3001/", user);
+  const user = useSelector((u: RootState) => u.user);
+  useConnectSocket("http://localhost:3001/", user);
+
+  const { socket } = useSelector((s: RootState) => s.socket);
 
   useEffect(() => {
     if (user) socket?.connectUser(user.id);
@@ -48,15 +49,13 @@ export const MainApp = () => {
         </div>
       </aside>
 
-      <MySocketContext.Provider value={{ socket: socket }}>
-        {/* main visual part */}
-        <div className="flex-1 relative overflow-hidden">
-          {/* just header background */}
-          <div className="absolute h-40 w-screen right-0 top-0 bg-gradient-to-r from-10% via-sky-500 via-30% to-90% from-pink-500 to-red-500 rounded-tr-3xl mr-3 mt-3"></div>
+      {/* main visual part */}
+      <div className="flex-1 relative overflow-hidden">
+        {/* just header background */}
+        <div className="absolute h-40 w-screen right-0 top-0 bg-gradient-to-r from-10% via-sky-500 via-30% to-90% from-pink-500 to-red-500 rounded-tr-3xl mr-3 mt-3"></div>
 
-          <Outlet></Outlet>
-        </div>
-      </MySocketContext.Provider>
+        <Outlet></Outlet>
+      </div>
     </main>
   );
 };

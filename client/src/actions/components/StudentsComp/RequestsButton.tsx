@@ -1,11 +1,11 @@
 import { Button, Tooltip } from "@nextui-org/react";
 
-import type { TRequestsButton } from "../../interfaces/Students/Main";
-
 import {
   positiveButtonClassNames,
   negativeButtonClassNames
 } from "../../constants/Students/styles";
+
+import type { TRequestsButton } from "../../interfaces/Students/Main";
 
 export const RequestsButton = ({
   placement,

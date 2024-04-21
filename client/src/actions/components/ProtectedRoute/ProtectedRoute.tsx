@@ -1,14 +1,11 @@
 import { ReactElement } from "react";
 import { Navigate } from "react-router-dom";
-
 import useCheckUserAuth from "../../hooks/useCheckUserAuth";
-import useGlobalContext from "../../hooks/useGlobalContext";
 
 import { Loading } from "../../views/Loading/Loading";
 
 export const ProtectedRoute = ({ children }: { children: ReactElement }) => {
-  const { userSetter } = useGlobalContext();
-  const { data, isError, isLoading } = useCheckUserAuth(userSetter);
+  const { data, isError, isLoading } = useCheckUserAuth();
 
   if (isLoading) return <Loading></Loading>;
 

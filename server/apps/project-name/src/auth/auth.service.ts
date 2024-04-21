@@ -6,6 +6,9 @@ import { JwtService } from '@nestjs/jwt';
 import { SignUpDTO } from './dto/signup_payload.dto';
 import { PrismaService } from '@prismaORM/prisma';
 
+import AVATAR_NAMES from './constants/avatarNames';
+import { randomIntFromInterval } from './utils/randomIntFromInterval';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -55,7 +58,8 @@ export class AuthService {
           now_semester: 1,
           department: 'Test D.',
           password: await bcrypt.hash(password, 10),
-          img_hash_name: 'no image',
+          img_hash_name:
+            AVATAR_NAMES[randomIntFromInterval(0, AVATAR_NAMES.length - 1)],
           created_at: new Date(),
         },
       });

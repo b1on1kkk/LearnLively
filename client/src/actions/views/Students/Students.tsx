@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
 import useStudents from "../../hooks/useStudents";
-import useSocketContext from "../../hooks/useSocketContext";
+import { useEffect, useMemo, useState } from "react";
+
+import { RootState } from "../../store/store";
 
 import { Header } from "../../components/StudentsComp/Header";
 import { Main } from "../../components/StudentsComp/Main";
@@ -13,12 +15,11 @@ import { SocketController } from "../../api/socket-controllers";
 import type { Student } from "../../interfaces/Students/Main";
 
 export const Students = () => {
-  const { socket } = useSocketContext();
+  const { socket } = useSelector((s: RootState) => s.socket);
+
   const { data, isError, isLoading } = useStudents();
 
   const [chosenUser, setChosenUser] = useState<Student | null>(null);
-
-  const [students, setStudents] = useState<Array<Student> | null>(null);
   const [tempStudents, setTempStudents] = useState<Array<Student> | null>(null);
 
   const socketController = useMemo(() => {
@@ -27,7 +28,6 @@ export const Students = () => {
 
   useEffect(() => {
     if (data) {
-      setStudents(data);
       if (!tempStudents) setTempStudents(data);
     }
   }, [data]);
@@ -35,12 +35,7 @@ export const Students = () => {
   // listen if new data comes
   useEffect(() => {
     console.log(socket);
-    socket?.getNewStudents(
-      chosenUser,
-      setChosenUser,
-      setStudents,
-      setTempStudents
-    );
+    socket?.getNewStudents(chosenUser, setChosenUser, setTempStudents);
   }, [socket, chosenUser]);
 
   return (
@@ -49,11 +44,10 @@ export const Students = () => {
         {/* main block of users */}
         <div className="flex-[4] z-10 flex flex-col bg-transparent">
           {/* filtration and users header */}
-          <Header tempStudents={tempStudents} setStudents={setStudents} />
+          <Header tempStudents={tempStudents} />
 
           {/* users list */}
           <Main
-            students={students}
             isLoading={isLoading}
             isError={isError}
             socketController={socketController}
@@ -61,10 +55,7 @@ export const Students = () => {
         </div>
 
         {/* aside menu about each user */}
-        <AsideStudentInf
-          chosenUser={chosenUser}
-          socketController={socketController}
-        />
+        <AsideStudentInf socketController={socketController} />
       </StudentsContext.Provider>
     </div>
   );

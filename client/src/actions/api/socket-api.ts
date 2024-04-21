@@ -4,11 +4,20 @@ import type { Student } from "../interfaces/Students/Main";
 import type { TSendFriendRequest } from "../interfaces/api/sendFriendRequest";
 import type { TFriendRequest } from "../interfaces/api/acceptFriendRequest";
 
+import { AppDispatch } from "../store/store";
+import { ThunkDispatch, UnknownAction } from "@reduxjs/toolkit";
+import { studentsActions } from "../store/features/students.slice";
+
 export class SocketAPI {
   private socket: Socket | null;
+  private reduxDispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>;
 
-  constructor(url: string) {
+  constructor(
+    url: string,
+    dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>
+  ) {
     this.socket = io(url);
+    this.reduxDispatch = dispatch;
   }
 
   ////////////////////////////////////////emitters////////////////////////////////////////////////
@@ -39,7 +48,6 @@ export class SocketAPI {
   public getNewStudents(
     chosenUser: Student | null,
     setChosenUser: (c: Student) => void,
-    setStudents: (c: Array<Student> | null) => void,
     setTempStudents: (c: Array<Student> | null) => void
   ) {
     this.socket?.on("newStudents", (data: Array<Student>) => {
@@ -48,7 +56,8 @@ export class SocketAPI {
         setChosenUser(student!);
       }
 
-      setStudents(data);
+      this.reduxDispatch(studentsActions.initStudents(data));
+
       setTempStudents(data);
     });
   }

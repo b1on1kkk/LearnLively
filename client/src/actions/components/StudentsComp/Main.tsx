@@ -1,4 +1,4 @@
-import useGlobalContext from "../../hooks/useGlobalContext";
+import { useSelector } from "react-redux";
 import useStudentsContext from "../../hooks/useStudentsContext";
 
 import { RequestsButton } from "./RequestsButton";
@@ -11,19 +11,22 @@ import {
   UserRound
 } from "lucide-react";
 
+import { RootState } from "../../store/store";
+
 import type { TMainStudents } from "../../interfaces/Students/Main";
 
 export const Main = ({
-  students,
   isLoading,
   isError,
   socketController
 }: TMainStudents) => {
+  const user = useSelector((u: RootState) => u.user);
+  const { students } = useSelector((u: RootState) => u.students);
+
   const { chosenUser, setChosenUser } = useStudentsContext();
-  const { user } = useGlobalContext();
 
   return (
-    <main className="mt-3 h-full bg-[#050615] rounded-2xl shadow-2xl px-6 mb-3 border-slate-900 border-2 overflow-auto">
+    <main className="mt-3 h-full bg-[#050615] rounded-2xl shadow-2xl px-6 border-slate-900 border-2 overflow-auto">
       {isLoading && (
         <div className="h-full w-full flex items-center justify-center">
           <Spinner classNames={{ circle1: "yellow" }} size="lg"></Spinner>

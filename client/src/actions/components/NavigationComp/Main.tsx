@@ -1,9 +1,10 @@
 import { Image } from "@nextui-org/react";
+import { useSelector } from "react-redux";
 
-import useGlobalContext from "../../hooks/useGlobalContext";
+import { RootState } from "../../store/store";
 
 export const Main = () => {
-  const { user } = useGlobalContext();
+  const user = useSelector((u: RootState) => u.user);
 
   return (
     <div className="flex justify-center flex-col items-center py-6 border-b-1 border-slate-800 h-[280px]">
@@ -13,7 +14,7 @@ export const Main = () => {
             isBlurred
             alt="user avatar"
             width={160}
-            src="http://localhost:3000/api/avatars/_29ae5d7d-5ce6-479e-b750-7aee6db7870e.jpg"
+            src={`http://localhost:3000/api/avatars/${user.img_hash_name}.jpg`}
           />
 
           <div className="flex flex-col items-center mt-4">

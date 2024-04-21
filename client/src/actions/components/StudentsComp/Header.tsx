@@ -14,9 +14,14 @@ import { selectedValueSplitting } from "../../utils/Students/selectedValueSplitt
 
 import { DROPDOWN_FILTER } from "../../constants/Students/dropdown_filter";
 import { HEADER } from "../../constants/Students/header";
+
 import type { THeader } from "../../interfaces/Students/Header";
 
-export const Header = ({ tempStudents, setStudents }: THeader) => {
+import { AppDispatch } from "../../store/store";
+import { useDispatch } from "react-redux";
+
+export const Header = ({ tempStudents }: THeader) => {
+  const dispatch = useDispatch<AppDispatch>();
   const [dropdownStatus, setDropdownStatus] = useState<boolean>(false);
 
   const [selectedKeys, setSelectedKeys] = useState(new Set(["all_students"]));
@@ -25,7 +30,7 @@ export const Header = ({ tempStudents, setStudents }: THeader) => {
   }, [selectedKeys]);
 
   useEffect(() => {
-    userFiltration(selectedValue, tempStudents, setStudents);
+    userFiltration(selectedValue, tempStudents, dispatch);
   }, [selectedValue]);
 
   return (

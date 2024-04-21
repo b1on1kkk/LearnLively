@@ -50,11 +50,6 @@ export interface TRegistrationContext {
   errorSetter: (e: TRegistrationError | null) => void;
 }
 
-export interface GlobalContent {
-  user: User | null;
-  userSetter: (c: User | null) => void;
-}
-
 export interface User {
   id: number;
   name: string;
