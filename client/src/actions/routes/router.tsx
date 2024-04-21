@@ -88,9 +88,7 @@ const router = createBrowserRouter([
             path: ":id",
             element: (
               <MessageDefender>
-                <ProtectedRoute>
-                  <Chat />
-                </ProtectedRoute>
+                <Chat />
               </MessageDefender>
             )
           }

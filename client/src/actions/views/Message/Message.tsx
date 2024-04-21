@@ -10,7 +10,7 @@ export const Message = () => {
   const outlet = useOutlet();
 
   return (
-    <div className="flex h-screen relative px-8 pb-6 pt-12 gap-8">
+    <div className="flex h-full relative px-8 pb-6 pt-12 gap-8">
       <main className="h-full bg-[#050615] rounded-2xl shadow-2xl border-slate-900 border-2 overflow-auto z-10 flex-1">
         {outlet ? (
           <Outlet />
@@ -27,7 +27,7 @@ export const Message = () => {
           <Tooltip
             delay={0}
             closeDelay={0}
-            content="To create chats add users to your friends list and then write them message!"
+            content="Add users to friends list, and start chatting!"
             placement="left"
             className="bg-gradient-to-r from-green-400 to-blue-500 font-semibold"
           >

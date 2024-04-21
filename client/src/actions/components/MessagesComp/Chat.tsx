@@ -39,10 +39,25 @@ export const Chat = () => {
       </header>
 
       <main
-        className="flex-1 overflow-auto flex flex-col p-5 gap-3"
+        className="flex-1 overflow-auto flex flex-col p-5 gap-4"
         ref={elemToScrollToButton}
       >
-        {fake.map(() => {
+        <div className="flex h-full items-center justify-center">
+          <div className="p-4 flex flex-col text-center gap-2 bg-[#00010d] rounded-2xl border-slate-900 border-2">
+            <span className="font-semibold">No messages here yet...</span>
+            <span className="text-sm">
+              Send a message or tap on the
+              <br />
+              greeting below.
+            </span>
+
+            <Button className="font-semibold bg-gradient-to-r from-green-400 to-blue-500">
+              Hey!
+            </Button>
+          </div>
+        </div>
+
+        {/* {fake.map(() => {
           return (
             <>
               <div className="flex gap-3">
@@ -79,7 +94,7 @@ export const Chat = () => {
               </div>
             </>
           );
-        })}
+        })} */}
       </main>
 
       <footer className="p-2 bg-[#00010d] border-slate-900 border-2 rounded-2xl text-slate-400 shadow-2xl mt-2">
@@ -99,9 +114,7 @@ export const Chat = () => {
                 </>
               }
               label="file"
-              onClick={() => {
-                inputFileRef.current?.click();
-              }}
+              onClick={() => inputFileRef.current?.click()}
             />
             <label htmlFor=""></label>
           </div>
