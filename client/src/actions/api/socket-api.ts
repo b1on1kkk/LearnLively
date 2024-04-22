@@ -46,14 +46,14 @@ export class SocketAPI {
   ////////////////////////////////////////listeners////////////////////////////////////////////////
 
   public getNewStudents(
-    chosenUser: Student | null,
-    setChosenUser: (c: Student) => void,
-    setTempStudents: (c: Array<Student> | null) => void
+    chosenUser: number | null,
+    setTempStudents: (c: Array<Student> | null) => void,
+    chosenUserDispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>
   ) {
     this.socket?.on("newStudents", (data: Array<Student>) => {
       if (chosenUser) {
-        const student = data.find((student) => student.id === chosenUser.id);
-        setChosenUser(student!);
+        const student = data.findIndex((student) => student.id === chosenUser);
+        chosenUserDispatch(studentsActions.initChosenUser(student));
       }
 
       this.reduxDispatch(studentsActions.initStudents(data));

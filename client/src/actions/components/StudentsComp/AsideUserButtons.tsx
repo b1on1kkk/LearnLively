@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { Button, Divider, Tooltip } from "@nextui-org/react";
 import {
   MessageSquareMore,
@@ -7,28 +7,28 @@ import {
   PhoneOff
 } from "lucide-react";
 
-import useStudentsContext from "../../hooks/useStudentsContext";
-
 import type { TAsideUserButtons } from "../../interfaces/Students/Aside";
+import { RootState } from "../../store/store";
+import { useSelector } from "react-redux";
 
 export const AsideUserButtons = ({
   onClickCall,
   onClickChat
 }: TAsideUserButtons) => {
-  const { chosenUser } = useStudentsContext();
+  const { chosenUser, students } = useSelector((u: RootState) => u.students);
 
   return (
     <div className="flex gap-3 p-5 items-center">
-      {chosenUser && (
+      {chosenUser !== null && students && (
         <>
-          {(chosenUser.friends_friends_friend_idTousers.length > 0 &&
-            chosenUser.friends_friends_friend_idTousers[0].status ===
+          {(students[chosenUser].friends_friends_friend_idTousers.length > 0 &&
+            students[chosenUser].friends_friends_friend_idTousers[0].status ===
               "accepted") ||
-          (chosenUser.friends_friends_user_idTousers.length > 0 &&
-            chosenUser.friends_friends_user_idTousers[0].status ===
+          (students[chosenUser].friends_friends_user_idTousers.length > 0 &&
+            students[chosenUser].friends_friends_user_idTousers[0].status ===
               "accepted") ? (
             <>
-              <NavLink to={`/message/:${chosenUser.id}`}>
+              <NavLink to={`/message/:${students[chosenUser].id}`}>
                 <Button
                   startContent={<MessageSquareMore width={18} height={18} />}
                   className="bg-transparent text-xs font-semibold flex-1 hover:bg-gray-600 text-slate-600 hover:text-white"

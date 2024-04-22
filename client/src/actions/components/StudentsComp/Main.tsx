@@ -1,5 +1,4 @@
-import { useSelector } from "react-redux";
-import useStudentsContext from "../../hooks/useStudentsContext";
+import { useDispatch, useSelector } from "react-redux";
 
 import { RequestsButton } from "./RequestsButton";
 import { Spinner, Button } from "@nextui-org/react";
@@ -11,19 +10,19 @@ import {
   UserRound
 } from "lucide-react";
 
-import { RootState } from "../../store/store";
+import { AppDispatch, RootState } from "../../store/store";
 
 import type { TMainStudents } from "../../interfaces/Students/Main";
+import { studentsActions } from "../../store/features/students.slice";
 
 export const Main = ({
   isLoading,
   isError,
   socketController
 }: TMainStudents) => {
+  const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((u: RootState) => u.user);
-  const { students } = useSelector((u: RootState) => u.students);
-
-  const { chosenUser, setChosenUser } = useStudentsContext();
+  const { students, chosenUser } = useSelector((u: RootState) => u.students);
 
   return (
     <main className="mt-3 h-full bg-[#050615] rounded-2xl shadow-2xl px-6 border-slate-900 border-2 overflow-auto">
@@ -41,7 +40,11 @@ export const Main = ({
                 <Button
                   className="text-sm text-slate-500 font-semibold w-full bg-transparent justify-start text-start h-unit-2xl hover:bg-gray-600 hover:text-white flex-1"
                   onClick={() => {
-                    if (chosenUser?.id !== student.id) setChosenUser(student);
+                    // console.log(chosenUser);
+
+                    if (chosenUser !== student.id) {
+                      dispatch(studentsActions.initChosenUser(idx));
+                    }
                   }}
                 >
                   <span className="flex-[2]">

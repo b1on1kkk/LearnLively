@@ -1,23 +1,22 @@
-import { Button } from "@nextui-org/react";
-
-import useStudentsContext from "../../hooks/useStudentsContext";
-
-import type { TAsideFooter } from "../../interfaces/Students/AsideFooter";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 
+import { Button } from "@nextui-org/react";
+
+import type { TAsideFooter } from "../../interfaces/Students/AsideFooter";
+
 export const AsideFooter = ({ socketController }: TAsideFooter) => {
   const user = useSelector((u: RootState) => u.user);
-  const { chosenUser } = useStudentsContext();
+  const { chosenUser, students } = useSelector((u: RootState) => u.students);
 
   return (
     <div className="flex-1 flex items-end">
-      {chosenUser && user && (
+      {chosenUser !== null && user && students && (
         <>
-          {chosenUser.friends_friends_friend_idTousers.length > 0 ? (
+          {students[chosenUser].friends_friends_friend_idTousers.length > 0 ? (
             <>
-              {chosenUser.friends_friends_friend_idTousers[0].status ===
-              "pending" ? (
+              {students[chosenUser].friends_friends_friend_idTousers[0]
+                .status === "pending" ? (
                 <Button className="w-full bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% text-lg font-semibold">
                   Friend request was sent!
                 </Button>
@@ -27,9 +26,9 @@ export const AsideFooter = ({ socketController }: TAsideFooter) => {
                 </Button>
               )}
             </>
-          ) : chosenUser.friends_friends_user_idTousers.length > 0 ? (
+          ) : students[chosenUser].friends_friends_user_idTousers.length > 0 ? (
             <>
-              {chosenUser.friends_friends_user_idTousers[0].status ===
+              {students[chosenUser].friends_friends_user_idTousers[0].status ===
               "pending" ? (
                 <div className="flex flex-col w-full text-center gap-2">
                   <div>
@@ -39,7 +38,9 @@ export const AsideFooter = ({ socketController }: TAsideFooter) => {
                     <Button
                       className="flex-1 font-semibold bg-green-500"
                       onClick={() =>
-                        socketController.acceptFriendRequest(chosenUser)
+                        socketController.acceptFriendRequest(
+                          students[chosenUser]
+                        )
                       }
                     >
                       Accept
@@ -47,7 +48,9 @@ export const AsideFooter = ({ socketController }: TAsideFooter) => {
                     <Button
                       className="flex-1 font-semibold bg-red-500"
                       onClick={() =>
-                        socketController.rejectFriendRequest(chosenUser)
+                        socketController.rejectFriendRequest(
+                          students[chosenUser]
+                        )
                       }
                     >
                       Reject
@@ -64,7 +67,10 @@ export const AsideFooter = ({ socketController }: TAsideFooter) => {
             <Button
               className="w-full bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% text-lg font-semibold"
               onClick={() =>
-                socketController.sendFriendRequest(user.id, chosenUser.id)
+                socketController.sendFriendRequest(
+                  user.id,
+                  students[chosenUser].id
+                )
               }
             >
               Be friends!

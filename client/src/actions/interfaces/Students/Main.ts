@@ -31,11 +31,6 @@ export interface TMainStudents {
   socketController: SocketController;
 }
 
-export interface TStudentsContext {
-  chosenUser: Student | null;
-  setChosenUser: (c: Student) => void;
-}
-
 export interface TRequestsButton extends TooltipProps {
   onClick: () => void;
   status: "accept" | "reject";
