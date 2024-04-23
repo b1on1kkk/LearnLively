@@ -79,4 +79,9 @@ export class ApiService {
       );
     }
   }
+
+  // in future
+  async getChats(user_id: number) {
+    return user_id;
+  }
 }

@@ -1,4 +1,4 @@
-import { SocketController } from "../../api/socket-controllers";
+import { SocketController } from "../../api/service-socket/service-socket-controllers";
 
 export interface TAsideStudentInf {
   socketController: SocketController;

@@ -1,14 +1,14 @@
 import { Socket, io } from "socket.io-client";
 
-import type { Student } from "../interfaces/Students/Main";
-import type { TSendFriendRequest } from "../interfaces/api/sendFriendRequest";
-import type { TFriendRequest } from "../interfaces/api/acceptFriendRequest";
+import type { Student } from "../../interfaces/Students/Main";
+import type { TSendFriendRequest } from "../../interfaces/api/sendFriendRequest";
+import type { TFriendRequest } from "../../interfaces/api/acceptFriendRequest";
 
-import { AppDispatch } from "../store/store";
+import { AppDispatch } from "../../store/store";
 import { ThunkDispatch, UnknownAction } from "@reduxjs/toolkit";
-import { studentsActions } from "../store/features/students.slice";
+import { studentsActions } from "../../store/features/students.slice";
 
-export class SocketAPI {
+export class ServiceSocket {
   private socket: Socket | null;
   private reduxDispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>;
 

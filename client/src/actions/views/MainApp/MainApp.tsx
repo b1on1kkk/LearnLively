@@ -12,26 +12,26 @@ import { RootState } from "../../store/store";
 
 export const MainApp = () => {
   const user = useSelector((u: RootState) => u.user);
-  useConnectSocket("http://localhost:3001/", user);
+  useConnectSocket("http://localhost:3001/service_logic", user);
 
-  const { socket } = useSelector((s: RootState) => s.socket);
+  const { service_socket } = useSelector((s: RootState) => s.socket);
 
   useEffect(() => {
-    if (user) socket?.connectUser(user.id);
-  }, [user, socket]);
+    if (user) service_socket?.connectUser(user.id);
+  }, [user, service_socket]);
 
   // if user close tab or leave - disable websocket connection
   useEffect(() => {
     function handlePageHide(e: PageTransitionEvent) {
       e.preventDefault();
 
-      if (user) socket?.disconnectUser(user.id);
+      if (user) service_socket?.disconnectUser(user.id);
     }
 
     window.addEventListener("pagehide", handlePageHide);
 
     return () => window.removeEventListener("pagehide", handlePageHide);
-  }, [socket, user]);
+  }, [service_socket, user]);
 
   return (
     <main className="flex h-screen">

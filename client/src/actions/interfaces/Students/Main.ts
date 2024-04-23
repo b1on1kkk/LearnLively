@@ -1,6 +1,6 @@
 import { TooltipProps } from "@nextui-org/react";
 import { ReactElement } from "react";
-import { SocketController } from "../../api/socket-controllers";
+import { SocketController } from "../../api/service-socket/service-socket-controllers";
 
 interface RequestInitiator {
   id: number;

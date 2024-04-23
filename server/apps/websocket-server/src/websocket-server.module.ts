@@ -1,12 +1,9 @@
 import { Module } from '@nestjs/common';
-import { WebsocketServerService } from './websocket-server.service';
-import { PrismaModule } from '@prismaORM/prisma';
-import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.interceptor';
-import { SharedModule } from '@sharedService/shared';
-import { WebsocketUtils } from '../utils/websocketUtils.service';
+
+import { ChatWebsocketModule } from './chat-websocket/chat-websocket.module';
+import { ServiceWebsocketModule } from './service-websocket/service-websocket.module';
 
 @Module({
-  imports: [PrismaModule, SharedModule],
-  providers: [WebsocketServerService, ErrorCatcherInterceptor, WebsocketUtils],
+  imports: [ChatWebsocketModule, ServiceWebsocketModule],
 })
 export class WebsocketServerModule {}

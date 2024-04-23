@@ -1,5 +1,5 @@
-import { SocketAPI } from "../../api/socket-api";
+import { ServiceSocket } from "../../api/service-socket/service-socket";
 
 export interface SocketContent {
-  socket: SocketAPI | null;
+  service_socket: ServiceSocket | null;
 }

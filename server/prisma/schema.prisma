@@ -7,24 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model chat_members {
-  id        Int      @id @default(autoincrement())
-  chat_id   Int
-  user_id   Int
-  joined_at DateTime @db.Timestamp(6)
-  chats     chats    @relation(fields: [chat_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users     users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model chats {
-  id            Int             @id @default(autoincrement())
-  type          chat_type
-  description   String          @db.VarChar(255)
-  created_at    DateTime        @db.Timestamp(6)
-  chat_members  chat_members[]
-  chat_messages chat_messages[]
-}
-
 model friends {
   id                             Int           @id @default(autoincrement())
   user_id                        Int
@@ -36,23 +18,24 @@ model friends {
 }
 
 model users {
-  id                               Int             @id @default(autoincrement())
-  name                             String          @db.VarChar(255)
-  lastname                         String          @db.VarChar(255)
-  surname                          String          @db.VarChar(255)
+  id                               Int                   @id @default(autoincrement())
+  name                             String                @db.VarChar(255)
+  lastname                         String                @db.VarChar(255)
+  surname                          String                @db.VarChar(255)
   role                             roles
-  email                            String          @unique @db.VarChar(255)
+  email                            String                @unique @db.VarChar(255)
   end_semester                     Int
   now_semester                     Int
-  department                       String          @db.VarChar(255)
-  password                         String          @db.VarChar(255)
-  img_hash_name                    String          @db.VarChar(255)
-  created_at                       DateTime        @db.Timestamp(6)
-  chat_members                     chat_members[]
-  chat_messages                    chat_messages[]
-  friends_friends_friend_idTousers friends[]       @relation("friends_friend_idTousers")
-  friends_friends_user_idTousers   friends[]       @relation("friends_user_idTousers")
+  department                       String                @db.VarChar(255)
+  password                         String                @db.VarChar(255)
+  img_hash_name                    String                @db.VarChar(255)
+  created_at                       DateTime              @db.Timestamp(6)
+  devices                          devices[]
+  friends_friends_friend_idTousers friends[]             @relation("friends_friend_idTousers")
+  friends_friends_user_idTousers   friends[]             @relation("friends_user_idTousers")
+  messages                         messages[]
   refresh_token                    refresh_token[]
+  users_conversations              users_conversations[]
 }
 
 model refresh_token {
@@ -63,16 +46,40 @@ model refresh_token {
   users         users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model chat_messages {
-  id         Int      @id @default(autoincrement())
-  user_id    Int
-  chat_id    Int
-  content    String
-  is_edited  Boolean
-  is_readed  Boolean
-  created_at DateTime @db.Timestamp(6)
-  chats      chats    @relation(fields: [chat_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model conversations {
+  id                  Int                   @id @default(autoincrement())
+  type                chat_type
+  messages            messages[]
+  users_conversations users_conversations[]
+}
+
+model devices {
+  id                   Int         @id @default(autoincrement())
+  user_id              Int
+  device_type          device_type
+  registration_date    DateTime    @db.Timestamp(6)
+  last_seen_message_id Int
+  users                users       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model messages {
+  id              Int           @id @default(autoincrement())
+  user_id         Int
+  conversation_id Int
+  content         String        @db.VarChar
+  sent_at         DateTime      @db.Timestamp(6)
+  delivered_at    DateTime      @db.Timestamp(6)
+  seen_at         DateTime      @db.Timestamp(6)
+  conversations   conversations @relation(fields: [conversation_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users           users         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users_conversations {
+  id              Int           @id @default(autoincrement())
+  user_id         Int
+  conversation_id Int
+  conversations   conversations @relation(fields: [conversation_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users           users         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum roles {
@@ -89,4 +96,10 @@ enum friend_status {
 enum chat_type {
   private
   group
+}
+
+enum device_type {
+  phone
+  laptop
+  tablet
 }

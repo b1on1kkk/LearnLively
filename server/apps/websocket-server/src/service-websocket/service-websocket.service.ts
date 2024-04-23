@@ -11,16 +11,16 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 
-import type { ActiveUsersDTO } from '../dto/activeUsersDTO';
-import type { ConnectedUserDTO } from '../dto/connectedUserDTO';
-import type { StudentDataDTO } from '../dto/studentDataDTO';
+import type { ActiveUsersDTO } from 'apps/websocket-server/dto/activeUsersDTO';
+import type { ConnectedUserDTO } from 'apps/websocket-server/dto/connectedUserDTO';
+import type { StudentDataDTO } from 'apps/websocket-server/dto/studentDataDTO';
 
-import { binaryUserSearchByUserId } from '../utils/binaryUserSearchBySocketId';
-import { WebsocketUtils } from '../utils/websocketUtils.service';
+import { binaryUserSearchByUserId } from 'apps/websocket-server/utils/binaryUserSearchBySocketId';
+import { WebsocketUtils } from 'apps/websocket-server/utils/websocketUtils.service';
 
 @Injectable()
-@WebSocketGateway({ cors: { origin: '*' } })
-export class WebsocketServerService {
+@WebSocketGateway({ cors: { origin: '*' }, namespace: 'service_logic' })
+export class ServiceWebsocketService {
   @WebSocketServer()
   private server: Server;
   private ActiveUsers: Array<ActiveUsersDTO>;

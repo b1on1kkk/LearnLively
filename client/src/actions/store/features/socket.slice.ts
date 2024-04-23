@@ -1,21 +1,21 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
-import { SocketAPI } from "../../api/socket-api";
+import { ServiceSocket } from "../../api/service-socket/service-socket";
 
 import type { SocketContent } from "../interfaces/socket.slice.interface";
 
 const initialState: SocketContent = {
-  socket: null
+  service_socket: null
 };
 
 export const socketSlice = createSlice({
   name: "socketSlice",
   initialState,
   reducers: {
-    socketInit: (state, action: PayloadAction<SocketAPI | null>) => {
+    socketInit: (state, action: PayloadAction<ServiceSocket | null>) => {
       return {
         ...state,
-        socket: action.payload
+        service_socket: action.payload
       };
     }
   }

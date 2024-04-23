@@ -8,21 +8,21 @@ import { Header } from "../../components/StudentsComp/Header";
 import { Main } from "../../components/StudentsComp/Main";
 import { AsideStudentInf } from "../../components/StudentsComp/AsideStudentInf";
 
-import { SocketController } from "../../api/socket-controllers";
+import { SocketController } from "../../api/service-socket/service-socket-controllers";
 
 import type { Student } from "../../interfaces/Students/Main";
 
 export const Students = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { data, isError, isLoading } = useStudents();
-  const { socket } = useSelector((s: RootState) => s.socket);
   const { chosenUser } = useSelector((u: RootState) => u.students);
+  const { service_socket } = useSelector((s: RootState) => s.socket);
 
   const [tempStudents, setTempStudents] = useState<Array<Student> | null>(null);
 
   const socketController = useMemo(() => {
-    return new SocketController(socket);
-  }, [socket]);
+    return new SocketController(service_socket);
+  }, [service_socket]);
 
   useEffect(() => {
     if (data) {
@@ -32,9 +32,9 @@ export const Students = () => {
 
   // listen if new data comes
   useEffect(() => {
-    console.log(socket);
-    socket?.getNewStudents(chosenUser, setTempStudents, dispatch);
-  }, [socket, chosenUser]);
+    console.log(service_socket);
+    service_socket?.getNewStudents(chosenUser, setTempStudents, dispatch);
+  }, [service_socket, chosenUser]);
 
   return (
     <div className="flex h-screen relative px-8 pb-6 pt-12 gap-8">

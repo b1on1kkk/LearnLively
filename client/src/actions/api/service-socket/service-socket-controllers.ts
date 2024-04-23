@@ -1,10 +1,10 @@
-import type { SocketAPI } from "./socket-api";
-import type { Student } from "../interfaces/Students/Main";
+import type { ServiceSocket } from "./service-socket";
+import type { Student } from "../../interfaces/Students/Main";
 
 export class SocketController {
-  private socket: SocketAPI | null;
+  private socket: ServiceSocket | null;
 
-  constructor(socket: SocketAPI | null) {
+  constructor(socket: ServiceSocket | null) {
     this.socket = socket;
   }
 

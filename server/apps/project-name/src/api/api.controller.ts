@@ -102,4 +102,20 @@ export class ApiController {
       })
       .json(await this.apiService.getStudents(encoded_values.id));
   }
+
+  @Get('chats')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(ErrorCatcherInterceptor)
+  async getChats(@Req() req: Request, @Res() res: Response) {
+    const encoded_values: EncodedJwt = await this.jwtService.decode(
+      req.cookies.jwt_lg,
+    );
+
+    return res
+      .cookie('jwt_lg', this.sharedService.getCookie(), {
+        httpOnly: true,
+        maxAge: 259200000,
+      })
+      .json(await this.apiService.getChats(encoded_values.id));
+  }
 }

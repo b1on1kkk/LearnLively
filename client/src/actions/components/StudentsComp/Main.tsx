@@ -40,8 +40,6 @@ export const Main = ({
                 <Button
                   className="text-sm text-slate-500 font-semibold w-full bg-transparent justify-start text-start h-unit-2xl hover:bg-gray-600 hover:text-white flex-1"
                   onClick={() => {
-                    // console.log(chosenUser);
-
                     if (chosenUser !== student.id) {
                       dispatch(studentsActions.initChosenUser(idx));
                     }
