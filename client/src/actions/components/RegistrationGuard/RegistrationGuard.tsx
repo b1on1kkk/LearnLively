@@ -3,7 +3,7 @@ import useCheckUserAuth from "../../hooks/useCheckUserAuth";
 
 import { Navigate } from "react-router-dom";
 
-import { Loading } from "../../views/Loading/Loading";
+import { Loading } from "../Loading/Loading";
 
 export const RegistrationGuard = ({ children }: { children: ReactElement }) => {
   const { data, isError, isLoading } = useCheckUserAuth();

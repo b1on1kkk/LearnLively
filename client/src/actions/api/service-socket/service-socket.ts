@@ -8,7 +8,9 @@ import { AppDispatch } from "../../store/store";
 import { ThunkDispatch, UnknownAction } from "@reduxjs/toolkit";
 import { studentsActions } from "../../store/features/students.slice";
 
-export class ServiceSocket {
+import WebSocket from "../abstract/webSocket";
+
+export class ServiceSocket implements WebSocket {
   private socket: Socket | null;
   private reduxDispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>;
 
@@ -47,13 +49,13 @@ export class ServiceSocket {
 
   public getNewStudents(
     chosenUser: number | null,
-    setTempStudents: (c: Array<Student> | null) => void,
-    chosenUserDispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>
+    chosenUserSetter: (c: number | null) => void,
+    setTempStudents: (c: Array<Student> | null) => void
   ) {
     this.socket?.on("newStudents", (data: Array<Student>) => {
       if (chosenUser) {
         const student = data.findIndex((student) => student.id === chosenUser);
-        chosenUserDispatch(studentsActions.initChosenUser(student));
+        chosenUserSetter(student);
       }
 
       this.reduxDispatch(studentsActions.initStudents(data));

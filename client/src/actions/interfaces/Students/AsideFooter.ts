@@ -2,4 +2,5 @@ import type { SocketController } from "../../api/service-socket/service-socket-c
 
 export interface TAsideFooter {
   socketController: SocketController;
+  chosenUser: number | null;
 }

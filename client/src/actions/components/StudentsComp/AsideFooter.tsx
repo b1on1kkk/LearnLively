@@ -5,9 +5,9 @@ import { Button } from "@nextui-org/react";
 
 import type { TAsideFooter } from "../../interfaces/Students/AsideFooter";
 
-export const AsideFooter = ({ socketController }: TAsideFooter) => {
+export const AsideFooter = ({ socketController, chosenUser }: TAsideFooter) => {
   const user = useSelector((u: RootState) => u.user);
-  const { chosenUser, students } = useSelector((u: RootState) => u.students);
+  const { students } = useSelector((u: RootState) => u.students);
 
   return (
     <div className="flex-1 flex items-end">

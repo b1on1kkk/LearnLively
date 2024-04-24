@@ -4,23 +4,24 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@prismaORM/prisma';
 
 import {
-  ConnectedSocket,
   MessageBody,
+  ConnectedSocket,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
 
 import type { ActiveUsersDTO } from 'apps/websocket-server/dto/activeUsersDTO';
-import type { ConnectedUserDTO } from 'apps/websocket-server/dto/connectedUserDTO';
 import type { StudentDataDTO } from 'apps/websocket-server/dto/studentDataDTO';
+import type { ConnectedUserDTO } from 'apps/websocket-server/dto/connectedUserDTO';
 
-import { binaryUserSearchByUserId } from 'apps/websocket-server/utils/binaryUserSearchBySocketId';
 import { WebsocketUtils } from 'apps/websocket-server/utils/websocketUtils.service';
+
+import WebSocket from '../abstract/webSocket';
 
 @Injectable()
 @WebSocketGateway({ cors: { origin: '*' }, namespace: 'service_logic' })
-export class ServiceWebsocketService {
+export class ServiceWebsocketService implements WebSocket {
   @WebSocketServer()
   private server: Server;
   private ActiveUsers: Array<ActiveUsersDTO>;
@@ -37,26 +38,29 @@ export class ServiceWebsocketService {
     @MessageBody() dto: ConnectedUserDTO,
     @ConnectedSocket() client: Socket,
   ) {
-    const idx = binaryUserSearchByUserId(this.ActiveUsers, dto.user_id);
+    const idx = this.websocketUtilsService.binaryUserSearchByUserId(
+      this.ActiveUsers,
+      dto.user_id,
+    );
 
     if (idx === null) {
       this.ActiveUsers.push({ ...dto, socket_id: client.id });
       this.ActiveUsers = this.ActiveUsers.sort((a, b) => a.user_id - b.user_id);
     } else this.ActiveUsers[idx].socket_id = client.id;
 
-    console.log(this.ActiveUsers);
+    console.log(this.ActiveUsers, 'service_logic_socket');
   }
 
   @SubscribeMessage('userDisconnect')
   disconnectionMessage(@ConnectedSocket() client: Socket) {
     if (this.ActiveUsers.length > 0) {
-      console.log('worked', client.id);
+      console.log('worked', client.id, 'service_logic_socket');
 
       this.ActiveUsers = this.ActiveUsers.filter(
         (user) => user.socket_id !== client.id,
       );
 
-      console.log(this.ActiveUsers);
+      console.log(this.ActiveUsers, 'service_logic_socket');
     }
   }
 

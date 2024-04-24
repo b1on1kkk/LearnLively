@@ -12,14 +12,14 @@ import { Notification } from "../Notification";
 import { QUERY_ROOT } from "../../constants/Query/query";
 import type { TAsideStudentInf } from "../../interfaces/Students/AsideStudents";
 
-export const AsideStudentInf = ({ socketController }: TAsideStudentInf) => {
-  const { chosenUser, students } = useSelector((u: RootState) => u.students);
+export const AsideStudentInf = ({
+  socketController,
+  chosenUser
+}: TAsideStudentInf) => {
+  const { students } = useSelector((u: RootState) => u.students);
 
   return (
     <div className="z-10 flex-1 bg-[#050615] rounded-2xl shadow-2xl border-2 border-slate-900 p-5 flex flex-col max-w-72">
-      {/*  небольшая пасхалка от разработчика :) вдруг, кто-то увидит это, но тут говнокод, его по хорошему переделать надо :) 
-           как и везде, где есть такое длинное условие
-      */}
       {chosenUser !== null && students && students.length > 0 ? (
         <>
           {/* image and name */}
@@ -32,7 +32,11 @@ export const AsideStudentInf = ({ socketController }: TAsideStudentInf) => {
           />
 
           {/* call and message */}
-          <AsideUserButtons onClickCall={() => {}} onClickChat={() => {}} />
+          <AsideUserButtons
+            chosenUser={chosenUser}
+            onClickCall={() => {}}
+            onClickChat={() => {}}
+          />
 
           {/* academic info */}
           <AsideAcademicInfo
@@ -42,7 +46,10 @@ export const AsideStudentInf = ({ socketController }: TAsideStudentInf) => {
           />
 
           {/* footer */}
-          <AsideFooter socketController={socketController} />
+          <AsideFooter
+            socketController={socketController}
+            chosenUser={chosenUser}
+          />
         </>
       ) : (
         <Notification

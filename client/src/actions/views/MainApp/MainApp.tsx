@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import useConnectSocket from "../../hooks/useConnectSocket";
+import useConnectServiceSocket from "../../hooks/useConnectServiceSocket";
 
 import { Outlet } from "react-router";
 
@@ -12,9 +12,8 @@ import { RootState } from "../../store/store";
 
 export const MainApp = () => {
   const user = useSelector((u: RootState) => u.user);
-  useConnectSocket("http://localhost:3001/service_logic", user);
-
   const { service_socket } = useSelector((s: RootState) => s.socket);
+  useConnectServiceSocket("http://localhost:3001/service_logic", user);
 
   useEffect(() => {
     if (user) service_socket?.connectUser(user.id);

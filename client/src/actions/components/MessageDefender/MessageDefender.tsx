@@ -3,7 +3,7 @@ import useStudents from "../../hooks/useStudents";
 
 import { ReactElement, useEffect, useState } from "react";
 
-import { Loading } from "../../views/Loading/Loading";
+import { Loading } from "../Loading/Loading";
 
 import { RootState } from "../../store/store";
 import { Navigate, useParams } from "react-router-dom";

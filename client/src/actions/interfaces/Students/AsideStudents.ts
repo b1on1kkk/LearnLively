@@ -2,4 +2,5 @@ import { SocketController } from "../../api/service-socket/service-socket-contro
 
 export interface TAsideStudentInf {
   socketController: SocketController;
+  chosenUser: number | null;
 }

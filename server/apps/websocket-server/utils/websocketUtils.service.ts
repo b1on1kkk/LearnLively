@@ -8,7 +8,7 @@ import { StudentDataDTO } from '../dto/studentDataDTO';
 export class WebsocketUtils {
   constructor(private readonly sharedService: SharedService) {}
 
-  async studentData(
+  public async studentData(
     ActiveUsers: Array<ActiveUsersDTO>,
     dto: StudentDataDTO,
     server: Server,
@@ -36,7 +36,7 @@ export class WebsocketUtils {
     }
   }
 
-  binaryUserSearchByUserId(
+  public binaryUserSearchByUserId(
     array: Array<ActiveUsersDTO>,
     user_id: number,
   ): number | null {
@@ -50,11 +50,8 @@ export class WebsocketUtils {
 
       if (array[mid].user_id === user_id) return mid;
 
-      if (array[mid].user_id < user_id) {
-        left = mid + 1;
-      } else {
-        right = mid - 1;
-      }
+      if (array[mid].user_id < user_id) left = mid + 1;
+      else right = mid - 1;
     }
 
     return null;

@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 import { Button, Divider, Tooltip } from "@nextui-org/react";
 import {
@@ -7,15 +8,16 @@ import {
   PhoneOff
 } from "lucide-react";
 
-import type { TAsideUserButtons } from "../../interfaces/Students/Aside";
 import { RootState } from "../../store/store";
-import { useSelector } from "react-redux";
+
+import type { TAsideUserButtons } from "../../interfaces/Students/Aside";
 
 export const AsideUserButtons = ({
+  chosenUser,
   onClickCall,
   onClickChat
 }: TAsideUserButtons) => {
-  const { chosenUser, students } = useSelector((u: RootState) => u.students);
+  const { students } = useSelector((u: RootState) => u.students);
 
   return (
     <div className="flex gap-3 p-5 items-center">

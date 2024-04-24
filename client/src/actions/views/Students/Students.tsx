@@ -1,8 +1,8 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import useStudents from "../../hooks/useStudents";
 import { useEffect, useMemo, useState } from "react";
 
-import { AppDispatch, RootState } from "../../store/store";
+import { RootState } from "../../store/store";
 
 import { Header } from "../../components/StudentsComp/Header";
 import { Main } from "../../components/StudentsComp/Main";
@@ -13,11 +13,9 @@ import { SocketController } from "../../api/service-socket/service-socket-contro
 import type { Student } from "../../interfaces/Students/Main";
 
 export const Students = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const { data, isError, isLoading } = useStudents();
-  const { chosenUser } = useSelector((u: RootState) => u.students);
+  const [chosenUser, setChosenUser] = useState<number | null>(null);
   const { service_socket } = useSelector((s: RootState) => s.socket);
-
   const [tempStudents, setTempStudents] = useState<Array<Student> | null>(null);
 
   const socketController = useMemo(() => {
@@ -33,7 +31,7 @@ export const Students = () => {
   // listen if new data comes
   useEffect(() => {
     console.log(service_socket);
-    service_socket?.getNewStudents(chosenUser, setTempStudents, dispatch);
+    service_socket?.getNewStudents(chosenUser, setChosenUser, setTempStudents);
   }, [service_socket, chosenUser]);
 
   return (
@@ -48,11 +46,15 @@ export const Students = () => {
           isLoading={isLoading}
           isError={isError}
           socketController={socketController}
+          chosenUserSetter={setChosenUser}
         />
       </div>
 
       {/* aside menu about each user */}
-      <AsideStudentInf socketController={socketController} />
+      <AsideStudentInf
+        socketController={socketController}
+        chosenUser={chosenUser}
+      />
     </div>
   );
 };

@@ -29,6 +29,7 @@ export interface TMainStudents {
   isLoading: boolean;
   isError: boolean;
   socketController: SocketController;
+  chosenUserSetter: (c: number | null) => void;
 }
 
 export interface TRequestsButton extends TooltipProps {

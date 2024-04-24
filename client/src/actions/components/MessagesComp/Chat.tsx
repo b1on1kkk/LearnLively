@@ -1,15 +1,23 @@
 import { useRef, useState } from "react";
-
+import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import useCompanionId from "../../hooks/useCompanionId";
 import useScrollToBottom from "../../hooks/useScrollToBottom";
 
 import { Button } from "@nextui-org/react";
 import { Phone, Send, Paperclip } from "lucide-react";
 
+import { RootState } from "../../store/store";
+
 import { SystemButton } from "../SystemButton";
 
 export const Chat = () => {
+  const userId = useParams();
+
   const [message, setMessage] = useState<string>("");
   const inputFileRef = useRef<HTMLInputElement | null>(null);
+  const { students } = useSelector((u: RootState) => u.students);
+  const companionId = useCompanionId(students, +userId.id!.split("")[1]);
 
   const fake = new Array(10).fill(0);
 
@@ -18,24 +26,32 @@ export const Chat = () => {
   return (
     <div className="flex h-full p-3 flex-col">
       <header className="px-7 py-3 flex bg-[#00010d] border-slate-900 border-2 rounded-2xl shadow-2xl items-center gap-3 text-slate-400 mb-2">
-        <div>
-          <div className="w-[40px] h-[40px] bg-gray-400 rounded-full"></div>
-        </div>
+        {students && companionId !== -1 ? (
+          <>
+            <div>
+              <div className="w-[40px] h-[40px] bg-gray-400 rounded-full"></div>
+            </div>
 
-        <div className="flex-1 flex flex-col">
-          <span>
-            <h1 className="font-semibold text-sm">Alex Sinyak</h1>
-          </span>
-          <span className="text-xs opacity-55">offline</span>
-        </div>
+            <div className="flex-1 flex flex-col">
+              <span>
+                <h1 className="font-semibold text-sm">
+                  {students[companionId].name} {students[companionId].lastname}
+                </h1>
+              </span>
+              <span className="text-xs opacity-55">offline</span>
+            </div>
 
-        <div>
-          <SystemButton
-            icon={<Phone width={18} height={18} />}
-            label="call"
-            onClick={() => {}}
-          />
-        </div>
+            <div>
+              <SystemButton
+                icon={<Phone width={18} height={18} />}
+                label="call"
+                onClick={() => {}}
+              />
+            </div>
+          </>
+        ) : (
+          <></>
+        )}
       </header>
 
       <main

@@ -7,6 +7,7 @@ export interface TAsideHeader {
 }
 
 export interface TAsideUserButtons {
+  chosenUser: number | null;
   onClickChat: (e: React.MouseEvent<HTMLButtonElement>) => void;
   onClickCall: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }

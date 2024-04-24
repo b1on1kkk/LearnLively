@@ -2,7 +2,7 @@ import { ReactElement } from "react";
 import { Navigate } from "react-router-dom";
 import useCheckUserAuth from "../../hooks/useCheckUserAuth";
 
-import { Loading } from "../../views/Loading/Loading";
+import { Loading } from "../Loading/Loading";
 
 export const ProtectedRoute = ({ children }: { children: ReactElement }) => {
   const { data, isError, isLoading } = useCheckUserAuth();
