@@ -13,15 +13,17 @@ import {
 import { RootState } from "../../store/store";
 
 import type { TMainStudents } from "../../interfaces/Students/Main";
+import { useSocketControllerContext } from "../../hooks/useSocketControllerContext";
 
 export const Main = ({
   isLoading,
   isError,
-  socketController,
   chosenUserSetter
 }: TMainStudents) => {
   const user = useSelector((u: RootState) => u.user);
   const { students } = useSelector((u: RootState) => u.students);
+
+  const { socketController } = useSocketControllerContext();
 
   return (
     <main className="mt-3 h-full bg-[#050615] rounded-2xl shadow-2xl px-6 border-slate-900 border-2 overflow-auto">
@@ -86,7 +88,7 @@ export const Main = ({
                             status="accept"
                             image={<UserRoundPlus width={20} height={20} />}
                             onClick={() =>
-                              socketController.acceptFriendRequest(student)
+                              socketController?.acceptFriendRequest(student)
                             }
                             classNameStatus="positive"
                           />
@@ -96,7 +98,7 @@ export const Main = ({
                             status="reject"
                             image={<UserRoundX width={20} height={20} />}
                             onClick={() =>
-                              socketController.rejectFriendRequest(student)
+                              socketController?.rejectFriendRequest(student)
                             }
                             classNameStatus="negative"
                           />
@@ -118,9 +120,12 @@ export const Main = ({
                       content="Send friend request!"
                       status="accept"
                       image={<Plus width={20} height={20} />}
-                      onClick={() =>
-                        socketController.sendFriendRequest(user.id, student.id)
-                      }
+                      onClick={() => {
+                        socketController?.sendFriendRequest(
+                          user.id,
+                          student.id
+                        );
+                      }}
                       classNameStatus="positive"
                     />
                   )}

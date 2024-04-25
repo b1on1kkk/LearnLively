@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button, Divider, Tooltip } from "@nextui-org/react";
 import {
   MessageSquareMore,
@@ -30,7 +30,7 @@ export const AsideUserButtons = ({
             students[chosenUser].friends_friends_user_idTousers[0].status ===
               "accepted") ? (
             <>
-              <NavLink to={`/message/:${students[chosenUser].id}`}>
+              <Link to={`/message/:${students[chosenUser].id}`}>
                 <Button
                   startContent={<MessageSquareMore width={18} height={18} />}
                   className="bg-transparent text-xs font-semibold flex-1 hover:bg-gray-600 text-slate-600 hover:text-white"
@@ -38,7 +38,7 @@ export const AsideUserButtons = ({
                 >
                   Chat
                 </Button>
-              </NavLink>
+              </Link>
 
               <Divider orientation="vertical" className="h-5" />
               <Button

@@ -3,11 +3,15 @@ import { RootState } from "../../store/store";
 
 import { Button } from "@nextui-org/react";
 
+import { useSocketControllerContext } from "../../hooks/useSocketControllerContext";
+
 import type { TAsideFooter } from "../../interfaces/Students/AsideFooter";
 
-export const AsideFooter = ({ socketController, chosenUser }: TAsideFooter) => {
+export const AsideFooter = ({ chosenUser }: TAsideFooter) => {
   const user = useSelector((u: RootState) => u.user);
   const { students } = useSelector((u: RootState) => u.students);
+
+  const { socketController } = useSocketControllerContext();
 
   return (
     <div className="flex-1 flex items-end">
@@ -38,7 +42,7 @@ export const AsideFooter = ({ socketController, chosenUser }: TAsideFooter) => {
                     <Button
                       className="flex-1 font-semibold bg-green-500"
                       onClick={() =>
-                        socketController.acceptFriendRequest(
+                        socketController?.acceptFriendRequest(
                           students[chosenUser]
                         )
                       }
@@ -48,7 +52,7 @@ export const AsideFooter = ({ socketController, chosenUser }: TAsideFooter) => {
                     <Button
                       className="flex-1 font-semibold bg-red-500"
                       onClick={() =>
-                        socketController.rejectFriendRequest(
+                        socketController?.rejectFriendRequest(
                           students[chosenUser]
                         )
                       }
@@ -67,7 +71,7 @@ export const AsideFooter = ({ socketController, chosenUser }: TAsideFooter) => {
             <Button
               className="w-full bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% text-lg font-semibold"
               onClick={() =>
-                socketController.sendFriendRequest(
+                socketController?.sendFriendRequest(
                   user.id,
                   students[chosenUser].id
                 )

@@ -22,43 +22,47 @@ import WebSocket from '../abstract/webSocket';
 export class ChatWebsocketService implements WebSocket {
   @WebSocketServer()
   private server: Server;
-  private ActiveUsers: Array<ActiveUsersDTO>;
+  private ActiveChatUsers: Array<ActiveUsersDTO>;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly websocketUtilsService: WebsocketUtils,
   ) {
-    this.ActiveUsers = [];
+    this.ActiveChatUsers = [];
   }
 
-  @SubscribeMessage('userConnected')
+  @SubscribeMessage('userChatConnected')
   connectionMessage(
     @MessageBody() dto: ConnectedUserDTO,
     @ConnectedSocket() client: Socket,
   ) {
     const idx = this.websocketUtilsService.binaryUserSearchByUserId(
-      this.ActiveUsers,
+      this.ActiveChatUsers,
       dto.user_id,
     );
 
-    if (idx === null) {
-      this.ActiveUsers.push({ ...dto, socket_id: client.id });
-      this.ActiveUsers = this.ActiveUsers.sort((a, b) => a.user_id - b.user_id);
-    } else this.ActiveUsers[idx].socket_id = client.id;
+    console.log(idx, '------------------- idx');
 
-    console.log(this.ActiveUsers, 'chat_socket');
+    if (idx === null) {
+      this.ActiveChatUsers.push({ ...dto, socket_id: client.id });
+      this.ActiveChatUsers = this.ActiveChatUsers.sort(
+        (a, b) => a.user_id - b.user_id,
+      );
+    } else this.ActiveChatUsers[idx].socket_id = client.id;
+
+    console.log(this.ActiveChatUsers, 'chat_socket connected');
   }
 
-  @SubscribeMessage('userDisconnect')
+  @SubscribeMessage('userChatDisconnect')
   disconnectionMessage(@ConnectedSocket() client: Socket) {
-    if (this.ActiveUsers.length > 0) {
+    if (this.ActiveChatUsers.length > 0) {
       console.log('worked', client.id, 'chat_socket');
 
-      this.ActiveUsers = this.ActiveUsers.filter(
+      this.ActiveChatUsers = this.ActiveChatUsers.filter(
         (user) => user.socket_id !== client.id,
       );
 
-      console.log(this.ActiveUsers, 'chat_socket');
+      console.log(this.ActiveChatUsers, 'chat_socket after disconnection');
     }
   }
 }

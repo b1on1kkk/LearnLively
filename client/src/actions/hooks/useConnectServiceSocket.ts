@@ -4,24 +4,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { ServiceSocket } from "../api/service-socket/service-socket";
 
 import { AppDispatch, RootState } from "../store/store";
-import { socketAcitons } from "../store/features/socket.slice";
+import { socketAcitons } from "../store/features/serviceSocket.slice";
 
 import type { User } from "../interfaces/Registration/Validation";
 
-const useConnectServiceSocket = (url: string, user: User | null) => {
+const useConnectServiceSocket = (url: string, user: User) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { service_socket } = useSelector((s: RootState) => s.socket);
+  const { service_socket } = useSelector((s: RootState) => s.serviceSocket);
 
   const connectSocket = () => {
-    if (!service_socket && user) {
-      dispatch(
-        socketAcitons.serviceSocketInit(new ServiceSocket(url, dispatch))
-      );
-    }
+    dispatch(
+      socketAcitons.serviceSocketInit(new ServiceSocket(url, dispatch, user.id))
+    );
   };
 
   useEffect(() => {
-    connectSocket();
+    if (!service_socket) connectSocket();
   }, []);
 
   return { service_socket };

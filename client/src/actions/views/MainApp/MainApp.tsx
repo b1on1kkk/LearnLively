@@ -1,6 +1,6 @@
-import { useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import useConnectServiceSocket from "../../hooks/useConnectServiceSocket";
+import usePageHideMainListener from "../../hooks/usePageHideMainListener";
 
 import { Outlet } from "react-router";
 
@@ -8,29 +8,24 @@ import { Header } from "../../components/NavigationComp/Header";
 import { Main } from "../../components/NavigationComp/Main";
 import { Navigation } from "../../components/NavigationComp/Navigation";
 
-import { RootState } from "../../store/store";
+import { AppDispatch, RootState } from "../../store/store";
 
 export const MainApp = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((u: RootState) => u.user);
-  const { service_socket } = useSelector((s: RootState) => s.socket);
   useConnectServiceSocket("http://localhost:3001/service_logic", user);
 
-  useEffect(() => {
-    if (user) service_socket?.connectUser(user.id);
-  }, [user, service_socket]);
+  const { service_socket } = useSelector((s: RootState) => s.serviceSocket);
 
-  // if user close tab or leave - disable websocket connection
-  useEffect(() => {
-    function handlePageHide(e: PageTransitionEvent) {
-      e.preventDefault();
+  const { chat_socket } = useSelector((s: RootState) => s.chatSocket);
 
-      if (user) service_socket?.disconnectUser(user.id);
-    }
+  console.log("----------service_socket----------");
+  console.log(service_socket);
 
-    window.addEventListener("pagehide", handlePageHide);
+  console.log("----------chat_socket----------");
+  console.log(chat_socket);
 
-    return () => window.removeEventListener("pagehide", handlePageHide);
-  }, [service_socket, user]);
+  usePageHideMainListener(user, chat_socket, service_socket, dispatch); // if user close tab or leave - disable all websocket connection
 
   return (
     <main className="flex h-screen">

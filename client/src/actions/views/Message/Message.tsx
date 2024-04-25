@@ -1,9 +1,9 @@
 import axios from "axios";
 
-import { useEffect } from "react";
-import { useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import { Outlet, useOutlet } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import useChatActivity from "../../hooks/useChatActivity";
 import useConnectChatSocket from "../../hooks/useConnectChatSocket";
 
 import { Tooltip } from "@nextui-org/react";
@@ -12,7 +12,7 @@ import { Bot, Info, MessageSquareX } from "lucide-react";
 import { Loading } from "../../components/Loading/Loading";
 import { Notification } from "../../components/Notification";
 
-import { RootState } from "../../store/store";
+import { AppDispatch, RootState } from "../../store/store";
 
 import { QUERY_ROOT } from "../../constants/Query/query";
 
@@ -31,27 +31,15 @@ const useChats = () => {
 export const Message = () => {
   const outlet = useOutlet();
   const { data, isLoading } = useChats();
-
+  const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((u: RootState) => u.user);
-  const { chat_socket } = useSelector((s: RootState) => s.socket);
-  useConnectChatSocket("http://localhost:3001/chat", user);
 
-  useEffect(() => {
-    if (user) chat_socket?.connectUser(user.id);
-  }, [user, chat_socket]);
+  useConnectChatSocket("http://localhost:3001/chat", user, dispatch);
 
-  // if user close tab or leave - disable websocket connection
-  useEffect(() => {
-    function handlePageHide(e: PageTransitionEvent) {
-      e.preventDefault();
+  const { chat_socket } = useSelector((s: RootState) => s.chatSocket);
 
-      if (user) chat_socket?.disconnectUser(user.id);
-    }
-
-    window.addEventListener("pagehide", handlePageHide);
-
-    return () => window.removeEventListener("pagehide", handlePageHide);
-  }, [chat_socket, user]);
+  // detect user's activity
+  useChatActivity(user, chat_socket, dispatch);
 
   return (
     <div className="flex h-full relative px-8 pb-6 pt-12 gap-8">

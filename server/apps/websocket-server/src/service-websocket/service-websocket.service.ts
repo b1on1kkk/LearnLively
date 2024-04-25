@@ -48,7 +48,7 @@ export class ServiceWebsocketService implements WebSocket {
       this.ActiveUsers = this.ActiveUsers.sort((a, b) => a.user_id - b.user_id);
     } else this.ActiveUsers[idx].socket_id = client.id;
 
-    console.log(this.ActiveUsers, 'service_logic_socket');
+    console.log(this.ActiveUsers, 'service_logic_socket connected');
   }
 
   @SubscribeMessage('userDisconnect')
@@ -60,7 +60,7 @@ export class ServiceWebsocketService implements WebSocket {
         (user) => user.socket_id !== client.id,
       );
 
-      console.log(this.ActiveUsers, 'service_logic_socket');
+      console.log(this.ActiveUsers, 'service_logic_socket after disconnection');
     }
   }
 

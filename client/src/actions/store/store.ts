@@ -1,13 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 import userSlice from "./features/user.slice";
-import socketSlice from "./features/socket.slice";
+import serviceSocketSlice from "./features/serviceSocket.slice";
 import studentsSlice from "./features/students.slice";
+import chatSocketSlice from "./features/chatSocket.slice";
 
 export const store = configureStore({
   reducer: {
     user: userSlice,
-    socket: socketSlice,
+    serviceSocket: serviceSocketSlice,
+    chatSocket: chatSocketSlice,
     students: studentsSlice
   },
   middleware: (getDefaultMiddleware) =>

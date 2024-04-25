@@ -16,21 +16,33 @@ export class ServiceSocket implements WebSocket {
 
   constructor(
     url: string,
-    dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>
+    dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>,
+    user_id: number
   ) {
+    console.log("ServiceSocket contructor");
+
     this.socket = io(url);
     this.reduxDispatch = dispatch;
+    this.connectUser(user_id);
   }
 
   ////////////////////////////////////////emitters////////////////////////////////////////////////
   public connectUser(user_id: number) {
-    this.socket?.emit("userConnected", {
-      user_id
-    });
+    this.socket?.connect();
+
+    setTimeout(() => {
+      this.socket?.emit("userConnected", {
+        user_id
+      });
+    }, 1000);
   }
 
   public disconnectUser(user_id: number) {
     this.socket?.emit("userDisconnect", { user_id });
+
+    setTimeout(() => {
+      this.socket?.disconnect();
+    }, 1000);
   }
 
   public sendFriendRequest(dto: TSendFriendRequest) {

@@ -4,18 +4,20 @@ import { useEffect, useMemo, useState } from "react";
 
 import { RootState } from "../../store/store";
 
-import { Header } from "../../components/StudentsComp/Header";
 import { Main } from "../../components/StudentsComp/Main";
+import { Header } from "../../components/StudentsComp/Header";
 import { AsideStudentInf } from "../../components/StudentsComp/AsideStudentInf";
 
 import { SocketController } from "../../api/service-socket/service-socket-controllers";
+
+import { MySocketControllerContext } from "../../context/SocketControllerContext/socketControllerContext";
 
 import type { Student } from "../../interfaces/Students/Main";
 
 export const Students = () => {
   const { data, isError, isLoading } = useStudents();
   const [chosenUser, setChosenUser] = useState<number | null>(null);
-  const { service_socket } = useSelector((s: RootState) => s.socket);
+  const { service_socket } = useSelector((s: RootState) => s.serviceSocket);
   const [tempStudents, setTempStudents] = useState<Array<Student> | null>(null);
 
   const socketController = useMemo(() => {
@@ -30,31 +32,28 @@ export const Students = () => {
 
   // listen if new data comes
   useEffect(() => {
-    console.log(service_socket);
     service_socket?.getNewStudents(chosenUser, setChosenUser, setTempStudents);
   }, [service_socket, chosenUser]);
 
   return (
     <div className="flex h-screen relative px-8 pb-6 pt-12 gap-8">
-      {/* main block of users */}
-      <div className="flex-[4] z-10 flex flex-col bg-transparent">
-        {/* filtration and users header */}
-        <Header tempStudents={tempStudents} />
+      <MySocketControllerContext.Provider value={{ socketController }}>
+        {/* main block of users */}
+        <div className="flex-[4] z-10 flex flex-col bg-transparent">
+          {/* filtration and users header */}
+          <Header tempStudents={tempStudents} />
 
-        {/* users list */}
-        <Main
-          isLoading={isLoading}
-          isError={isError}
-          socketController={socketController}
-          chosenUserSetter={setChosenUser}
-        />
-      </div>
+          {/* users list */}
+          <Main
+            isLoading={isLoading}
+            isError={isError}
+            chosenUserSetter={setChosenUser}
+          />
+        </div>
 
-      {/* aside menu about each user */}
-      <AsideStudentInf
-        socketController={socketController}
-        chosenUser={chosenUser}
-      />
+        {/* aside menu about each user */}
+        <AsideStudentInf chosenUser={chosenUser} />
+      </MySocketControllerContext.Provider>
     </div>
   );
 };

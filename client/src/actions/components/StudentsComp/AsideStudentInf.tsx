@@ -12,10 +12,7 @@ import { Notification } from "../Notification";
 import { QUERY_ROOT } from "../../constants/Query/query";
 import type { TAsideStudentInf } from "../../interfaces/Students/AsideStudents";
 
-export const AsideStudentInf = ({
-  socketController,
-  chosenUser
-}: TAsideStudentInf) => {
+export const AsideStudentInf = ({ chosenUser }: TAsideStudentInf) => {
   const { students } = useSelector((u: RootState) => u.students);
 
   return (
@@ -46,10 +43,7 @@ export const AsideStudentInf = ({
           />
 
           {/* footer */}
-          <AsideFooter
-            socketController={socketController}
-            chosenUser={chosenUser}
-          />
+          <AsideFooter chosenUser={chosenUser} />
         </>
       ) : (
         <Notification

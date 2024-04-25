@@ -26,9 +26,8 @@ export interface Student {
 }
 
 export interface TMainStudents {
-  isLoading: boolean;
   isError: boolean;
-  socketController: SocketController;
+  isLoading: boolean;
   chosenUserSetter: (c: number | null) => void;
 }
 
