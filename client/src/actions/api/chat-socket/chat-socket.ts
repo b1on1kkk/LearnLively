@@ -4,6 +4,7 @@ import WebSocket from "../abstract/webSocket";
 import { AppDispatch } from "../../store/store";
 import { ThunkDispatch, UnknownAction } from "@reduxjs/toolkit";
 import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
+import { ChatType } from "../../interfaces/api/chatType";
 
 export class ChatSocket implements WebSocket {
   private socket: Socket | null;
@@ -32,5 +33,9 @@ export class ChatSocket implements WebSocket {
 
       if (dispatch) dispatch(chatSocketAcitons.chatSocketInit(null));
     }, 1000);
+  }
+
+  public startChat(users_idx: number[], chat_type: ChatType, message: string) {
+    this.socket?.emit("startChat", { users_idx, chat_type, message });
   }
 }

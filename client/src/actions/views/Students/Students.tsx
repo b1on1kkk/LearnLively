@@ -16,8 +16,9 @@ import type { Student } from "../../interfaces/Students/Main";
 
 export const Students = () => {
   const { data, isError, isLoading } = useStudents();
-  const [chosenUser, setChosenUser] = useState<number | null>(null);
+  const { chosenUser } = useSelector((cu: RootState) => cu.chosenUserChat);
   const { service_socket } = useSelector((s: RootState) => s.serviceSocket);
+
   const [tempStudents, setTempStudents] = useState<Array<Student> | null>(null);
 
   const socketController = useMemo(() => {
@@ -30,14 +31,12 @@ export const Students = () => {
 
   // listen if new data comes
   useEffect(() => {
-    service_socket?.getNewStudents(chosenUser, setChosenUser, setTempStudents);
+    service_socket?.getNewStudents(chosenUser, setTempStudents);
   }, [service_socket, chosenUser]);
 
   return (
     <div className="flex h-screen relative px-8 pb-6 pt-12 gap-8">
-      <MySocketControllerContext.Provider
-        value={{ chosenUser, socketController, setChosenUser }}
-      >
+      <MySocketControllerContext.Provider value={{ socketController }}>
         {/* main block of users */}
         <div className="flex-[4] z-10 flex flex-col bg-transparent">
           {/* filtration and users header */}

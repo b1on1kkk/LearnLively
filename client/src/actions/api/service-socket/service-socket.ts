@@ -8,6 +8,7 @@ import { studentsActions } from "../../store/features/students.slice";
 import type { Student } from "../../interfaces/Students/Main";
 import type { TSendFriendRequest } from "../../interfaces/api/sendFriendRequest";
 import type { TFriendRequest } from "../../interfaces/api/acceptFriendRequest";
+import { chosenUserChatActions } from "../../store/features/chosenUserChat.slice";
 
 export class ServiceSocket implements WebSocket {
   private socket: Socket | null;
@@ -55,14 +56,13 @@ export class ServiceSocket implements WebSocket {
   ////////////////////////////////////////listeners////////////////////////////////////////////////
 
   public getNewStudents(
-    chosenUser: number | null,
-    chosenUserSetter: (c: number | null) => void,
+    chosenUser: Student | null,
     setTempStudents: (c: Array<Student> | null) => void
   ) {
     this.socket?.on("newStudents", (data: Array<Student>) => {
       if (chosenUser) {
-        const student = data.findIndex((student) => student.id === chosenUser);
-        chosenUserSetter(student);
+        const student = data.find((student) => student.id === chosenUser.id);
+        this.reduxDispatch(chosenUserChatActions.chosenUserInit(student!));
       }
 
       this.reduxDispatch(studentsActions.initStudents(data));

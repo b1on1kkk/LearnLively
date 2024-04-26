@@ -10,44 +10,42 @@ import {
 
 import { RootState } from "../../store/store";
 
-import type { TAsideUserButtons } from "../../interfaces/Students/Aside";
-
-export const AsideUserButtons = ({
-  chosenUser,
-  onClickCall,
-  onClickChat
-}: TAsideUserButtons) => {
+export const AsideUserButtons = () => {
   const { students } = useSelector((u: RootState) => u.students);
+  const { chosenUser } = useSelector((cu: RootState) => cu.chosenUserChat);
 
   return (
-    <div className="flex gap-3 p-5 items-center">
-      {chosenUser !== null && students && (
+    <div className="flex gap-3 p-5 justify-center items-center">
+      {chosenUser && students && (
         <>
-          {(students[chosenUser].friends_friends_friend_idTousers.length > 0 &&
-            students[chosenUser].friends_friends_friend_idTousers[0].status ===
+          {(chosenUser.friends_friends_friend_idTousers.length > 0 &&
+            chosenUser.friends_friends_friend_idTousers[0].status ===
               "accepted") ||
-          (students[chosenUser].friends_friends_user_idTousers.length > 0 &&
-            students[chosenUser].friends_friends_user_idTousers[0].status ===
+          (chosenUser.friends_friends_user_idTousers.length > 0 &&
+            chosenUser.friends_friends_user_idTousers[0].status ===
               "accepted") ? (
             <>
-              <Link to={`/message/:${students[chosenUser].id}`}>
-                <Button
-                  startContent={<MessageSquareMore width={18} height={18} />}
-                  className="bg-transparent text-xs font-semibold flex-1 hover:bg-gray-600 text-slate-600 hover:text-white"
-                  onClick={onClickChat}
-                >
-                  Chat
-                </Button>
+              <Link
+                to={`/message/${chosenUser.id}`}
+                className="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-white hover:bg-gray-600 flex-1 py-[11px] rounded-xl transition-colors duration-200 justify-center"
+              >
+                <div>
+                  <MessageSquareMore width={18} height={18} />
+                </div>
+                <span>Chat</span>
               </Link>
 
               <Divider orientation="vertical" className="h-5" />
-              <Button
-                startContent={<PhoneOutgoing width={18} height={18} />}
-                className="bg-transparent text-xs font-semibold flex-1 hover:bg-gray-600 text-slate-600 hover:text-white"
-                onClick={onClickCall}
+
+              <Link
+                to={`#`}
+                className="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-white hover:bg-gray-600 flex-1 py-[11px] rounded-xl transition-colors duration-200 justify-center"
               >
-                Call
-              </Button>
+                <div>
+                  <PhoneOutgoing width={18} height={18} />
+                </div>
+                <span>Call</span>
+              </Link>
             </>
           ) : (
             <Tooltip

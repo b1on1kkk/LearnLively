@@ -10,6 +10,7 @@ import {
 } from '@nestjs/websockets';
 import { PrismaService } from '@prismaORM/prisma';
 
+import type { startChatDTO } from 'apps/websocket-server/dto/startChatDTO';
 import type { ActiveUsersDTO } from 'apps/websocket-server/dto/activeUsersDTO';
 import type { ConnectedUserDTO } from 'apps/websocket-server/dto/connectedUserDTO';
 
@@ -61,6 +62,34 @@ export class ChatWebsocketService implements WebSocket {
       );
 
       console.log(this.ActiveChatUsers, 'chat_socket after disconnection');
+    }
+  }
+
+  @SubscribeMessage('startChat')
+  async startChat(
+    @MessageBody() dto: startChatDTO,
+    @ConnectedSocket() client: Socket,
+  ) {
+    try {
+      const { id: newConvId } = await this.prisma.conversations.create({
+        data: {
+          type: dto.chat_type,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      dto.users_idx.forEach(async (user_id) => {
+        await this.prisma.users_conversations.create({
+          data: {
+            user_id: user_id,
+            conversation_id: newConvId,
+          },
+        });
+      });
+    } catch (error) {
+      console.log(error);
     }
   }
 }

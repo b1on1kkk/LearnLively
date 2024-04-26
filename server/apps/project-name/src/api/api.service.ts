@@ -80,8 +80,68 @@ export class ApiService {
     }
   }
 
-  // in future
   async getChats(user_id: number) {
-    return user_id;
+    return await this.prisma.users.findUnique({
+      where: {
+        id: user_id,
+      },
+      select: {
+        users_conversations: {
+          select: {
+            conversations: {
+              select: {
+                type: true,
+                users_conversations: {
+                  where: {
+                    users: {
+                      id: { not: user_id },
+                    },
+                  },
+                  select: {
+                    users: {
+                      select: {
+                        id: true,
+                        name: true,
+                        lastname: true,
+                        surname: true,
+                        role: true,
+                        email: true,
+                        end_semester: true,
+                        now_semester: true,
+                        department: true,
+                        img_hash_name: true,
+                        created_at: true,
+                        friends_friends_friend_idTousers: {
+                          where: {
+                            user_id: user_id,
+                          },
+                          select: {
+                            id: true,
+                            user_id: true,
+                            friend_id: true,
+                            status: true,
+                          },
+                        },
+                        friends_friends_user_idTousers: {
+                          where: {
+                            friend_id: user_id,
+                          },
+                          select: {
+                            id: true,
+                            user_id: true,
+                            friend_id: true,
+                            status: true,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
   }
 }

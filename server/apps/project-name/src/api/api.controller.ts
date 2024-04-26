@@ -10,7 +10,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-
 import { JwtAuthGuard } from './guard/jwt.guard';
 
 import { ApiService } from './api.service';
