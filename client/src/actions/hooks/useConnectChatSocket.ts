@@ -9,17 +9,17 @@ import { chatSocketAcitons } from "../store/features/chatSocket.slice";
 
 const useConnectChatSocket = (
   url: string,
-  user: User,
+  user: User | null,
   dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>
 ) => {
   const { chat_socket } = useSelector((s: RootState) => s.chatSocket);
 
-  const connectSocket = () => {
-    dispatch(chatSocketAcitons.chatSocketInit(new ChatSocket(url, user.id)));
+  const connectChatSocket = () => {
+    dispatch(chatSocketAcitons.chatSocketInit(new ChatSocket(url, user!.id)));
   };
 
   useEffect(() => {
-    if (!chat_socket) connectSocket();
+    if (!chat_socket && user) connectChatSocket();
   }, []);
 
   return { chat_socket };

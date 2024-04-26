@@ -1,6 +1,5 @@
-import { TooltipProps } from "@nextui-org/react";
 import { ReactElement } from "react";
-import { SocketController } from "../../api/service-socket/service-socket-controllers";
+import { TooltipProps } from "@nextui-org/react";
 
 interface RequestInitiator {
   id: number;
@@ -28,7 +27,6 @@ export interface Student {
 export interface TMainStudents {
   isError: boolean;
   isLoading: boolean;
-  chosenUserSetter: (c: number | null) => void;
 }
 
 export interface TRequestsButton extends TooltipProps {

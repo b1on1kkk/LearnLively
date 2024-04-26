@@ -1,18 +1,13 @@
 import axios from "axios";
 
+import { Tooltip } from "@nextui-org/react";
 import { useQuery } from "@tanstack/react-query";
 import { Outlet, useOutlet } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import useChatActivity from "../../hooks/useChatActivity";
-import useConnectChatSocket from "../../hooks/useConnectChatSocket";
 
-import { Tooltip } from "@nextui-org/react";
 import { Bot, Info, MessageSquareX } from "lucide-react";
 
 import { Loading } from "../../components/Loading/Loading";
 import { Notification } from "../../components/Notification";
-
-import { AppDispatch, RootState } from "../../store/store";
 
 import { QUERY_ROOT } from "../../constants/Query/query";
 
@@ -31,15 +26,6 @@ const useChats = () => {
 export const Message = () => {
   const outlet = useOutlet();
   const { data, isLoading } = useChats();
-  const dispatch = useDispatch<AppDispatch>();
-  const user = useSelector((u: RootState) => u.user);
-
-  useConnectChatSocket("http://localhost:3001/chat", user, dispatch);
-
-  const { chat_socket } = useSelector((s: RootState) => s.chatSocket);
-
-  // detect user's activity
-  useChatActivity(user, chat_socket, dispatch);
 
   return (
     <div className="flex h-full relative px-8 pb-6 pt-12 gap-8">

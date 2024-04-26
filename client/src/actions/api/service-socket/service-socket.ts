@@ -1,14 +1,13 @@
 import { Socket, io } from "socket.io-client";
 
-import type { Student } from "../../interfaces/Students/Main";
-import type { TSendFriendRequest } from "../../interfaces/api/sendFriendRequest";
-import type { TFriendRequest } from "../../interfaces/api/acceptFriendRequest";
-
+import WebSocket from "../abstract/webSocket";
 import { AppDispatch } from "../../store/store";
 import { ThunkDispatch, UnknownAction } from "@reduxjs/toolkit";
 import { studentsActions } from "../../store/features/students.slice";
 
-import WebSocket from "../abstract/webSocket";
+import type { Student } from "../../interfaces/Students/Main";
+import type { TSendFriendRequest } from "../../interfaces/api/sendFriendRequest";
+import type { TFriendRequest } from "../../interfaces/api/acceptFriendRequest";
 
 export class ServiceSocket implements WebSocket {
   private socket: Socket | null;
@@ -16,11 +15,9 @@ export class ServiceSocket implements WebSocket {
 
   constructor(
     url: string,
-    dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>,
-    user_id: number
+    user_id: number,
+    dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>
   ) {
-    console.log("ServiceSocket contructor");
-
     this.socket = io(url);
     this.reduxDispatch = dispatch;
     this.connectUser(user_id);
@@ -28,17 +25,15 @@ export class ServiceSocket implements WebSocket {
 
   ////////////////////////////////////////emitters////////////////////////////////////////////////
   public connectUser(user_id: number) {
-    this.socket?.connect();
+    if (!this.socket?.connected) this.socket?.connect();
 
-    setTimeout(() => {
-      this.socket?.emit("userConnected", {
-        user_id
-      });
-    }, 1000);
+    this.socket?.emit("userConnected", {
+      user_id
+    });
   }
 
-  public disconnectUser(user_id: number) {
-    this.socket?.emit("userDisconnect", { user_id });
+  public disconnectUser() {
+    this.socket?.emit("userDisconnect");
 
     setTimeout(() => {
       this.socket?.disconnect();

@@ -60,6 +60,10 @@ export interface User {
   img_hash_name: string;
 }
 
+export interface UserSlice {
+  user: User | null;
+}
+
 export interface TUserCheck {
   user: User | null;
   result: boolean;

@@ -18,7 +18,7 @@ const LISTENERS_EVENTS = [
 ];
 
 const useChatActivity = (
-  user: User,
+  user: User | null,
   chat_socket: ChatSocket | null,
   dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>
 ) => {
@@ -33,20 +33,21 @@ const useChatActivity = (
       }
 
       if (status) {
-        chat_socket?.connectUser(user.id);
+        console.log("worked");
+        chat_socket?.connectUser(user!.id);
         status = false;
       }
 
       timeoutId = setTimeout(() => {
-        chat_socket?.disconnectUser(user.id);
+        chat_socket?.disconnectUser();
         status = true;
-      }, 15000);
+      }, 5000);
     }
 
-    if (chat_socket) handleActivity();
+    if (chat_socket && user) handleActivity();
 
     LISTENERS_EVENTS.forEach((event) => {
-      if (chat_socket) window.addEventListener(event, handleActivity);
+      if (chat_socket && user) window.addEventListener(event, handleActivity);
     });
 
     return () => {
@@ -57,12 +58,12 @@ const useChatActivity = (
       if (timeoutId) clearTimeout(timeoutId);
 
       // getting dispatch here just for setting socket to null. in future, if user reenter message route - reconnect new socket
-      chat_socket?.disconnectUser(user.id, dispatch);
+      chat_socket?.disconnectUser(dispatch);
 
       timeoutId = null;
       status = false;
     };
-  }, [chat_socket]);
+  }, [chat_socket, user]);
 };
 
 export default useChatActivity;

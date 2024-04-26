@@ -1,21 +1,16 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { User } from "../../interfaces/Registration/Validation";
 
-const initialState: User = {
-  id: 0,
-  name: "",
-  lastname: "",
-  surname: "",
-  role: "student",
-  email: "",
-  img_hash_name: ""
+import type { UserSlice } from "../../interfaces/Registration/Validation";
+
+const initialState: UserSlice = {
+  user: null
 };
 
 export const userSlice = createSlice({
   name: "userSlice",
   initialState,
   reducers: {
-    createUser: (state, action: PayloadAction<User | null>) => {
+    createUser: (state, action: PayloadAction<UserSlice | null>) => {
       if (action.payload !== null) return { ...state, ...action.payload };
 
       return state;

@@ -7,22 +7,20 @@ import { QUERY_ROOT } from "../constants/Query/query";
 import { AppDispatch, RootState } from "../store/store";
 import { userActions } from "../store/features/user.slice";
 
-import { checkIfUserExist } from "../utils/Guard/checkIfUserExist";
-
 import type { TUserCheck } from "../interfaces/Registration/Validation";
 
 const useCheckUserAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const user = useSelector((u: RootState) => u.user);
+  const { user } = useSelector((u: RootState) => u.user);
 
   return useQuery<TUserCheck, AxiosError>({
     queryKey: ["auth", "user_check"],
     queryFn: async () => {
-      if (!checkIfUserExist(user)) {
+      if (!user) {
         return await axios
           .get<TUserCheck>(`${QUERY_ROOT}api/user`, { withCredentials: true })
           .then((res) => {
-            dispatch(userActions.createUser(res.data.user));
+            dispatch(userActions.createUser({ user: res.data.user }));
             return res.data;
           })
           .catch((err) => err);

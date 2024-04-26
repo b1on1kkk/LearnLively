@@ -1,25 +1,31 @@
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 import { ServiceSocket } from "../api/service-socket/service-socket";
 
 import { AppDispatch, RootState } from "../store/store";
 import { socketAcitons } from "../store/features/serviceSocket.slice";
+import { ThunkDispatch, UnknownAction } from "@reduxjs/toolkit";
 
-import type { User } from "../interfaces/Registration/Validation";
+import { User } from "../interfaces/Registration/Validation";
 
-const useConnectServiceSocket = (url: string, user: User) => {
-  const dispatch = useDispatch<AppDispatch>();
+const useConnectServiceSocket = (
+  url: string,
+  user: User | null,
+  dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>
+) => {
   const { service_socket } = useSelector((s: RootState) => s.serviceSocket);
 
   const connectSocket = () => {
     dispatch(
-      socketAcitons.serviceSocketInit(new ServiceSocket(url, dispatch, user.id))
+      socketAcitons.serviceSocketInit(
+        new ServiceSocket(url, user!.id, dispatch)
+      )
     );
   };
 
   useEffect(() => {
-    if (!service_socket) connectSocket();
+    if (!service_socket && user) connectSocket();
   }, []);
 
   return { service_socket };

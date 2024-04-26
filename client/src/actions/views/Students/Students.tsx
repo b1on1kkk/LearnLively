@@ -25,9 +25,7 @@ export const Students = () => {
   }, [service_socket]);
 
   useEffect(() => {
-    if (data) {
-      if (!tempStudents) setTempStudents(data);
-    }
+    if (data) if (!tempStudents) setTempStudents(data);
   }, [data]);
 
   // listen if new data comes
@@ -37,22 +35,20 @@ export const Students = () => {
 
   return (
     <div className="flex h-screen relative px-8 pb-6 pt-12 gap-8">
-      <MySocketControllerContext.Provider value={{ socketController }}>
+      <MySocketControllerContext.Provider
+        value={{ chosenUser, socketController, setChosenUser }}
+      >
         {/* main block of users */}
         <div className="flex-[4] z-10 flex flex-col bg-transparent">
           {/* filtration and users header */}
           <Header tempStudents={tempStudents} />
 
           {/* users list */}
-          <Main
-            isLoading={isLoading}
-            isError={isError}
-            chosenUserSetter={setChosenUser}
-          />
+          <Main isLoading={isLoading} isError={isError} />
         </div>
 
         {/* aside menu about each user */}
-        <AsideStudentInf chosenUser={chosenUser} />
+        <AsideStudentInf />
       </MySocketControllerContext.Provider>
     </div>
   );

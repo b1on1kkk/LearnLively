@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 
 export const Main = () => {
-  const user = useSelector((u: RootState) => u.user);
+  const { user } = useSelector((u: RootState) => u.user);
 
   return (
     <div className="flex justify-center flex-col items-center py-6 border-b-1 border-slate-800 h-[280px]">

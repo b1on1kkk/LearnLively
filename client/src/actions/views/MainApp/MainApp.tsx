@@ -1,31 +1,32 @@
+import { Outlet } from "react-router";
+
 import { useDispatch, useSelector } from "react-redux";
+import useChatActivity from "../../hooks/useChatActivity";
+import useConnectChatSocket from "../../hooks/useConnectChatSocket";
 import useConnectServiceSocket from "../../hooks/useConnectServiceSocket";
 import usePageHideMainListener from "../../hooks/usePageHideMainListener";
 
-import { Outlet } from "react-router";
-
-import { Header } from "../../components/NavigationComp/Header";
 import { Main } from "../../components/NavigationComp/Main";
+import { Header } from "../../components/NavigationComp/Header";
 import { Navigation } from "../../components/NavigationComp/Navigation";
 
 import { AppDispatch, RootState } from "../../store/store";
+import { SOCKETS_ROOT } from "../../constants/Sockets/sockets";
 
 export const MainApp = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const user = useSelector((u: RootState) => u.user);
-  useConnectServiceSocket("http://localhost:3001/service_logic", user);
 
+  const { user } = useSelector((u: RootState) => u.user);
+  const { chat_socket } = useSelector((s: RootState) => s.chatSocket);
   const { service_socket } = useSelector((s: RootState) => s.serviceSocket);
 
-  const { chat_socket } = useSelector((s: RootState) => s.chatSocket);
+  // connections
+  useConnectChatSocket(SOCKETS_ROOT.chat_socket, user, dispatch);
+  useConnectServiceSocket(SOCKETS_ROOT.service_logic_socket, user, dispatch);
 
-  console.log("----------service_socket----------");
-  console.log(service_socket);
-
-  console.log("----------chat_socket----------");
-  console.log(chat_socket);
-
-  usePageHideMainListener(user, chat_socket, service_socket, dispatch); // if user close tab or leave - disable all websocket connection
+  // hooks that disconnect users
+  useChatActivity(user, chat_socket, dispatch);
+  usePageHideMainListener(user, chat_socket, service_socket, dispatch);
 
   return (
     <main className="flex h-screen">
@@ -48,7 +49,7 @@ export const MainApp = () => {
         {/* just header background */}
         <div className="absolute h-40 w-screen right-0 top-0 bg-gradient-to-r from-10% via-sky-500 via-30% to-90% from-pink-500 to-red-500 rounded-tr-3xl mr-3 mt-3"></div>
 
-        <Outlet></Outlet>
+        <Outlet />
       </div>
     </main>
   );

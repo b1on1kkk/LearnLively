@@ -3,15 +3,13 @@ import { RootState } from "../../store/store";
 
 import { Button } from "@nextui-org/react";
 
-import { useSocketControllerContext } from "../../hooks/useSocketControllerContext";
+import useSocketControllerContext from "../../hooks/useSocketControllerContext";
 
-import type { TAsideFooter } from "../../interfaces/Students/AsideFooter";
-
-export const AsideFooter = ({ chosenUser }: TAsideFooter) => {
-  const user = useSelector((u: RootState) => u.user);
+export const AsideFooter = () => {
+  const { user } = useSelector((u: RootState) => u.user);
   const { students } = useSelector((u: RootState) => u.students);
 
-  const { socketController } = useSocketControllerContext();
+  const { socketController, chosenUser } = useSocketControllerContext();
 
   return (
     <div className="flex-1 flex items-end">

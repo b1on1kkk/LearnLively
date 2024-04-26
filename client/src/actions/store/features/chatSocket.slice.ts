@@ -13,8 +13,6 @@ export const chatSocketSlice = createSlice({
   initialState,
   reducers: {
     chatSocketInit: (state, action: PayloadAction<ChatSocket | null>) => {
-      console.log("chat init");
-
       return {
         ...state,
         chat_socket: action.payload

@@ -1,4 +1,4 @@
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 
 import { Injectable } from '@nestjs/common';
 import {
@@ -9,11 +9,11 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { PrismaService } from '@prismaORM/prisma';
-import { WebsocketUtils } from 'apps/websocket-server/utils/websocketUtils.service';
-import { ActiveUsersDTO } from 'apps/websocket-server/dto/activeUsersDTO';
 
-import { Socket } from 'socket.io';
-import { ConnectedUserDTO } from 'apps/websocket-server/dto/connectedUserDTO';
+import type { ActiveUsersDTO } from 'apps/websocket-server/dto/activeUsersDTO';
+import type { ConnectedUserDTO } from 'apps/websocket-server/dto/connectedUserDTO';
+
+import { WebsocketUtils } from 'apps/websocket-server/utils/websocketUtils.service';
 
 import WebSocket from '../abstract/webSocket';
 
@@ -40,8 +40,6 @@ export class ChatWebsocketService implements WebSocket {
       this.ActiveChatUsers,
       dto.user_id,
     );
-
-    console.log(idx, '------------------- idx');
 
     if (idx === null) {
       this.ActiveChatUsers.push({ ...dto, socket_id: client.id });

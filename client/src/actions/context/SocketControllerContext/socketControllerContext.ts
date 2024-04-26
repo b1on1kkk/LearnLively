@@ -4,6 +4,8 @@ import { SocketControllerContent } from "../../interfaces/context/SocketControll
 
 export const MySocketControllerContext = createContext<SocketControllerContent>(
   {
-    socketController: null
+    chosenUser: null,
+    socketController: null,
+    setChosenUser: () => {}
   }
 );

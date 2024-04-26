@@ -8,7 +8,7 @@ import { ThunkDispatch, UnknownAction } from "@reduxjs/toolkit";
 import { ChatSocket } from "../api/chat-socket/chat-socket";
 
 const usePageHideMainListener = (
-  user: User,
+  user: User | null,
   chat_socket: ChatSocket | null,
   service_socket: ServiceSocket | null,
   dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>
@@ -16,8 +16,10 @@ const usePageHideMainListener = (
   useEffect(() => {
     function handlePageHide(e: PageTransitionEvent) {
       e.preventDefault();
-      service_socket?.disconnectUser(user.id);
-      chat_socket?.disconnectUser(user.id, dispatch);
+      if (user) {
+        service_socket?.disconnectUser();
+        chat_socket?.disconnectUser(dispatch);
+      }
     }
 
     window.addEventListener("pagehide", handlePageHide);
