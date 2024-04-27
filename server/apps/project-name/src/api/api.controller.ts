@@ -1,9 +1,12 @@
 import { Request, Response } from 'express';
 import {
+  Body,
   Controller,
   Get,
+  HttpCode,
   NotFoundException,
   Param,
+  Post,
   Req,
   Res,
   UseGuards,
@@ -116,5 +119,18 @@ export class ApiController {
         maxAge: 259200000,
       })
       .json(await this.apiService.getChats(encoded_values.id));
+  }
+
+  @HttpCode(200)
+  @Post('messages')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(ErrorCatcherInterceptor)
+  async getMessages(@Body() body: { conv_id: number }, @Res() res: Response) {
+    return res
+      .cookie('jwt_lg', this.sharedService.getCookie(), {
+        httpOnly: true,
+        maxAge: 259200000,
+      })
+      .json(await this.apiService.getMessages(body.conv_id));
   }
 }

@@ -90,6 +90,7 @@ export class ApiService {
           select: {
             conversations: {
               select: {
+                id: true,
                 type: true,
                 users_conversations: {
                   where: {
@@ -139,6 +140,23 @@ export class ApiService {
                 },
               },
             },
+          },
+        },
+      },
+    });
+  }
+
+  async getMessages(conversation_id: number) {
+    console.log(conversation_id);
+
+    return await this.prisma.messages.findMany({
+      where: { conversation_id: { equals: conversation_id } },
+      include: {
+        users: {
+          select: {
+            name: true,
+            lastname: true,
+            img_hash_name: true,
           },
         },
       },

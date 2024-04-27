@@ -31,8 +31,6 @@ export class SocketController {
   }
 
   public sendFriendRequest(sender_id: number, recipient: number) {
-    console.log("send request method worked");
-
     this.socket?.sendFriendRequest({
       sender_id,
       recipient

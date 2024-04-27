@@ -15,7 +15,9 @@ const useConnectChatSocket = (
   const { chat_socket } = useSelector((s: RootState) => s.chatSocket);
 
   const connectChatSocket = () => {
-    dispatch(chatSocketAcitons.chatSocketInit(new ChatSocket(url, user!.id)));
+    dispatch(
+      chatSocketAcitons.chatSocketInit(new ChatSocket(url, user!.id, dispatch))
+    );
   };
 
   useEffect(() => {

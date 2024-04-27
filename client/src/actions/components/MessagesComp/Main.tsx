@@ -1,87 +1,138 @@
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
+import useMessages from "../../hooks/useMessages";
+import useChatContext from "../../hooks/useChatContext";
 import useScrollToBottom from "../../hooks/useScrollToBottom";
 
-import { Button } from "@nextui-org/react";
+import { Check } from "lucide-react";
+import { StartChat } from "./StartChat";
+import { Image } from "@nextui-org/react";
+import { Loading } from "../Loading/Loading";
+import { MessageEditions } from "./MessageEditions";
+
 import { RootState } from "../../store/store";
 
-export const Main = () => {
-  const fake = new Array(10).fill(0);
+import { toImageLink } from "../../utils/Students/toImageLink";
 
-  const elemToScrollToButton = useScrollToBottom(fake);
+import {
+  MAIN_MESSAGE_FUNCTIONALITY_OTHERS,
+  MAIN_MESSAGE_FUNCTIONALITY_SENDER
+} from "../../constants/Message/message_functionality";
+
+import type { TMessage } from "../../interfaces/api/newChat";
+
+export const Main = () => {
+  const { chosenConvId } = useChatContext();
+
+  const { isLoading, refetch } = useMessages(chosenConvId);
 
   const { user } = useSelector((u: RootState) => u.user);
-  const { chat_socket } = useSelector((c: RootState) => c.chatSocket);
-  const { chosenUser } = useSelector((cu: RootState) => cu.chosenUserChat);
+  const { messages } = useSelector((m: RootState) => m.messages);
+
+  useEffect(() => {
+    refetch();
+  }, [chosenConvId]);
+
+  const elemToScrollToButton = useScrollToBottom<Array<TMessage>>(messages);
 
   return (
     <main
       className="flex-1 overflow-auto flex flex-col p-5 gap-4"
       ref={elemToScrollToButton}
     >
-      <div className="flex h-full items-center justify-center">
-        <div className="p-4 flex flex-col text-center gap-2 bg-[#00010d] rounded-2xl border-slate-900 border-2">
-          <span className="font-semibold">No messages here yet...</span>
-          <span className="text-sm">
-            Send a message or tap on the
-            <br />
-            greeting below.
-          </span>
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <>
+          {messages.length > 0 ? (
+            <>
+              {messages.map((message, idx) => {
+                if (message.user_id === user?.id) {
+                  return (
+                    <MessageEditions
+                      key={idx}
+                      wrapper="flex justify-end"
+                      lastSeen={message.delivered_at}
+                      onClickAction={(e) => {
+                        console.log(e.currentTarget.dataset.key);
+                        console.log(message.user_id);
+                      }}
+                      functionality={MAIN_MESSAGE_FUNCTIONALITY_SENDER}
+                    >
+                      <div className="flex transition-all duration-200 gap-3">
+                        <div className="max-w-[300px] min-w-[150px] px-3 py-2 rounded-2xl bg-gradient-to-r from-green-400 to-blue-500 break-all text-white">
+                          <p className="font-semibold mb-1">
+                            {message.content}
+                          </p>
 
-          <Button
-            className="font-semibold bg-gradient-to-r from-green-400 to-blue-500"
-            onClick={() => {
-              if (user) {
-                chat_socket?.startChat(
-                  [chosenUser!.id, user.id],
-                  "private",
-                  "Hey!"
+                          <div className="flex gap-1 justify-end items-center">
+                            {/* <span className="text-[10px] font-semibold">
+                              edited
+                            </span> */}
+                            <span className="text-[11px] font-semibold">
+                              {new Date(message.delivered_at)
+                                .toISOString()
+                                .slice(11, 16)}
+                            </span>
+                            <span>
+                              <Check width={13} height={13} />
+                            </span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <Image
+                            width={45}
+                            src={toImageLink(message.users.img_hash_name)}
+                            className="rounded-full"
+                          />
+                        </div>
+                      </div>
+                    </MessageEditions>
+                  );
+                }
+                return (
+                  <MessageEditions
+                    key={idx}
+                    wrapper="flex"
+                    onClickAction={(e) => {
+                      console.log(e.currentTarget.dataset.key);
+                      console.log(message.user_id);
+                    }}
+                    functionality={MAIN_MESSAGE_FUNCTIONALITY_OTHERS}
+                  >
+                    <div className="flex transition-all duration-200 gap-3">
+                      <div>
+                        <Image
+                          width={45}
+                          src={toImageLink(message.users.img_hash_name)}
+                          className="rounded-full"
+                        />
+                      </div>
+                      <div className="max-w-[300px] min-w-[150px] px-3 py-2 rounded-2xl bg-[#00010d] break-all text-slate-400">
+                        <p className="font-semibold mb-3">{message.content}</p>
+
+                        <div className="flex gap-1">
+                          <span className="text-[11px] font-semibold">
+                            {new Date(message.delivered_at)
+                              .toISOString()
+                              .slice(11, 16)}
+                          </span>
+                          {/* <span className="text-[10px] font-semibold">
+                            edited
+                          </span> */}
+                        </div>
+                      </div>
+                    </div>
+                  </MessageEditions>
                 );
-              }
-            }}
-          >
-            Hey!
-          </Button>
-        </div>
-      </div>
-
-      {/* {fake.map(() => {
-    return (
-      <>
-        <div className="flex gap-3">
-          <div>
-            <div className="w-[40px] h-[40px] bg-gray-400 rounded-full"></div>
-          </div>
-          <div className="max-w-[300px] p-3 rounded-2xl bg-[#00010d] break-all text-slate-400">
-            <p className="text-sm font-semibold mb-3">
-              asddfjkghkdjhgsjghdfkgjhsofuieyhfuyhsdbxcmbvjhsdgfdjgjkshfkhsfasdasd
-            </p>
-
-            <div className="flex gap-1">
-              <span className="text-[10px] font-semibold">17:50</span>
-              <span className="text-[10px] font-semibold">edited</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex gap-3 justify-end">
-          <div className="max-w-[300px] p-3 rounded-2xl bg-gradient-to-r from-green-400 to-blue-500 break-all text-white">
-            <p className="text-sm font-semibold mb-3">
-              asddfjkghkdjhgsjghdfkgjh
-            </p>
-
-            <div className="flex gap-1">
-              <span className="text-[10px] font-semibold">17:50</span>
-              <span className="text-[10px] font-semibold">edited</span>
-            </div>
-          </div>
-
-          <div>
-            <div className="w-[40px] h-[40px] bg-gray-400 rounded-full"></div>
-          </div>
-        </div>
-      </>
-    );
-  })} */}
+              })}
+            </>
+          ) : (
+            <StartChat />
+          )}
+        </>
+      )}
     </main>
   );
 };

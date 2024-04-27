@@ -1,14 +1,24 @@
 import { useRef, useState } from "react";
+import { useSelector } from "react-redux";
+import useChatContext from "../../hooks/useChatContext";
 
 import { Button } from "@nextui-org/react";
 import { Paperclip, Send } from "lucide-react";
 
 import { SystemButton } from "../SystemButton";
 
+import { RootState } from "../../store/store";
+
 export const Footer = () => {
   const [message, setMessage] = useState<string>("");
 
   const inputFileRef = useRef<HTMLInputElement | null>(null);
+
+  const { chosenConvId } = useChatContext();
+
+  const { user } = useSelector((c: RootState) => c.user);
+  const { chat_socket } = useSelector((c: RootState) => c.chatSocket);
+  const { chosenUser } = useSelector((cu: RootState) => cu.chosenUserChat);
 
   return (
     <footer className="p-2 bg-[#00010d] border-slate-900 border-2 rounded-2xl text-slate-400 shadow-2xl mt-2">
@@ -16,7 +26,18 @@ export const Footer = () => {
         className="flex"
         onSubmit={(e) => {
           e.preventDefault();
-          console.log("worked");
+          if (user && chosenConvId) {
+            chat_socket?.sendMessage(
+              [user.id, chosenUser!.id],
+              message,
+              chosenConvId,
+              user.img_hash_name,
+              user.name,
+              user.lastname
+            );
+
+            setMessage("");
+          }
         }}
       >
         <div>

@@ -6,9 +6,7 @@ const useScrollToBottom = <T>(
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (ref.current) {
-      ref.current.scrollTop = ref.current.scrollHeight;
-    }
+    if (ref.current) ref.current.scrollTop = ref.current.scrollHeight;
   }, [dependency]);
 
   return ref;
