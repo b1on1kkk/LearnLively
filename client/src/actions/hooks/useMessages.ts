@@ -8,8 +8,9 @@ import type { TMessage } from "../interfaces/api/newChat";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../store/store";
 import { messagesAcitons } from "../store/features/messages.slice";
+import type { ChosenConv } from "../interfaces/Message/Chats";
 
-const useMessages = (conv_id: number | null) => {
+const useMessages = (conv_id: ChosenConv | null) => {
   const dispatch = useDispatch<AppDispatch>();
 
   return useQuery<Array<TMessage>, AxiosError>({
@@ -20,7 +21,7 @@ const useMessages = (conv_id: number | null) => {
           .post<Array<TMessage>>(
             `${QUERY_ROOT}api/messages`,
             {
-              conv_id
+              conv_id: conv_id.id
             },
             {
               withCredentials: true

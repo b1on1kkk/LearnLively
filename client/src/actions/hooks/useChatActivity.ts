@@ -34,6 +34,7 @@ const useChatActivity = (
 
       if (status) {
         console.log("worked");
+
         chat_socket?.connectUser(user!.id);
         status = false;
       }
@@ -41,7 +42,7 @@ const useChatActivity = (
       timeoutId = setTimeout(() => {
         chat_socket?.disconnectUser();
         status = true;
-      }, 25000);
+      }, 5000);
     }
 
     if (chat_socket && user) handleActivity();

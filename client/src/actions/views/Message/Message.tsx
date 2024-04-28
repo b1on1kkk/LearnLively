@@ -15,20 +15,25 @@ import { MyChatContext } from "../../context/Message/chatContext";
 import { AppDispatch, RootState } from "../../store/store";
 import { chosenUserChatActions } from "../../store/features/chosenUserChat.slice";
 
-import type { TConversations } from "../../interfaces/Message/Chats";
+import type {
+  ChosenConv,
+  ChosenMessage,
+  TConversations
+} from "../../interfaces/Message/Chats";
 
 export const Message = () => {
   const outlet = useOutlet();
   const { data, isLoading } = useChats();
-
   const dispatch = useDispatch<AppDispatch>();
 
   const [chats, setChats] = useState<Array<TConversations>>([]);
+  const [chosenConvId, setChosenConvId] = useState<ChosenConv | null>(null);
+  const [chosenMessage, setChosenMessage] = useState<ChosenMessage | null>(
+    null
+  );
 
   const { messages } = useSelector((m: RootState) => m.messages);
   const { chat_socket } = useSelector((c: RootState) => c.chatSocket);
-
-  const [chosenConvId, setChosenConvId] = useState<number | null>(null);
 
   useEffect(() => {
     if (data) {
@@ -40,7 +45,9 @@ export const Message = () => {
 
   return (
     <div className="flex h-full relative p-8 gap-8 w-full">
-      <MyChatContext.Provider value={{ chosenConvId }}>
+      <MyChatContext.Provider
+        value={{ chosenConvId, chosenMessage, setChosenMessage }}
+      >
         <main className="bg-[#050615] rounded-2xl shadow-2xl border-slate-900 border-2 overflow-auto z-10 flex-[2]">
           {outlet ? (
             <Outlet />
@@ -65,7 +72,10 @@ export const Message = () => {
                     onClick={() => {
                       dispatch(chosenUserChatActions.chosenUserInit(user));
 
-                      setChosenConvId(conv.conversations.id);
+                      setChosenConvId({
+                        id: conv.conversations.id,
+                        group_uuid: conv.conversations.group_uuid
+                      });
                     }}
                     key={user.id}
                   />

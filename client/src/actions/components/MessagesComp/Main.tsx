@@ -4,7 +4,7 @@ import useMessages from "../../hooks/useMessages";
 import useChatContext from "../../hooks/useChatContext";
 import useScrollToBottom from "../../hooks/useScrollToBottom";
 
-import { Check } from "lucide-react";
+import { Check, CheckCheck } from "lucide-react";
 import { StartChat } from "./StartChat";
 import { Image } from "@nextui-org/react";
 import { Loading } from "../Loading/Loading";
@@ -20,9 +20,10 @@ import {
 } from "../../constants/Message/message_functionality";
 
 import type { TMessage } from "../../interfaces/api/newChat";
+import { MessagActionKind } from "../../interfaces/Message/Chats";
 
 export const Main = () => {
-  const { chosenConvId } = useChatContext();
+  const { chosenConvId, setChosenMessage } = useChatContext();
 
   const { isLoading, refetch } = useMessages(chosenConvId);
 
@@ -52,10 +53,12 @@ export const Main = () => {
                     <MessageEditions
                       key={idx}
                       wrapper="flex justify-end"
-                      lastSeen={message.delivered_at}
+                      seenMessages={message.seen_messages}
                       onClickAction={(e) => {
-                        console.log(e.currentTarget.dataset.key);
-                        console.log(message.user_id);
+                        setChosenMessage({
+                          type: e.currentTarget.dataset.key as MessagActionKind,
+                          message_data: message
+                        });
                       }}
                       functionality={MAIN_MESSAGE_FUNCTIONALITY_SENDER}
                     >
@@ -75,7 +78,11 @@ export const Main = () => {
                                 .slice(11, 16)}
                             </span>
                             <span>
-                              <Check width={13} height={13} />
+                              {message.seen_messages.length > 0 ? (
+                                <CheckCheck width={13} height={13} />
+                              ) : (
+                                <Check width={13} height={13} />
+                              )}
                             </span>
                           </div>
                         </div>
@@ -96,8 +103,10 @@ export const Main = () => {
                     key={idx}
                     wrapper="flex"
                     onClickAction={(e) => {
-                      console.log(e.currentTarget.dataset.key);
-                      console.log(message.user_id);
+                      setChosenMessage({
+                        type: e.currentTarget.dataset.key as MessagActionKind,
+                        message_data: message
+                      });
                     }}
                     functionality={MAIN_MESSAGE_FUNCTIONALITY_OTHERS}
                   >

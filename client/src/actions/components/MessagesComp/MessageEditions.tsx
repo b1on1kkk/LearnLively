@@ -13,7 +13,7 @@ export const MessageEditions = ({
   children,
   wrapper,
   onClickAction,
-  lastSeen,
+  seenMessages,
   functionality
 }: TMessageEditions) => {
   return (
@@ -32,7 +32,7 @@ export const MessageEditions = ({
         disabledKeys={["message_seen"]}
       >
         <DropdownSection
-          showDivider={lastSeen ? true : false}
+          showDivider={seenMessages && seenMessages.length > 0 ? true : false}
           aria-label="Main"
         >
           {functionality.map((item) => {
@@ -51,18 +51,26 @@ export const MessageEditions = ({
 
         <DropdownSection
           aria-label="Preferences"
-          hidden={lastSeen ? false : true}
+          hidden={seenMessages && seenMessages.length > 0 ? false : true}
         >
+          {/* think about how to optimize this code */}
           <DropdownItem
             key="message_seen"
             startContent={<CheckCheck width={14} height={14} />}
             classNames={{ title: "text-xs" }}
             className="cursor-default"
             isReadOnly={true}
+            textValue="data is not exist"
           >
-            {lastSeen && (
-              <>Today at {new Date(lastSeen).toISOString().slice(11, 16)}</>
-            )}
+            {seenMessages &&
+              seenMessages.map((seen) => {
+                return (
+                  <>
+                    Today at{" "}
+                    {new Date(seen.seen_at).toISOString().slice(11, 16)}
+                  </>
+                );
+              })}
           </DropdownItem>
         </DropdownSection>
       </DropdownMenu>

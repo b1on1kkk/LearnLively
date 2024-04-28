@@ -9,6 +9,8 @@ import { TConversations } from "../../interfaces/Message/Chats";
 import { TMessage, TStartChat } from "../../interfaces/api/newChat";
 import { messagesAcitons } from "../../store/features/messages.slice";
 
+import { User } from "../../interfaces/Registration/Validation";
+
 export class ChatSocket implements WebSocket {
   private socket: Socket | null;
   private reduxDispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>;
@@ -52,18 +54,20 @@ export class ChatSocket implements WebSocket {
     users_idx: number[],
     content: string,
     conversation_id: number,
-    img_hash_name: string,
-    name: string,
-    lastname: string
+    user: User
   ) {
     this.socket?.emit("sendMessage", {
       users_idx,
       content,
       conversation_id,
-      img_hash_name,
-      name,
-      lastname
+      img_hash_name: user.img_hash_name,
+      name: user.name,
+      lastname: user.lastname
     });
+  }
+
+  public connectToChatRoom(uuid: string, user_id: number) {
+    this.socket?.emit("roomConnection", { uuid, user_id });
   }
 
   ////////////////////////////////////////listeners////////////////////////////////////////////////

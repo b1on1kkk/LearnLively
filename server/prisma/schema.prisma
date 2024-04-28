@@ -30,11 +30,11 @@ model users {
   password                         String                @db.VarChar(255)
   img_hash_name                    String                @db.VarChar(255)
   created_at                       DateTime              @db.Timestamp(6)
-  devices                          devices[]
   friends_friends_friend_idTousers friends[]             @relation("friends_friend_idTousers")
   friends_friends_user_idTousers   friends[]             @relation("friends_user_idTousers")
   messages                         messages[]
   refresh_token                    refresh_token[]
+  seen_messages                    seen_messages[]
   users_conversations              users_conversations[]
 }
 
@@ -49,29 +49,22 @@ model refresh_token {
 model conversations {
   id                  Int                   @id @default(autoincrement())
   type                chat_type
+  group_uuid          String                @db.VarChar(255)
   messages            messages[]
   users_conversations users_conversations[]
 }
 
-model devices {
-  id                   Int         @id @default(autoincrement())
-  user_id              Int
-  device_type          device_type
-  registration_date    DateTime    @db.Timestamp(6)
-  last_seen_message_id Int
-  users                users       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
 model messages {
-  id              Int           @id @default(autoincrement())
+  id              Int             @id @default(autoincrement())
   user_id         Int
   conversation_id Int
-  content         String        @db.VarChar
-  sent_at         DateTime      @db.Timestamp(6)
-  delivered_at    DateTime      @db.Timestamp(6)
-  seen_at         DateTime      @db.Timestamp(6)
-  conversations   conversations @relation(fields: [conversation_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users           users         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  content         String          @db.VarChar
+  sent_at         DateTime        @db.Timestamp(6)
+  delivered_at    DateTime        @db.Timestamp(6)
+  edited          Boolean?
+  conversations   conversations   @relation(fields: [conversation_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users           users           @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  seen_messages   seen_messages[]
 }
 
 model users_conversations {
@@ -80,6 +73,15 @@ model users_conversations {
   conversation_id Int
   conversations   conversations @relation(fields: [conversation_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users           users         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model seen_messages {
+  id         Int      @id @default(autoincrement())
+  message_id Int
+  user_id    Int
+  seen_at    DateTime @db.Timestamp(6)
+  messages   messages @relation(fields: [message_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum roles {

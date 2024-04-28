@@ -4,39 +4,43 @@ import useChatContext from "../../hooks/useChatContext";
 
 import { Button } from "@nextui-org/react";
 import { Paperclip, Send } from "lucide-react";
-
 import { SystemButton } from "../SystemButton";
+import { MessageAction } from "./MessageAction";
 
 import { RootState } from "../../store/store";
 
 export const Footer = () => {
   const [message, setMessage] = useState<string>("");
-
+  const { chosenConvId, chosenMessage } = useChatContext();
   const inputFileRef = useRef<HTMLInputElement | null>(null);
-
-  const { chosenConvId } = useChatContext();
 
   const { user } = useSelector((c: RootState) => c.user);
   const { chat_socket } = useSelector((c: RootState) => c.chatSocket);
   const { chosenUser } = useSelector((cu: RootState) => cu.chosenUserChat);
 
   return (
-    <footer className="p-2 bg-[#00010d] border-slate-900 border-2 rounded-2xl text-slate-400 shadow-2xl mt-2">
+    <footer className="p-2 bg-[#00010d] border-slate-900 border-2 rounded-2xl text-slate-400 shadow-2xl mt-2 flex flex-col gap-2">
+      <MessageAction />
       <form
         className="flex"
         onSubmit={(e) => {
           e.preventDefault();
-          if (user && chosenConvId) {
+          if (
+            user &&
+            chosenConvId &&
+            message.replace(/\s+/g, "") !== "" &&
+            !chosenMessage
+          ) {
             chat_socket?.sendMessage(
               [user.id, chosenUser!.id],
               message,
-              chosenConvId,
-              user.img_hash_name,
-              user.name,
-              user.lastname
+              chosenConvId.id,
+              user
             );
 
             setMessage("");
+          } else if (chosenMessage && message.replace(/\s+/g, "") !== "") {
+            console.log(chosenMessage.message_data.id);
           }
         }}
       >
