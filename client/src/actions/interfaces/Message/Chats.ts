@@ -40,7 +40,6 @@ export interface TMessageEditions {
 export interface ChatContent {
   chosenMessage: ChosenMessage | null;
   setChosenMessage: (c: ChosenMessage | null) => void;
-  chosenConvId: ChosenConv | null;
 }
 
 export enum MessagActionKind {
@@ -60,5 +59,5 @@ export interface ChosenMessage {
 
 export interface ChosenConv {
   id: number;
-  group_uuid: string;
+  uuid: string;
 }

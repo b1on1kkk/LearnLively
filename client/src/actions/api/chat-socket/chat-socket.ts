@@ -5,7 +5,7 @@ import { AppDispatch } from "../../store/store";
 import { ThunkDispatch, UnknownAction } from "@reduxjs/toolkit";
 import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
 import { ChatType } from "../../interfaces/api/chatType";
-import { TConversations } from "../../interfaces/Message/Chats";
+import { ChosenConv, TConversations } from "../../interfaces/Message/Chats";
 import { TMessage, TStartChat } from "../../interfaces/api/newChat";
 import { messagesAcitons } from "../../store/features/messages.slice";
 
@@ -51,23 +51,28 @@ export class ChatSocket implements WebSocket {
   }
 
   public sendMessage(
-    users_idx: number[],
+    user_id: number,
     content: string,
-    conversation_id: number,
+    conv: ChosenConv,
     user: User
   ) {
     this.socket?.emit("sendMessage", {
-      users_idx,
+      user_id,
       content,
-      conversation_id,
+      conversation_id: conv.id,
+      uuid: conv.uuid,
       img_hash_name: user.img_hash_name,
       name: user.name,
       lastname: user.lastname
     });
   }
 
-  public connectToChatRoom(uuid: string, user_id: number) {
-    this.socket?.emit("roomConnection", { uuid, user_id });
+  public connectToChatRoom(uuid: ChosenConv | null) {
+    if (uuid) this.socket?.emit("connectToChatRoom", uuid);
+  }
+
+  public leaveChatRoom(uuid: ChosenConv | null) {
+    if (uuid) this.socket?.emit("leaveChatRoom", uuid);
   }
 
   ////////////////////////////////////////listeners////////////////////////////////////////////////

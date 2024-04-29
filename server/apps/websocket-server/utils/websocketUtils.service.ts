@@ -3,7 +3,6 @@ import { SharedService } from '@sharedService/shared';
 import { ActiveUsersDTO } from '../dto/activeUsersDTO';
 import { Server, Socket } from 'socket.io';
 import { StudentDataDTO } from '../dto/studentDataDTO';
-import { PrismaService } from '@prismaORM/prisma';
 
 @Injectable()
 export class WebsocketUtils {
@@ -56,35 +55,5 @@ export class WebsocketUtils {
     }
 
     return null;
-  }
-
-  public async InitChatRooms(
-    prisma: PrismaService,
-    ChatRooms: Record<string, Array<ActiveUsersDTO>>,
-  ) {
-    const conversations = await prisma.conversations.findMany();
-    conversations.forEach((conv) => {
-      ChatRooms[conv.group_uuid] = [];
-    });
-  }
-
-  public deleteUserBySocketId(
-    socket: Socket,
-    ChatRooms: Record<string, Array<ActiveUsersDTO>>,
-  ) {
-    for (const key in ChatRooms) {
-      if (ChatRooms.hasOwnProperty(key)) {
-        const userIndex = ChatRooms[key].findIndex(
-          (user) => user.socket_id === socket.id,
-        );
-
-        if (userIndex > -1) {
-          ChatRooms[key].splice(userIndex, 1);
-
-          socket.leave(key);
-          break;
-        }
-      }
-    }
   }
 }

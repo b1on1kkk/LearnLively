@@ -16,10 +16,10 @@ import { AppDispatch, RootState } from "../../store/store";
 import { chosenUserChatActions } from "../../store/features/chosenUserChat.slice";
 
 import type {
-  ChosenConv,
   ChosenMessage,
   TConversations
 } from "../../interfaces/Message/Chats";
+import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
 
 export const Message = () => {
   const outlet = useOutlet();
@@ -27,7 +27,7 @@ export const Message = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [chats, setChats] = useState<Array<TConversations>>([]);
-  const [chosenConvId, setChosenConvId] = useState<ChosenConv | null>(null);
+
   const [chosenMessage, setChosenMessage] = useState<ChosenMessage | null>(
     null
   );
@@ -45,9 +45,7 @@ export const Message = () => {
 
   return (
     <div className="flex h-full relative p-8 gap-8 w-full">
-      <MyChatContext.Provider
-        value={{ chosenConvId, chosenMessage, setChosenMessage }}
-      >
+      <MyChatContext.Provider value={{ chosenMessage, setChosenMessage }}>
         <main className="bg-[#050615] rounded-2xl shadow-2xl border-slate-900 border-2 overflow-auto z-10 flex-[2]">
           {outlet ? (
             <Outlet />
@@ -72,10 +70,12 @@ export const Message = () => {
                     onClick={() => {
                       dispatch(chosenUserChatActions.chosenUserInit(user));
 
-                      setChosenConvId({
-                        id: conv.conversations.id,
-                        group_uuid: conv.conversations.group_uuid
-                      });
+                      dispatch(
+                        chatSocketAcitons.chosenConvIdInit({
+                          id: conv.conversations.id,
+                          uuid: conv.conversations.group_uuid
+                        })
+                      );
                     }}
                     key={user.id}
                   />

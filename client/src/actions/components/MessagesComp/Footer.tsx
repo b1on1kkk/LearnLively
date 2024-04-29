@@ -11,12 +11,13 @@ import { RootState } from "../../store/store";
 
 export const Footer = () => {
   const [message, setMessage] = useState<string>("");
-  const { chosenConvId, chosenMessage } = useChatContext();
+  const { chosenMessage } = useChatContext();
   const inputFileRef = useRef<HTMLInputElement | null>(null);
 
+  const { chat_socket, chosenConvId } = useSelector(
+    (c: RootState) => c.chatSocket
+  );
   const { user } = useSelector((c: RootState) => c.user);
-  const { chat_socket } = useSelector((c: RootState) => c.chatSocket);
-  const { chosenUser } = useSelector((cu: RootState) => cu.chosenUserChat);
 
   return (
     <footer className="p-2 bg-[#00010d] border-slate-900 border-2 rounded-2xl text-slate-400 shadow-2xl mt-2 flex flex-col gap-2">
@@ -31,12 +32,7 @@ export const Footer = () => {
             message.replace(/\s+/g, "") !== "" &&
             !chosenMessage
           ) {
-            chat_socket?.sendMessage(
-              [user.id, chosenUser!.id],
-              message,
-              chosenConvId.id,
-              user
-            );
+            chat_socket?.sendMessage(user.id, message, chosenConvId, user);
 
             setMessage("");
           } else if (chosenMessage && message.replace(/\s+/g, "") !== "") {

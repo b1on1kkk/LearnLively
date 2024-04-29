@@ -23,7 +23,8 @@ import type { TMessage } from "../../interfaces/api/newChat";
 import { MessagActionKind } from "../../interfaces/Message/Chats";
 
 export const Main = () => {
-  const { chosenConvId, setChosenMessage } = useChatContext();
+  const { setChosenMessage } = useChatContext();
+  const { chosenConvId } = useSelector((c: RootState) => c.chatSocket);
 
   const { isLoading, refetch } = useMessages(chosenConvId);
 

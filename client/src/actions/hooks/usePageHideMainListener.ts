@@ -11,7 +11,8 @@ const usePageHideMainListener = (
   user: User | null,
   chat_socket: ChatSocket | null,
   service_socket: ServiceSocket | null,
-  dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>
+  dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>,
+  disconnectCB: () => void
 ) => {
   useEffect(() => {
     function handlePageHide(e: PageTransitionEvent) {
@@ -19,6 +20,7 @@ const usePageHideMainListener = (
       if (user) {
         service_socket?.disconnectUser();
         chat_socket?.disconnectUser(dispatch);
+        disconnectCB();
       }
     }
 

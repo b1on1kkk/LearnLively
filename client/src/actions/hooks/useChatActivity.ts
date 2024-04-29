@@ -20,7 +20,9 @@ const LISTENERS_EVENTS = [
 const useChatActivity = (
   user: User | null,
   chat_socket: ChatSocket | null,
-  dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>
+  dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>,
+  reconnectCB: () => void,
+  disconnectCB: () => void
 ) => {
   useEffect(() => {
     let timeoutId: NodeJS.Timeout | null = null;
@@ -34,15 +36,14 @@ const useChatActivity = (
 
       if (status) {
         console.log("worked");
-
-        chat_socket?.connectUser(user!.id);
+        reconnectCB();
         status = false;
       }
 
       timeoutId = setTimeout(() => {
-        chat_socket?.disconnectUser();
+        disconnectCB();
         status = true;
-      }, 5000);
+      }, 40000);
     }
 
     if (chat_socket && user) handleActivity();

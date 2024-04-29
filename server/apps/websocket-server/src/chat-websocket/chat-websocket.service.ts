@@ -22,13 +22,17 @@ import type { startChatDTO } from 'apps/websocket-server/dto/startChatDTO';
 import type { ActiveUsersDTO } from 'apps/websocket-server/dto/activeUsersDTO';
 import type { ConnectedUserDTO } from 'apps/websocket-server/dto/connectedUserDTO';
 
+export interface ChosenConv {
+  id: number;
+  uuid: string;
+}
+
 @Injectable()
 @WebSocketGateway({ cors: { origin: '*' }, namespace: 'chat' })
 export class ChatWebsocketService implements WebSocket {
   @WebSocketServer()
   private server: Server;
   private ActiveChatUsers: Array<ActiveUsersDTO>;
-  private ChatRooms: Record<string, Array<ActiveUsersDTO>>;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -36,8 +40,6 @@ export class ChatWebsocketService implements WebSocket {
     private readonly apiService: ApiService,
   ) {
     this.ActiveChatUsers = [];
-    this.ChatRooms = {};
-    this.websocketUtilsService.InitChatRooms(this.prisma, this.ChatRooms);
   }
 
   //////////////////////////////////////////////MAIN////////////////////////////////////////////////////
@@ -46,17 +48,10 @@ export class ChatWebsocketService implements WebSocket {
     @MessageBody() dto: ConnectedUserDTO,
     @ConnectedSocket() client: Socket,
   ) {
-    const idx = this.websocketUtilsService.binaryUserSearchByUserId(
-      this.ActiveChatUsers,
-      dto.user_id,
+    this.ActiveChatUsers.push({ user_id: dto.user_id, socket_id: client.id });
+    this.ActiveChatUsers = this.ActiveChatUsers.sort(
+      (a, b) => a.user_id - b.user_id,
     );
-
-    if (idx === null) {
-      this.ActiveChatUsers.push({ ...dto, socket_id: client.id });
-      this.ActiveChatUsers = this.ActiveChatUsers.sort(
-        (a, b) => a.user_id - b.user_id,
-      );
-    } else this.ActiveChatUsers[idx].socket_id = client.id;
 
     console.log(this.ActiveChatUsers, 'chat_socket connected');
   }
@@ -70,29 +65,31 @@ export class ChatWebsocketService implements WebSocket {
         (user) => user.socket_id !== client.id,
       );
 
-      this.websocketUtilsService.deleteUserBySocketId(client, this.ChatRooms);
-
       console.log(this.ActiveChatUsers, 'chat_socket after disconnection');
-      console.log(this.ChatRooms, 'ChatRooms after disconnection');
     }
   }
   //////////////////////////////////////////////MAIN END//////////////////////////////////////////////
 
   // in development
-  @SubscribeMessage('roomConnection')
-  roomConnection(
-    @MessageBody() dto: { uuid: string; user_id: number },
+  @SubscribeMessage('connectToChatRoom')
+  connectToChatRoom(
+    @MessageBody() dto: ChosenConv | null,
     @ConnectedSocket() client: Socket,
   ) {
-    if (this.ChatRooms[dto.uuid]) {
-      this.ChatRooms[dto.uuid].push({
-        user_id: dto.user_id,
-        socket_id: client.id,
-      });
-
+    if (dto) {
+      console.log(client.id, 'connect to room');
       client.join(dto.uuid);
+    }
+  }
 
-      console.log(this.ChatRooms, 'ChatRooms after user connected');
+  @SubscribeMessage('leaveChatRoom')
+  leaveChatRoom(
+    @MessageBody() dto: ChosenConv | null,
+    @ConnectedSocket() client: Socket,
+  ) {
+    if (dto) {
+      console.log(client.id, 'leave the room');
+      client.leave(dto.uuid);
     }
   }
   //
@@ -100,13 +97,10 @@ export class ChatWebsocketService implements WebSocket {
   @SubscribeMessage('startChat')
   async startChat(@MessageBody() dto: startChatDTO) {
     try {
-      const uuid = uuidv4();
-      this.ChatRooms[uuid] = [];
-
       const { id: newConvId } = await this.prisma.conversations.create({
         data: {
           type: dto.chat_type,
-          group_uuid: uuid,
+          group_uuid: uuidv4(),
         },
         select: {
           id: true,
@@ -188,43 +182,31 @@ export class ChatWebsocketService implements WebSocket {
   @SubscribeMessage('sendMessage')
   async sendMessage(@MessageBody() dto: MessageDTO) {
     try {
-      const { users_idx, content, conversation_id } = dto;
+      const { user_id, content, conversation_id } = dto;
+
+      const message = {
+        user_id: user_id,
+        conversation_id: conversation_id,
+        content: content,
+        sent_at: new Date(),
+        delivered_at: new Date(),
+        edited: false,
+      };
 
       await this.prisma.messages.create({
         data: {
-          user_id: users_idx[0],
-          conversation_id: conversation_id,
-          content: content,
-          sent_at: new Date(),
-          delivered_at: new Date(),
-          edited: false,
+          ...message,
         },
       });
 
-      users_idx.forEach(async (user_id) => {
-        const idx = this.websocketUtilsService.binaryUserSearchByUserId(
-          this.ActiveChatUsers,
-          user_id,
-        );
-
-        if (idx !== null) {
-          this.server
-            .to(this.ActiveChatUsers[idx].socket_id)
-            .emit('getMessage', {
-              user_id: users_idx[0],
-              conversation_id: conversation_id,
-              content: content,
-              sent_at: new Date(),
-              delivered_at: new Date(),
-              edited: false,
-              seen_messages: [],
-              users: {
-                img_hash_name: dto.img_hash_name,
-                name: dto.name,
-                lastname: dto.lastname,
-              },
-            });
-        }
+      this.server.to(dto.uuid).emit('getMessage', {
+        ...message,
+        seen_messages: [],
+        users: {
+          img_hash_name: dto.img_hash_name,
+          name: dto.name,
+          lastname: dto.lastname,
+        },
       });
     } catch (error) {
       console.log(error);

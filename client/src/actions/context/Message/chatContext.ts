@@ -4,6 +4,5 @@ import type { ChatContent } from "../../interfaces/Message/Chats";
 
 export const MyChatContext = createContext<ChatContent>({
   chosenMessage: null,
-  chosenConvId: null,
   setChosenMessage: () => {}
 });
