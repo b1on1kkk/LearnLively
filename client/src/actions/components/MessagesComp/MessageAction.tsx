@@ -3,7 +3,7 @@ import useChatContext from "../../hooks/useChatContext";
 import { Pencil, Reply } from "lucide-react";
 import { UnderChatMessage } from "./UnderChatMessage";
 
-import { MessagActionKind } from "../../interfaces/Message/Chats";
+import { MessageActionKind } from "../../interfaces/Message/Chats";
 
 export const MessageAction = () => {
   const { chosenMessage, setChosenMessage } = useChatContext();
@@ -12,7 +12,7 @@ export const MessageAction = () => {
     const { name, lastname } = chosenMessage.message_data.users;
 
     switch (chosenMessage.type) {
-      case MessagActionKind.edit_message:
+      case MessageActionKind.edit_message:
         return (
           <UnderChatMessage
             content={chosenMessage.message_data.content}
@@ -21,7 +21,7 @@ export const MessageAction = () => {
             onClick={() => setChosenMessage(null)}
           />
         );
-      case MessagActionKind.reply_message:
+      case MessageActionKind.reply_message:
         return (
           <UnderChatMessage
             content={chosenMessage.message_data.content}

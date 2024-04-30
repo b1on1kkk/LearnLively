@@ -150,6 +150,9 @@ export class ApiService {
   async getMessages(conversation_id: number) {
     return await this.prisma.messages.findMany({
       where: { conversation_id: { equals: conversation_id } },
+      orderBy: {
+        id: 'asc',
+      },
       include: {
         users: {
           select: {

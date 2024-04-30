@@ -3,6 +3,7 @@ import { SharedService } from '@sharedService/shared';
 import { ActiveUsersDTO } from '../dto/activeUsersDTO';
 import { Server, Socket } from 'socket.io';
 import { StudentDataDTO } from '../dto/studentDataDTO';
+import { MessageDTO } from '../dto/messageDTO';
 
 @Injectable()
 export class WebsocketUtils {
@@ -55,5 +56,13 @@ export class WebsocketUtils {
     }
 
     return null;
+  }
+
+  public MessageSender(
+    uuid: string,
+    server: Server,
+    message: Omit<MessageDTO, 'uuid'>,
+  ) {
+    server.in(uuid).emit('getMessage', { ...message.message });
   }
 }

@@ -1,3 +1,5 @@
+import { Outlet } from "react-router";
+
 import { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -5,8 +7,6 @@ import useChatActivity from "../../hooks/useChatActivity";
 import useConnectChatSocket from "../../hooks/useConnectChatSocket";
 import useConnectServiceSocket from "../../hooks/useConnectServiceSocket";
 import usePageHideMainListener from "../../hooks/usePageHideMainListener";
-
-import { Outlet } from "react-router";
 
 import { Main } from "../../components/NavigationComp/Main";
 import { Header } from "../../components/NavigationComp/Header";

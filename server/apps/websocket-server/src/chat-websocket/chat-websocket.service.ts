@@ -15,17 +15,12 @@ import { PrismaService } from '@prismaORM/prisma';
 import { WebsocketUtils } from 'apps/websocket-server/utils/websocketUtils.service';
 
 import WebSocket from '../abstract/webSocket';
-import { ApiService } from 'apps/project-name/src/api/api.service';
 
 import type { MessageDTO } from 'apps/websocket-server/dto/messageDTO';
 import type { startChatDTO } from 'apps/websocket-server/dto/startChatDTO';
+import type { ChosenConvDTO } from 'apps/websocket-server/dto/chosenConvDTO';
 import type { ActiveUsersDTO } from 'apps/websocket-server/dto/activeUsersDTO';
 import type { ConnectedUserDTO } from 'apps/websocket-server/dto/connectedUserDTO';
-
-export interface ChosenConv {
-  id: number;
-  uuid: string;
-}
 
 @Injectable()
 @WebSocketGateway({ cors: { origin: '*' }, namespace: 'chat' })
@@ -37,12 +32,11 @@ export class ChatWebsocketService implements WebSocket {
   constructor(
     private readonly prisma: PrismaService,
     private readonly websocketUtilsService: WebsocketUtils,
-    private readonly apiService: ApiService,
   ) {
     this.ActiveChatUsers = [];
   }
 
-  //////////////////////////////////////////////MAIN////////////////////////////////////////////////////
+  //////////////////////////////////////////////MAIN//////////////////////////////////////////////////////
   @SubscribeMessage('userChatConnected')
   connectionMessage(
     @MessageBody() dto: ConnectedUserDTO,
@@ -68,12 +62,11 @@ export class ChatWebsocketService implements WebSocket {
       console.log(this.ActiveChatUsers, 'chat_socket after disconnection');
     }
   }
-  //////////////////////////////////////////////MAIN END//////////////////////////////////////////////
+  //////////////////////////////////////////////MAIN END//////////////////////////////////////////////////
 
-  // in development
   @SubscribeMessage('connectToChatRoom')
   connectToChatRoom(
-    @MessageBody() dto: ChosenConv | null,
+    @MessageBody() dto: ChosenConvDTO | null,
     @ConnectedSocket() client: Socket,
   ) {
     if (dto) {
@@ -84,7 +77,7 @@ export class ChatWebsocketService implements WebSocket {
 
   @SubscribeMessage('leaveChatRoom')
   leaveChatRoom(
-    @MessageBody() dto: ChosenConv | null,
+    @MessageBody() dto: ChosenConvDTO | null,
     @ConnectedSocket() client: Socket,
   ) {
     if (dto) {
@@ -92,20 +85,28 @@ export class ChatWebsocketService implements WebSocket {
       client.leave(dto.uuid);
     }
   }
-  //
 
   @SubscribeMessage('startChat')
-  async startChat(@MessageBody() dto: startChatDTO) {
+  async startChat(
+    @MessageBody() dto: startChatDTO,
+    @ConnectedSocket() client: Socket,
+  ) {
     try {
+      const group_uuid = uuidv4();
+
+      // create new conversation
       const { id: newConvId } = await this.prisma.conversations.create({
         data: {
           type: dto.chat_type,
-          group_uuid: uuidv4(),
+          group_uuid: group_uuid,
         },
         select: {
           id: true,
         },
       });
+
+      // create room and connect user to new conversation
+      this.connectToChatRoom({ id: 666, uuid: group_uuid }, client);
 
       const message = await this.prisma.messages.create({
         data: {
@@ -117,6 +118,7 @@ export class ChatWebsocketService implements WebSocket {
           edited: false,
         },
         select: {
+          id: true,
           user_id: true,
           conversation_id: true,
           content: true,
@@ -158,56 +160,101 @@ export class ChatWebsocketService implements WebSocket {
       // wait till data will be inserted
       await Promise.all(insertionPromises);
 
-      dto.users_idx.forEach(async (user_id) => {
-        const idx = this.websocketUtilsService.binaryUserSearchByUserId(
-          this.ActiveChatUsers,
-          user_id,
-        );
-
-        if (idx !== null) {
-          this.server
-            .to(this.ActiveChatUsers[idx].socket_id)
-            .emit('startChat', {
-              chats: (await this.apiService.getChats(user_id))
-                .users_conversations,
-              message: [message],
-            });
-        }
-      });
+      await this.sendMessage(
+        {
+          uuid: group_uuid,
+          message: {
+            id: message.id,
+            user_id: message.user_id,
+            content: message.content,
+            conversation_id: message.conversation_id,
+            edited: message.edited,
+            sent_at: message.sent_at,
+            delivered_at: message.delivered_at,
+            users: {
+              img_hash_name: message.users.img_hash_name,
+              name: message.users.name,
+              lastname: message.users.lastname,
+            },
+            seen_messages: [],
+          },
+        },
+        true,
+      );
     } catch (error) {
       console.log(error);
     }
   }
 
   @SubscribeMessage('sendMessage')
-  async sendMessage(@MessageBody() dto: MessageDTO) {
+  async sendMessage(@MessageBody() dto: MessageDTO, save?: boolean) {
     try {
-      const { user_id, content, conversation_id } = dto;
-
       const message = {
-        user_id: user_id,
-        conversation_id: conversation_id,
-        content: content,
-        sent_at: new Date(),
-        delivered_at: new Date(),
-        edited: false,
+        user_id: dto.message.user_id,
+        conversation_id: dto.message.conversation_id,
+        content: dto.message.content,
+        edited: dto.message.edited,
+        sent_at: dto.message.sent_at,
+        delivered_at: dto.message.delivered_at,
       };
 
-      await this.prisma.messages.create({
+      if (!save) {
+        const message_id = await this.prisma.messages.create({
+          data: {
+            ...message,
+          },
+          select: {
+            id: true,
+          },
+        });
+
+        this.websocketUtilsService.MessageSender(dto.uuid, this.server, {
+          message: {
+            id: message_id.id,
+            ...message,
+            users: {
+              img_hash_name: dto.message.users.img_hash_name,
+              name: dto.message.users.name,
+              lastname: dto.message.users.lastname,
+            },
+            seen_messages: [],
+          },
+        });
+      } else {
+        this.websocketUtilsService.MessageSender(dto.uuid, this.server, {
+          message: {
+            id: dto.message.id,
+            ...message,
+            seen_messages: [],
+            users: {
+              img_hash_name: dto.message.users.img_hash_name,
+              name: dto.message.users.name,
+              lastname: dto.message.users.lastname,
+            },
+          },
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  @SubscribeMessage('changeEditedMessage')
+  async changeEditedMessage(
+    @MessageBody() dto: { changed_message: MessageDTO },
+  ) {
+    try {
+      await this.prisma.messages.update({
+        where: { id: dto.changed_message.message.id },
         data: {
-          ...message,
+          content: dto.changed_message.message.content,
+          edited: dto.changed_message.message.edited,
         },
       });
 
-      this.server.to(dto.uuid).emit('getMessage', {
-        ...message,
-        seen_messages: [],
-        users: {
-          img_hash_name: dto.img_hash_name,
-          name: dto.name,
-          lastname: dto.lastname,
-        },
-      });
+      this.server
+        .in(dto.changed_message.uuid)
+        .emit('getChangedEditedMessage', { ...dto.changed_message.message });
     } catch (error) {
       console.log(error);
     }

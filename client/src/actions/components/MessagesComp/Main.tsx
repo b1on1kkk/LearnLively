@@ -4,14 +4,14 @@ import useMessages from "../../hooks/useMessages";
 import useChatContext from "../../hooks/useChatContext";
 import useScrollToBottom from "../../hooks/useScrollToBottom";
 
-import { Check, CheckCheck } from "lucide-react";
-import { StartChat } from "./StartChat";
 import { Image } from "@nextui-org/react";
+import { Check, CheckCheck } from "lucide-react";
+
+import { StartChat } from "./StartChat";
 import { Loading } from "../Loading/Loading";
 import { MessageEditions } from "./MessageEditions";
 
 import { RootState } from "../../store/store";
-
 import { toImageLink } from "../../utils/Students/toImageLink";
 
 import {
@@ -20,22 +20,23 @@ import {
 } from "../../constants/Message/message_functionality";
 
 import type { TMessage } from "../../interfaces/api/newChat";
-import { MessagActionKind } from "../../interfaces/Message/Chats";
+import type { MessageActionKind } from "../../interfaces/Message/Chats";
 
 export const Main = () => {
   const { setChosenMessage } = useChatContext();
   const { chosenConvId } = useSelector((c: RootState) => c.chatSocket);
 
-  const { isLoading, refetch } = useMessages(chosenConvId);
+  const { data, isLoading, refetch } = useMessages(chosenConvId);
 
   const { user } = useSelector((u: RootState) => u.user);
-  const { messages } = useSelector((m: RootState) => m.messages);
 
   useEffect(() => {
-    refetch();
+    if (chosenConvId) refetch();
   }, [chosenConvId]);
 
-  const elemToScrollToButton = useScrollToBottom<Array<TMessage>>(messages);
+  const elemToScrollToButton = useScrollToBottom<Array<TMessage> | undefined>(
+    data
+  );
 
   return (
     <main
@@ -46,9 +47,9 @@ export const Main = () => {
         <Loading />
       ) : (
         <>
-          {messages.length > 0 ? (
+          {data && data.length > 0 ? (
             <>
-              {messages.map((message, idx) => {
+              {data.map((message, idx) => {
                 if (message.user_id === user?.id) {
                   return (
                     <MessageEditions
@@ -57,7 +58,8 @@ export const Main = () => {
                       seenMessages={message.seen_messages}
                       onClickAction={(e) => {
                         setChosenMessage({
-                          type: e.currentTarget.dataset.key as MessagActionKind,
+                          type: e.currentTarget.dataset
+                            .key as MessageActionKind,
                           message_data: message
                         });
                       }}
@@ -70,9 +72,11 @@ export const Main = () => {
                           </p>
 
                           <div className="flex gap-1 justify-end items-center">
-                            {/* <span className="text-[10px] font-semibold">
-                              edited
-                            </span> */}
+                            {message.edited && (
+                              <span className="text-[10px] font-semibold">
+                                edited
+                              </span>
+                            )}
                             <span className="text-[11px] font-semibold">
                               {new Date(message.delivered_at)
                                 .toISOString()
@@ -105,7 +109,7 @@ export const Main = () => {
                     wrapper="flex"
                     onClickAction={(e) => {
                       setChosenMessage({
-                        type: e.currentTarget.dataset.key as MessagActionKind,
+                        type: e.currentTarget.dataset.key as MessageActionKind,
                         message_data: message
                       });
                     }}
@@ -128,9 +132,11 @@ export const Main = () => {
                               .toISOString()
                               .slice(11, 16)}
                           </span>
-                          {/* <span className="text-[10px] font-semibold">
-                            edited
-                          </span> */}
+                          {message.edited && (
+                            <span className="text-[10px] font-semibold">
+                              edited
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>

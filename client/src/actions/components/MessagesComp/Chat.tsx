@@ -16,6 +16,11 @@ export const Chat = () => {
     if (chat_socket && chosenConvId) {
       chat_socket.connectToChatRoom(chosenConvId);
     }
+    return () => {
+      if (chat_socket && chosenConvId) {
+        chat_socket.leaveChatRoom(chosenConvId);
+      }
+    };
   }, [chat_socket, chosenConvId]);
 
   return (

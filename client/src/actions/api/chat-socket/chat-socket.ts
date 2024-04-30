@@ -3,13 +3,18 @@ import { Socket, io } from "socket.io-client";
 import WebSocket from "../abstract/webSocket";
 import { AppDispatch } from "../../store/store";
 import { ThunkDispatch, UnknownAction } from "@reduxjs/toolkit";
-import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
-import { ChatType } from "../../interfaces/api/chatType";
-import { ChosenConv, TConversations } from "../../interfaces/Message/Chats";
-import { TMessage, TStartChat } from "../../interfaces/api/newChat";
-import { messagesAcitons } from "../../store/features/messages.slice";
 
-import { User } from "../../interfaces/Registration/Validation";
+import { messagesAcitons } from "../../store/features/messages.slice";
+import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
+
+import type { TMessage } from "../../interfaces/api/newChat";
+import type { ChatType } from "../../interfaces/api/chatType";
+import type { ChosenConv } from "../../interfaces/Message/Chats";
+
+interface MessageData {
+  uuid: string;
+  message: Omit<TMessage, "id">;
+}
 
 export class ChatSocket implements WebSocket {
   private socket: Socket | null;
@@ -50,21 +55,15 @@ export class ChatSocket implements WebSocket {
     this.socket?.emit("startChat", { users_idx, chat_type, message });
   }
 
-  public sendMessage(
-    user_id: number,
-    content: string,
-    conv: ChosenConv,
-    user: User
-  ) {
-    this.socket?.emit("sendMessage", {
-      user_id,
-      content,
-      conversation_id: conv.id,
-      uuid: conv.uuid,
-      img_hash_name: user.img_hash_name,
-      name: user.name,
-      lastname: user.lastname
-    });
+  public sendMessage(message: MessageData) {
+    this.socket?.emit("sendMessage", message);
+  }
+
+  public changeEditedMessage(changed_message: {
+    uuid: string;
+    message: TMessage;
+  }) {
+    this.socket?.emit("changeEditedMessage", { changed_message });
   }
 
   public connectToChatRoom(uuid: ChosenConv | null) {
@@ -76,17 +75,22 @@ export class ChatSocket implements WebSocket {
   }
 
   ////////////////////////////////////////listeners////////////////////////////////////////////////
-  public justCreatedChats(setChats: (c: Array<TConversations>) => void) {
-    this.socket?.on("startChat", (data: TStartChat) => {
-      setChats([...data.chats]);
-
-      this.reduxDispatch(messagesAcitons.messageInit([...data.message]));
-    });
-  }
-
   public getMessage(messages: Array<TMessage>) {
     this.socket?.on("getMessage", (data: TMessage) => {
       this.reduxDispatch(messagesAcitons.messageInit([...messages, data]));
+    });
+  }
+
+  public getChangedEditedMessage(messages: Array<TMessage>) {
+    this.socket?.on("getChangedEditedMessage", (message: TMessage) => {
+      this.reduxDispatch(
+        messagesAcitons.messageInit([
+          ...messages.map((msg) => {
+            if (msg.id === message.id) return { ...message };
+            return msg;
+          })
+        ])
+      );
     });
   }
 }

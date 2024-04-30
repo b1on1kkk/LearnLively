@@ -1,6 +1,6 @@
-import { useDispatch, useSelector } from "react-redux";
 import useChats from "../../hooks/useChats";
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import { Bot } from "lucide-react";
 import { Outlet, useOutlet } from "react-router-dom";
@@ -27,7 +27,6 @@ export const Message = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [chats, setChats] = useState<Array<TConversations>>([]);
-
   const [chosenMessage, setChosenMessage] = useState<ChosenMessage | null>(
     null
   );
@@ -36,11 +35,9 @@ export const Message = () => {
   const { chat_socket } = useSelector((c: RootState) => c.chatSocket);
 
   useEffect(() => {
-    if (data) {
-      setChats([...data.users_conversations]);
-      chat_socket?.justCreatedChats(setChats);
-      chat_socket?.getMessage(messages);
-    }
+    if (data) setChats([...data.users_conversations]);
+    chat_socket?.getMessage(messages);
+    chat_socket?.getChangedEditedMessage(messages);
   }, [data, chat_socket, messages]);
 
   return (

@@ -3,15 +3,17 @@ import { useSelector } from "react-redux";
 import useChatContext from "../../hooks/useChatContext";
 
 import { Button } from "@nextui-org/react";
-import { Paperclip, Send } from "lucide-react";
 import { SystemButton } from "../SystemButton";
 import { MessageAction } from "./MessageAction";
+import { Check, Paperclip, Send } from "lucide-react";
 
 import { RootState } from "../../store/store";
+import { submitFormHandler } from "../../utils/Message/submitFormHandler";
 
 export const Footer = () => {
-  const [message, setMessage] = useState<string>("");
-  const { chosenMessage } = useChatContext();
+  const [messageText, setMessageText] = useState<string>("");
+  const { chosenMessage, setChosenMessage } = useChatContext();
+
   const inputFileRef = useRef<HTMLInputElement | null>(null);
 
   const { chat_socket, chosenConvId } = useSelector(
@@ -26,18 +28,20 @@ export const Footer = () => {
         className="flex"
         onSubmit={(e) => {
           e.preventDefault();
-          if (
-            user &&
-            chosenConvId &&
-            message.replace(/\s+/g, "") !== "" &&
-            !chosenMessage
-          ) {
-            chat_socket?.sendMessage(user.id, message, chosenConvId, user);
 
-            setMessage("");
-          } else if (chosenMessage && message.replace(/\s+/g, "") !== "") {
-            console.log(chosenMessage.message_data.id);
-          }
+          if (messageText.replace(/\s+/g, "") === "" || !user || !chosenConvId)
+            return;
+
+          submitFormHandler(
+            user,
+            messageText,
+            chosenConvId,
+            chat_socket,
+            chosenMessage
+          );
+
+          setMessageText("");
+          setChosenMessage(null);
         }}
       >
         <div>
@@ -61,20 +65,24 @@ export const Footer = () => {
             className="w-full h-full bg-transparent outline-none rounded-2xl px-2 placeholder:text-sm font-semibold text-sm"
             autoComplete="off"
             spellCheck="true"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            value={messageText}
+            onChange={(e) => setMessageText(e.target.value)}
           />
         </div>
         <div>
           <Button
             className={`p-0 min-w-10 ${
-              message
+              messageText
                 ? "bg-gradient-to-r from-green-400 to-blue-500 text-white"
                 : "bg-[#050615] text-slate-400"
             } border-slate-900 border-2 rounded-2xl`}
             type="submit"
           >
-            <Send width={18} height={18} />
+            {chosenMessage ? (
+              <Check width={18} height={18} />
+            ) : (
+              <Send width={18} height={18} />
+            )}
           </Button>
         </div>
       </form>

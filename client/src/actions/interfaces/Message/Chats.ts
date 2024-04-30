@@ -42,7 +42,7 @@ export interface ChatContent {
   setChosenMessage: (c: ChosenMessage | null) => void;
 }
 
-export enum MessagActionKind {
+export enum MessageActionKind {
   reply_message = "reply_message",
   edit_message = "edit_message",
   pin_message = "pin_message",
@@ -53,7 +53,7 @@ export enum MessagActionKind {
 }
 
 export interface ChosenMessage {
-  type: MessagActionKind;
+  type: MessageActionKind;
   message_data: TMessage;
 }
 

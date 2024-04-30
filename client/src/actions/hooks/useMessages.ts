@@ -1,13 +1,14 @@
 import axios, { AxiosError } from "axios";
 
+import { useDispatch } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
+
+import { AppDispatch } from "../store/store";
+import { messagesAcitons } from "../store/features/messages.slice";
 
 import { QUERY_ROOT } from "../constants/Query/query";
 
 import type { TMessage } from "../interfaces/api/newChat";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../store/store";
-import { messagesAcitons } from "../store/features/messages.slice";
 import type { ChosenConv } from "../interfaces/Message/Chats";
 
 const useMessages = (conv_id: ChosenConv | null) => {
