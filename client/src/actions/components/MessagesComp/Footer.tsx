@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import useChatContext from "../../hooks/useChatContext";
 
@@ -10,6 +10,8 @@ import { Check, Paperclip, Send } from "lucide-react";
 import { RootState } from "../../store/store";
 import { submitFormHandler } from "../../utils/Message/submitFormHandler";
 
+import { MessageActionKind } from "../../interfaces/Message/Chats";
+
 export const Footer = () => {
   const [messageText, setMessageText] = useState<string>("");
   const { chosenMessage, setChosenMessage } = useChatContext();
@@ -20,6 +22,22 @@ export const Footer = () => {
     (c: RootState) => c.chatSocket
   );
   const { user } = useSelector((c: RootState) => c.user);
+
+  useEffect(() => {
+    if (chosenMessage) {
+      switch (chosenMessage.type) {
+        case MessageActionKind.edit_message:
+          setMessageText(chosenMessage.message_data.content);
+          break;
+        case MessageActionKind.copy_message:
+          navigator.clipboard.writeText(chosenMessage.message_data.content);
+          setChosenMessage(null);
+          break;
+      }
+    }
+  }, [chosenMessage]);
+
+  console.log(chosenMessage);
 
   return (
     <footer className="p-2 bg-[#00010d] border-slate-900 border-2 rounded-2xl text-slate-400 shadow-2xl mt-2 flex flex-col gap-2">
@@ -73,7 +91,7 @@ export const Footer = () => {
           <Button
             className={`p-0 min-w-10 ${
               messageText
-                ? "bg-gradient-to-r from-green-400 to-blue-500 text-white"
+                ? "bg-indigo-500 text-white"
                 : "bg-[#050615] text-slate-400"
             } border-slate-900 border-2 rounded-2xl`}
             type="submit"

@@ -27,7 +27,7 @@ export const AsideUserButtons = () => {
             <>
               <Link
                 to={`/message/${chosenUser.id}`}
-                className="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-white hover:bg-gray-600 flex-1 py-[11px] rounded-xl transition-colors duration-200 justify-center"
+                className="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-white hover:bg-indigo-500 flex-1 py-[11px] rounded-xl transition-colors duration-200 justify-center"
               >
                 <div>
                   <MessageSquareMore width={18} height={18} />
@@ -39,7 +39,7 @@ export const AsideUserButtons = () => {
 
               <Link
                 to={`#`}
-                className="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-white hover:bg-gray-600 flex-1 py-[11px] rounded-xl transition-colors duration-200 justify-center"
+                className="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-white hover:bg-indigo-500 flex-1 py-[11px] rounded-xl transition-colors duration-200 justify-center"
               >
                 <div>
                   <PhoneOutgoing width={18} height={18} />

@@ -20,13 +20,22 @@ export interface TChats {
   users_conversations: Array<TConversations>;
 }
 
+type COLORS =
+  | "danger"
+  | "default"
+  | "primary"
+  | "secondary"
+  | "success"
+  | "warning"
+  | undefined;
+
 export interface MainMessageFunc {
   id: number;
   key: string;
   startContent: ReactElement;
-  classNames: { title: string };
+  classNames: { title: string; base: string };
   value: string;
-  color?: "danger" | string;
+  color?: COLORS;
 }
 
 export interface TMessageEditions {

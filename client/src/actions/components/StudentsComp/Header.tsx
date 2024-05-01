@@ -72,9 +72,9 @@ export const Header = ({ tempStudents }: THeader) => {
             <DropdownMenu
               aria-label="Static Actions"
               selectionMode="single"
-              classNames={{ base: "bg-[#050615]" }}
               selectedKeys={selectedKeys}
               onSelectionChange={setSelectedKeys}
+              color="primary"
             >
               {DROPDOWN_FILTER.map((item) => {
                 return (
@@ -82,7 +82,9 @@ export const Header = ({ tempStudents }: THeader) => {
                     key={item.key}
                     description={item.description}
                     startContent={item.startContent}
-                    classNames={{ wrapper: "hover:bg-gray-900" }}
+                    classNames={{
+                      wrapper: "hover:bg-gray-900"
+                    }}
                   >
                     {item.text}
                   </DropdownItem>

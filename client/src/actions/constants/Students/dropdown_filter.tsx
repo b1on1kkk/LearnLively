@@ -5,19 +5,19 @@ export const DROPDOWN_FILTER: Array<TDropdownFilter> = [
   {
     key: "friends",
     description: "You'll see only your friends.",
-    startContent: <UsersRound />,
+    startContent: <UsersRound width={20} height={20} />,
     text: "Friends."
   },
   {
     key: "pending_requests",
     description: "You'll see students you sent request.",
-    startContent: <CircleEllipsis />,
+    startContent: <CircleEllipsis width={20} height={20} />,
     text: "All friend requests."
   },
   {
     key: "all_students",
     description: "You'll see all students.",
-    startContent: <UsersRound />,
+    startContent: <UsersRound width={20} height={20} />,
     text: "All students."
   }
 ];

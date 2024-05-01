@@ -18,8 +18,8 @@ export const Navigation = () => {
             to={tab.link_to}
             className={({ isActive }) =>
               isActive
-                ? "px-5 py-3 bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% flex items-center gap-5 rounded-full text-white transition-background duration-200 w-[220px]"
-                : "px-5 py-3 gap-5 flex items-center text-slate-600 rounded-full hover:bg-gray-600 hover:text-white transition-colors duration-200 w-[220px]"
+                ? "px-5 py-3 bg-indigo-500 flex items-center gap-5 rounded-full text-white transition-background duration-200 w-[220px]"
+                : "px-5 py-3 gap-5 flex items-center text-slate-600 rounded-full hover:bg-indigo-500 hover:text-white transition-colors duration-200 w-[220px]"
             }
           >
             <span className="font-semibold">{tab.picture}</span>

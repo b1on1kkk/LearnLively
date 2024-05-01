@@ -61,8 +61,11 @@ model messages {
   content         String          @db.VarChar
   sent_at         DateTime        @db.Timestamp(6)
   delivered_at    DateTime        @db.Timestamp(6)
-  edited          Boolean?
+  edited          Boolean
+  replies_to      Int?
   conversations   conversations   @relation(fields: [conversation_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  messages        messages?       @relation("messagesTomessages", fields: [replies_to], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  other_messages  messages[]      @relation("messagesTomessages")
   users           users           @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   seen_messages   seen_messages[]
 }

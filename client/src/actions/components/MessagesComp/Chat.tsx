@@ -11,6 +11,11 @@ export const Chat = () => {
   const { chat_socket, chosenConvId } = useSelector(
     (c: RootState) => c.chatSocket
   );
+  const { messages } = useSelector((m: RootState) => m.messages);
+
+  useEffect(() => {
+    if (messages.length > 0) chat_socket?.getChangedEditedMessage(messages);
+  }, [messages]);
 
   useEffect(() => {
     if (chat_socket && chosenConvId) {

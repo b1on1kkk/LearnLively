@@ -37,7 +37,6 @@ export const Message = () => {
   useEffect(() => {
     if (data) setChats([...data.users_conversations]);
     chat_socket?.getMessage(messages);
-    chat_socket?.getChangedEditedMessage(messages);
   }, [data, chat_socket, messages]);
 
   return (

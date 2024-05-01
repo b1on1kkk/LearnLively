@@ -59,11 +59,8 @@ export class ChatSocket implements WebSocket {
     this.socket?.emit("sendMessage", message);
   }
 
-  public changeEditedMessage(changed_message: {
-    uuid: string;
-    message: TMessage;
-  }) {
-    this.socket?.emit("changeEditedMessage", { changed_message });
+  public changeEditedMessage(message: { uuid: string; message: TMessage }) {
+    this.socket?.emit("changeEditedMessage", message);
   }
 
   public connectToChatRoom(uuid: ChosenConv | null) {
@@ -83,6 +80,8 @@ export class ChatSocket implements WebSocket {
 
   public getChangedEditedMessage(messages: Array<TMessage>) {
     this.socket?.on("getChangedEditedMessage", (message: TMessage) => {
+      console.log(message);
+
       this.reduxDispatch(
         messagesAcitons.messageInit([
           ...messages.map((msg) => {

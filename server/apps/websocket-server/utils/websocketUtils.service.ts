@@ -58,11 +58,27 @@ export class WebsocketUtils {
     return null;
   }
 
-  public MessageSender(
-    uuid: string,
-    server: Server,
-    message: Omit<MessageDTO, 'uuid'>,
-  ) {
-    server.in(uuid).emit('getMessage', { ...message.message });
+  public MessageSender(dto: MessageDTO, id: number, server: Server) {
+    const message = {
+      message: {
+        id,
+        user_id: dto.message.user_id,
+        conversation_id: dto.message.conversation_id,
+        content: dto.message.content,
+        edited: dto.message.edited,
+        sent_at: dto.message.sent_at,
+        delivered_at: dto.message.delivered_at,
+        replies_to: dto.message.replies_to,
+        messages: dto.message.messages,
+        users: {
+          img_hash_name: dto.message.users.img_hash_name,
+          name: dto.message.users.name,
+          lastname: dto.message.users.lastname,
+        },
+        seen_messages: [],
+      },
+    };
+
+    server.in(dto.uuid).emit('getMessage', { ...message.message });
   }
 }

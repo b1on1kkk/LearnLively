@@ -174,6 +174,18 @@ export class ApiService {
             },
           },
         },
+        messages: {
+          select: {
+            content: true,
+            users: {
+              select: {
+                name: true,
+                lastname: true,
+                img_hash_name: true,
+              },
+            },
+          },
+        },
       },
     });
   }

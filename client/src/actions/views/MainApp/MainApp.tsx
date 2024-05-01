@@ -61,8 +61,6 @@ export const MainApp = () => {
     disconnectCB
   );
 
-  console.log(chosenConvId);
-
   return (
     <main className="flex h-screen">
       {/* aside navigation tab */}

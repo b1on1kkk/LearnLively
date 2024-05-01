@@ -125,6 +125,19 @@ export class ChatWebsocketService implements WebSocket {
           sent_at: true,
           delivered_at: true,
           edited: true,
+          replies_to: true,
+          messages: {
+            select: {
+              content: true,
+              users: {
+                select: {
+                  img_hash_name: true,
+                  name: true,
+                  lastname: true,
+                },
+              },
+            },
+          },
           users: {
             select: {
               name: true,
@@ -160,26 +173,10 @@ export class ChatWebsocketService implements WebSocket {
       // wait till data will be inserted
       await Promise.all(insertionPromises);
 
-      await this.sendMessage(
-        {
-          uuid: group_uuid,
-          message: {
-            id: message.id,
-            user_id: message.user_id,
-            content: message.content,
-            conversation_id: message.conversation_id,
-            edited: message.edited,
-            sent_at: message.sent_at,
-            delivered_at: message.delivered_at,
-            users: {
-              img_hash_name: message.users.img_hash_name,
-              name: message.users.name,
-              lastname: message.users.lastname,
-            },
-            seen_messages: [],
-          },
-        },
-        true,
+      this.websocketUtilsService.MessageSender(
+        { uuid: group_uuid, message: message },
+        message.id,
+        this.server,
       );
     } catch (error) {
       console.log(error);
@@ -187,74 +184,43 @@ export class ChatWebsocketService implements WebSocket {
   }
 
   @SubscribeMessage('sendMessage')
-  async sendMessage(@MessageBody() dto: MessageDTO, save?: boolean) {
+  async sendMessage(@MessageBody() dto: MessageDTO) {
     try {
-      const message = {
-        user_id: dto.message.user_id,
-        conversation_id: dto.message.conversation_id,
-        content: dto.message.content,
-        edited: dto.message.edited,
-        sent_at: dto.message.sent_at,
-        delivered_at: dto.message.delivered_at,
-      };
+      const message_id = await this.prisma.messages.create({
+        data: {
+          user_id: dto.message.user_id,
+          conversation_id: dto.message.conversation_id,
+          content: dto.message.content,
+          edited: dto.message.edited,
+          sent_at: dto.message.sent_at,
+          delivered_at: dto.message.delivered_at,
+          replies_to: dto.message.replies_to,
+        },
+        select: {
+          id: true,
+        },
+      });
 
-      if (!save) {
-        const message_id = await this.prisma.messages.create({
-          data: {
-            ...message,
-          },
-          select: {
-            id: true,
-          },
-        });
-
-        this.websocketUtilsService.MessageSender(dto.uuid, this.server, {
-          message: {
-            id: message_id.id,
-            ...message,
-            users: {
-              img_hash_name: dto.message.users.img_hash_name,
-              name: dto.message.users.name,
-              lastname: dto.message.users.lastname,
-            },
-            seen_messages: [],
-          },
-        });
-      } else {
-        this.websocketUtilsService.MessageSender(dto.uuid, this.server, {
-          message: {
-            id: dto.message.id,
-            ...message,
-            seen_messages: [],
-            users: {
-              img_hash_name: dto.message.users.img_hash_name,
-              name: dto.message.users.name,
-              lastname: dto.message.users.lastname,
-            },
-          },
-        });
-      }
+      this.websocketUtilsService.MessageSender(dto, message_id.id, this.server);
     } catch (error) {
       console.log(error);
     }
   }
 
   @SubscribeMessage('changeEditedMessage')
-  async changeEditedMessage(
-    @MessageBody() dto: { changed_message: MessageDTO },
-  ) {
+  async changeEditedMessage(@MessageBody() dto: MessageDTO) {
     try {
+      const { message } = dto;
+
       await this.prisma.messages.update({
-        where: { id: dto.changed_message.message.id },
+        where: { id: message.id },
         data: {
-          content: dto.changed_message.message.content,
-          edited: dto.changed_message.message.edited,
+          content: message.content,
+          edited: message.edited,
         },
       });
 
-      this.server
-        .in(dto.changed_message.uuid)
-        .emit('getChangedEditedMessage', { ...dto.changed_message.message });
+      this.server.in(dto.uuid).emit('getChangedEditedMessage', { ...message });
     } catch (error) {
       console.log(error);
     }

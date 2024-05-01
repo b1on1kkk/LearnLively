@@ -16,14 +16,14 @@ module.exports = {
         light: {
           colors: {
             primary: {
-              DEFAULT: "#4896ff"
+              DEFAULT: "#6366f1"
             }
           }
         },
         dark: {
           colors: {
             primary: {
-              DEFAULT: "#4896ff"
+              DEFAULT: "#6366f1"
             }
           }
         }
