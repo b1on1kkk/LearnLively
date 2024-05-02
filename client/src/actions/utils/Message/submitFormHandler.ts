@@ -20,7 +20,8 @@ export function submitFormHandler(
         message: {
           ...chosenMessage.message_data,
           content: messageText,
-          edited: true
+          edited: true,
+          selected: chosenMessage.message_data.selected
         }
       };
 
@@ -53,7 +54,8 @@ export function submitFormHandler(
             }
           },
           replies_to: chosenMessage.message_data.id,
-          seen_messages: []
+          seen_messages: [],
+          selected: false
         }
       };
 
@@ -80,7 +82,8 @@ export function submitFormHandler(
           },
           messages: null,
           replies_to: null,
-          seen_messages: []
+          seen_messages: [],
+          selected: false
         }
       };
 

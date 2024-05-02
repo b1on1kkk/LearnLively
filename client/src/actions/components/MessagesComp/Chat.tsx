@@ -29,7 +29,7 @@ export const Chat = () => {
   }, [chat_socket, chosenConvId]);
 
   return (
-    <div className="flex h-full p-3 flex-col">
+    <div className="flex h-full p-3 flex-col overflow-hidden">
       <Header />
 
       <Main />

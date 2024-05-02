@@ -2,7 +2,9 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 import type { TMessage } from "../../interfaces/api/newChat";
 
-const initialState: { messages: Array<TMessage> } = {
+const initialState: {
+  messages: Array<TMessage>;
+} = {
   messages: []
 };
 
@@ -20,4 +22,4 @@ export const messagesSlice = createSlice({
 });
 
 export default messagesSlice.reducer;
-export const messagesAcitons = messagesSlice.actions;
+export const messagesActions = messagesSlice.actions;

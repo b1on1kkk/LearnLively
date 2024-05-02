@@ -174,7 +174,7 @@ export class ChatWebsocketService implements WebSocket {
       await Promise.all(insertionPromises);
 
       this.websocketUtilsService.MessageSender(
-        { uuid: group_uuid, message: message },
+        { uuid: group_uuid, message: { ...message, selected: false } },
         message.id,
         this.server,
       );

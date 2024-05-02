@@ -76,6 +76,7 @@ export class WebsocketUtils {
           lastname: dto.message.users.lastname,
         },
         seen_messages: [],
+        selected: dto.message.selected,
       },
     };
 

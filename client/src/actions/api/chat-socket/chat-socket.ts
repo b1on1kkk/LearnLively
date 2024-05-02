@@ -4,7 +4,7 @@ import WebSocket from "../abstract/webSocket";
 import { AppDispatch } from "../../store/store";
 import { ThunkDispatch, UnknownAction } from "@reduxjs/toolkit";
 
-import { messagesAcitons } from "../../store/features/messages.slice";
+import { messagesActions } from "../../store/features/messages.slice";
 import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
 
 import type { TMessage } from "../../interfaces/api/newChat";
@@ -74,7 +74,7 @@ export class ChatSocket implements WebSocket {
   ////////////////////////////////////////listeners////////////////////////////////////////////////
   public getMessage(messages: Array<TMessage>) {
     this.socket?.on("getMessage", (data: TMessage) => {
-      this.reduxDispatch(messagesAcitons.messageInit([...messages, data]));
+      this.reduxDispatch(messagesActions.messageInit([...messages, data]));
     });
   }
 
@@ -83,7 +83,7 @@ export class ChatSocket implements WebSocket {
       console.log(message);
 
       this.reduxDispatch(
-        messagesAcitons.messageInit([
+        messagesActions.messageInit([
           ...messages.map((msg) => {
             if (msg.id === message.id) return { ...message };
             return msg;

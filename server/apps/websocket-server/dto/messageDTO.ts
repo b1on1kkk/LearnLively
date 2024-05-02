@@ -23,5 +23,6 @@ export class MessageDTO {
       lastname: string;
     };
     seen_messages: any[];
+    selected: boolean;
   };
 }

@@ -30,6 +30,7 @@ export interface TMessage {
     lastname: string;
   };
   seen_messages: Array<SeenMessages>;
+  selected: boolean;
 }
 
 export interface TStartChat {

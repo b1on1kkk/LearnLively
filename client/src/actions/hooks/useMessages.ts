@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 
 import { AppDispatch } from "../store/store";
-import { messagesAcitons } from "../store/features/messages.slice";
+import { messagesActions } from "../store/features/messages.slice";
 
 import { QUERY_ROOT } from "../constants/Query/query";
 
@@ -29,7 +29,15 @@ const useMessages = (conv_id: ChosenConv | null) => {
             }
           )
           .then((res) => {
-            dispatch(messagesAcitons.messageInit(res.data));
+            // extend object by adding new field "selected" to use it when user selects message
+            const extendedArr = res.data.map((message) => {
+              return {
+                ...message,
+                selected: false
+              };
+            });
+
+            dispatch(messagesActions.messageInit(extendedArr));
             return res.data;
           })
           .catch((err) => err);
