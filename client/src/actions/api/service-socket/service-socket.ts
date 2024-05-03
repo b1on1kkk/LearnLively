@@ -54,7 +54,6 @@ export class ServiceSocket implements WebSocket {
   }
 
   ////////////////////////////////////////listeners////////////////////////////////////////////////
-
   public getNewStudents(
     chosenUser: Student | null,
     setTempStudents: (c: Array<Student> | null) => void

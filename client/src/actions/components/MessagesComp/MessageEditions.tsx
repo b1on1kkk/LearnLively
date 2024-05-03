@@ -41,9 +41,8 @@ export const MessageEditions = ({
                 key={item.key}
                 startContent={item.startContent}
                 classNames={item.classNames}
-                // classNames={{ base: "data-[hover=true]:bg-indigo-500" }}
                 onClick={onClickAction}
-                color={item.color ? item.color : "default"}
+                color={item.color}
               >
                 {item.value}
               </DropdownItem>

@@ -1,11 +1,13 @@
+import { useSelector } from "react-redux";
+
 import { Check, Send } from "lucide-react";
 
-import useChatContext from "../../hooks/useChatContext";
+import { RootState } from "../../store/store";
 
 import { MessageActionKind } from "../../interfaces/Message/Chats";
 
 export const MessageActionSubmitButton = () => {
-  const { chosenMessage } = useChatContext();
+  const { chosenMessage } = useSelector((m: RootState) => m.messages);
 
   if (chosenMessage) {
     switch (chosenMessage.type) {

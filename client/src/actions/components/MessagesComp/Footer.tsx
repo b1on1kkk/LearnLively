@@ -1,6 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useRef, useState } from "react";
-import useChatContext from "../../hooks/useChatContext";
+import { useEffect, useMemo, useRef, useState } from "react";
 import useSelectedMessagesCounter from "../../hooks/useSelectedMessagesCounter";
 
 import { Button } from "@nextui-org/react";
@@ -11,41 +10,64 @@ import { MessageActionSubmitButton } from "./MessageActionSubmitButton";
 
 import { AppDispatch, RootState } from "../../store/store";
 import { submitFormHandler } from "../../utils/Message/submitFormHandler";
+import { DispatchActionsHandler } from "../../utils/handlers/dispatchActionsHandler";
+
+import { ChatSocketController } from "../../api/chat-socket/chat-socket-controller";
 
 import { MessageActionKind } from "../../interfaces/Message/Chats";
-import { messagesActions } from "../../store/features/messages.slice";
 
 export const Footer = () => {
   const dispatch = useDispatch<AppDispatch>();
 
+  const inputFileRef = useRef<HTMLInputElement | null>(null);
   const [messageText, setMessageText] = useState<string>("");
 
   const { chat_socket, chosenConvId } = useSelector(
     (c: RootState) => c.chatSocket
   );
   const { user } = useSelector((c: RootState) => c.user);
-  const { messages } = useSelector((m: RootState) => m.messages);
+  const { messages, chosenMessage } = useSelector((m: RootState) => m.messages);
 
-  const { chosenMessage, setChosenMessage } = useChatContext();
   const { selectedMessages } = useSelectedMessagesCounter(messages);
 
-  const inputFileRef = useRef<HTMLInputElement | null>(null);
+  const dispatchActionsHandler = useMemo(
+    () => new DispatchActionsHandler(dispatch),
+    []
+  );
+  const chatSocketController = useMemo(
+    () => new ChatSocketController(chat_socket),
+    []
+  );
 
   useEffect(() => {
     if (chosenMessage) {
       switch (chosenMessage.type) {
-        case MessageActionKind.edit_message:
+        case MessageActionKind.edit_message: {
           setMessageText(chosenMessage.message_data.content);
+
           break;
-        case MessageActionKind.copy_message:
+        }
+
+        case MessageActionKind.copy_message: {
           navigator.clipboard.writeText(chosenMessage.message_data.content);
-          setChosenMessage(null);
+
+          dispatchActionsHandler.messageInitHandler({
+            messages: messages,
+            chosenMessage: null
+          });
+
           break;
+        }
+
+        case MessageActionKind.delete_message: {
+          const message = [{ ...chosenMessage.message_data, selected: true }];
+          chatSocketController.deleteMsgController(chosenConvId, message);
+
+          break;
+        }
       }
     }
   }, [chosenMessage]);
-
-  console.log(chosenMessage);
 
   return (
     <footer
@@ -60,6 +82,7 @@ export const Footer = () => {
               className="font-semibold min-w-32"
               startContent={<Reply height={18} width={18}></Reply>}
               endContent={<span>{selectedMessages}</span>}
+              onClick={() => {}}
             >
               Forward
             </Button>
@@ -68,6 +91,12 @@ export const Footer = () => {
               className="font-semibold min-w-32"
               startContent={<Trash height={18} width={18}></Trash>}
               endContent={<span>{selectedMessages}</span>}
+              onClick={() => {
+                chatSocketController.deleteMsgController(
+                  chosenConvId,
+                  messages
+                );
+              }}
             >
               Delete
             </Button>
@@ -77,15 +106,15 @@ export const Footer = () => {
             icon={<X width={18} height={18} />}
             label="close"
             onClick={() => {
-              dispatch(
-                messagesActions.messageInit([
+              dispatchActionsHandler.messageInitHandler({
+                messages: [
                   ...messages.map((message) => ({
                     ...message,
                     selected: false
                   }))
-                ])
-              );
-              setChosenMessage(null);
+                ],
+                chosenMessage: null
+              });
             }}
           />
         </div>
@@ -100,27 +129,20 @@ export const Footer = () => {
               if (
                 messageText.replace(/\s+/g, "") === "" ||
                 !user ||
-                !chosenConvId ||
-                !chosenMessage
+                !chosenConvId
               ) {
                 return;
               }
 
-              if (
-                chosenMessage.type === MessageActionKind.edit_message ||
-                chosenMessage.type === MessageActionKind.reply_message
-              ) {
-                submitFormHandler(
-                  user,
-                  messageText,
-                  chosenConvId,
-                  chat_socket,
-                  chosenMessage
-                );
-              }
+              submitFormHandler(
+                user,
+                messageText,
+                chosenConvId,
+                chat_socket,
+                chosenMessage
+              );
 
               setMessageText("");
-              setChosenMessage(null);
             }}
           >
             <div>

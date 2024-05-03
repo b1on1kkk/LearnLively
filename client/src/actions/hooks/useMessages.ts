@@ -37,7 +37,12 @@ const useMessages = (conv_id: ChosenConv | null) => {
               };
             });
 
-            dispatch(messagesActions.messageInit(extendedArr));
+            dispatch(
+              messagesActions.messageInit({
+                messages: extendedArr,
+                chosenMessage: null
+              })
+            );
             return res.data;
           })
           .catch((err) => err);

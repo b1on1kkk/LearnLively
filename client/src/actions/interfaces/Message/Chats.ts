@@ -33,9 +33,9 @@ export interface MainMessageFunc {
   id: number;
   key: string;
   startContent: ReactElement;
-  classNames: { title: string; base: string };
+  classNames: { title: string };
   value: string;
-  color?: COLORS;
+  color: COLORS;
 }
 
 export interface TMessageEditions {
@@ -44,11 +44,6 @@ export interface TMessageEditions {
   onClickAction: React.MouseEventHandler<HTMLLIElement>;
   functionality: Array<MainMessageFunc>;
   seenMessages?: Array<SeenMessages>;
-}
-
-export interface ChatContent {
-  chosenMessage: ChosenMessage | null;
-  setChosenMessage: (c: ChosenMessage | null) => void;
 }
 
 export enum MessageActionKind {

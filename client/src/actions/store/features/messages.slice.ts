@@ -1,21 +1,20 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
-import type { TMessage } from "../../interfaces/api/newChat";
+import type { ActionPayload } from "../interfaces/messagesActionPayload";
 
-const initialState: {
-  messages: Array<TMessage>;
-} = {
-  messages: []
+const initialState: ActionPayload = {
+  messages: [],
+  chosenMessage: null
 };
 
 export const messagesSlice = createSlice({
   name: "messagesSlice",
   initialState,
   reducers: {
-    messageInit: (state, action: PayloadAction<Array<TMessage>>) => {
+    messageInit: (state, action: PayloadAction<ActionPayload>) => {
       return {
-        ...state,
-        messages: action.payload
+        chosenMessage: action.payload.chosenMessage,
+        messages: action.payload.messages
       };
     }
   }

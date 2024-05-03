@@ -6,6 +6,7 @@ import studentsSlice from "./features/students.slice";
 import chatSocketSlice from "./features/chatSocket.slice";
 import chosenUserChatSlice from "./features/chosenUserChat.slice";
 import messagesSlice from "./features/messages.slice";
+import chatsSlice from "./features/chats.slice";
 
 export const store = configureStore({
   reducer: {
@@ -14,7 +15,8 @@ export const store = configureStore({
     chatSocket: chatSocketSlice,
     students: studentsSlice,
     chosenUserChat: chosenUserChatSlice,
-    messages: messagesSlice
+    messages: messagesSlice,
+    chats: chatsSlice
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -21,6 +21,37 @@ import type { startChatDTO } from 'apps/websocket-server/dto/startChatDTO';
 import type { ChosenConvDTO } from 'apps/websocket-server/dto/chosenConvDTO';
 import type { ActiveUsersDTO } from 'apps/websocket-server/dto/activeUsersDTO';
 import type { ConnectedUserDTO } from 'apps/websocket-server/dto/connectedUserDTO';
+import { ApiService } from 'apps/project-name/src/api/api.service';
+
+interface deleteMessagesDTO {
+  uuid: string;
+  message: Array<{
+    id: number;
+    user_id: number;
+    conversation_id: number;
+    content: string;
+    sent_at: Date;
+    delivered_at: Date;
+    edited: boolean;
+    messages: {
+      content: string;
+      users: {
+        img_hash_name: string;
+        name: string;
+        lastname: string;
+      };
+    } | null;
+    replies_to: number | null;
+    users: {
+      img_hash_name: string;
+      name: string;
+      lastname: string;
+    };
+    seen_messages: any[];
+    selected: boolean;
+  }>;
+  conversation_id: number;
+}
 
 @Injectable()
 @WebSocketGateway({ cors: { origin: '*' }, namespace: 'chat' })
@@ -32,6 +63,7 @@ export class ChatWebsocketService implements WebSocket {
   constructor(
     private readonly prisma: PrismaService,
     private readonly websocketUtilsService: WebsocketUtils,
+    private readonly apiService: ApiService,
   ) {
     this.ActiveChatUsers = [];
   }
@@ -162,7 +194,7 @@ export class ChatWebsocketService implements WebSocket {
       });
 
       const insertionPromises = dto.users_idx.map(async (user_id) => {
-        return this.prisma.users_conversations.create({
+        return await this.prisma.users_conversations.create({
           data: {
             user_id: user_id,
             conversation_id: newConvId,
@@ -172,6 +204,25 @@ export class ChatWebsocketService implements WebSocket {
 
       // wait till data will be inserted
       await Promise.all(insertionPromises);
+
+      dto.users_idx.forEach(async (user_id) => {
+        const idx = this.websocketUtilsService.binaryUserSearchByUserId(
+          this.ActiveChatUsers,
+          user_id,
+        );
+
+        if (idx !== null) {
+          this.server
+            .to(this.ActiveChatUsers[idx].socket_id)
+            .emit('getJustCreatedChats', [
+              ...(
+                await this.apiService.getChats(
+                  this.ActiveChatUsers[idx].user_id,
+                )
+              ).users_conversations,
+            ]);
+        }
+      });
 
       this.websocketUtilsService.MessageSender(
         { uuid: group_uuid, message: { ...message, selected: false } },
@@ -221,6 +272,37 @@ export class ChatWebsocketService implements WebSocket {
       });
 
       this.server.in(dto.uuid).emit('getChangedEditedMessage', { ...message });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  @SubscribeMessage('deleteMessages')
+  async deleteMessages(@MessageBody() dto: deleteMessagesDTO) {
+    try {
+      const { message, conversation_id } = dto;
+
+      const insertionPromises = message.map(async (msg) => {
+        if (msg.selected) {
+          await this.prisma.messages.updateMany({
+            where: {
+              replies_to: msg.id,
+            },
+            data: { replies_to: null },
+          });
+
+          return await this.prisma.messages.delete({ where: { id: msg.id } });
+        }
+      });
+
+      // wait till all manipulations will be done
+      await Promise.all(insertionPromises);
+
+      this.server
+        .in(dto.uuid)
+        .emit('getDeletedMessages', [
+          ...(await this.apiService.getMessages(conversation_id)),
+        ]);
     } catch (error) {
       console.log(error);
     }

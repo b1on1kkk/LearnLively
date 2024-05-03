@@ -4,12 +4,17 @@ import WebSocket from "../abstract/webSocket";
 import { AppDispatch } from "../../store/store";
 import { ThunkDispatch, UnknownAction } from "@reduxjs/toolkit";
 
-import { messagesActions } from "../../store/features/messages.slice";
+import { chatsActions } from "../../store/features/chats.slice";
 import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
+
+import { DispatchActionsHandler } from "../../utils/handlers/dispatchActionsHandler";
 
 import type { TMessage } from "../../interfaces/api/newChat";
 import type { ChatType } from "../../interfaces/api/chatType";
-import type { ChosenConv } from "../../interfaces/Message/Chats";
+import type {
+  ChosenConv,
+  TConversations
+} from "../../interfaces/Message/Chats";
 
 interface MessageData {
   uuid: string;
@@ -19,6 +24,7 @@ interface MessageData {
 export class ChatSocket implements WebSocket {
   private socket: Socket | null;
   private reduxDispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>;
+  private actionsHandler: DispatchActionsHandler;
 
   constructor(
     url: string,
@@ -27,6 +33,7 @@ export class ChatSocket implements WebSocket {
   ) {
     this.socket = io(url);
     this.reduxDispatch = dispatch;
+    this.actionsHandler = new DispatchActionsHandler(dispatch);
     this.connectUser(user_id);
   }
 
@@ -63,6 +70,14 @@ export class ChatSocket implements WebSocket {
     this.socket?.emit("changeEditedMessage", message);
   }
 
+  public deleteMessages(message: {
+    uuid: string;
+    message: Array<TMessage>;
+    conversation_id: number;
+  }) {
+    this.socket?.emit("deleteMessages", message);
+  }
+
   public connectToChatRoom(uuid: ChosenConv | null) {
     if (uuid) this.socket?.emit("connectToChatRoom", uuid);
   }
@@ -74,22 +89,39 @@ export class ChatSocket implements WebSocket {
   ////////////////////////////////////////listeners////////////////////////////////////////////////
   public getMessage(messages: Array<TMessage>) {
     this.socket?.on("getMessage", (data: TMessage) => {
-      this.reduxDispatch(messagesActions.messageInit([...messages, data]));
+      this.actionsHandler.messageInitHandler({
+        messages: [...messages, data],
+        chosenMessage: null
+      });
     });
   }
 
   public getChangedEditedMessage(messages: Array<TMessage>) {
     this.socket?.on("getChangedEditedMessage", (message: TMessage) => {
-      console.log(message);
-
-      this.reduxDispatch(
-        messagesActions.messageInit([
+      this.actionsHandler.messageInitHandler({
+        messages: [
           ...messages.map((msg) => {
             if (msg.id === message.id) return { ...message };
             return msg;
           })
-        ])
-      );
+        ],
+        chosenMessage: null
+      });
+    });
+  }
+
+  public getDeletedMessages() {
+    this.socket?.on("getDeletedMessages", (message: Array<TMessage>) => {
+      this.actionsHandler.messageInitHandler({
+        messages: [...message],
+        chosenMessage: null
+      });
+    });
+  }
+
+  public getJustCreatedChats() {
+    this.socket?.on("getJustCreatedChats", (data: Array<TConversations>) => {
+      this.reduxDispatch(chatsActions.initChats(data));
     });
   }
 }

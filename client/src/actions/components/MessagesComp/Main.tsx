@@ -1,7 +1,6 @@
-import { useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import useMessages from "../../hooks/useMessages";
-import useChatContext from "../../hooks/useChatContext";
 import useSelectMessage from "../../hooks/useSelectMessage";
 import useScrollToBottom from "../../hooks/useScrollToBottom";
 
@@ -14,7 +13,7 @@ import { Loading } from "../Loading/Loading";
 import { MessageEditions } from "./MessageEditions";
 import { CompanionMessage } from "./CompanionMessage";
 
-import { RootState } from "../../store/store";
+import { AppDispatch, RootState } from "../../store/store";
 
 import {
   MAIN_MESSAGE_FUNCTIONALITY_OTHERS,
@@ -22,26 +21,32 @@ import {
 } from "../../constants/Message/message_functionality";
 
 import { toImageLink } from "../../utils/Students/toImageLink";
+import { DispatchActionsHandler } from "../../utils/handlers/dispatchActionsHandler";
 
 import type { TMessage } from "../../interfaces/api/newChat";
 import { MessageActionKind } from "../../interfaces/Message/Chats";
 
 export const Main = () => {
-  const { user } = useSelector((u: RootState) => u.user);
-  const { messages } = useSelector((m: RootState) => m.messages);
-  const { chosenConvId } = useSelector((c: RootState) => c.chatSocket);
+  const dispatch = useDispatch<AppDispatch>();
 
-  const { chosenMessage, setChosenMessage } = useChatContext();
-  const { setId } = useSelectMessage(messages);
+  const { user } = useSelector((u: RootState) => u.user);
+  const { chosenConvId } = useSelector((c: RootState) => c.chatSocket);
+  const { messages, chosenMessage } = useSelector((m: RootState) => m.messages);
+
+  const { setId } = useSelectMessage(messages, chosenMessage);
   const { data, isLoading, refetch } = useMessages(chosenConvId);
+
+  const dispatchActionsHandler = useMemo(
+    () => new DispatchActionsHandler(dispatch),
+    []
+  );
+  const elemToScrollToButton = useScrollToBottom<Array<TMessage> | undefined>(
+    data
+  );
 
   useEffect(() => {
     if (chosenConvId) refetch();
   }, [chosenConvId]);
-
-  const elemToScrollToButton = useScrollToBottom<Array<TMessage> | undefined>(
-    data
-  );
 
   return (
     <main
@@ -54,7 +59,7 @@ export const Main = () => {
         <>
           {chosenMessage &&
           chosenMessage.type === MessageActionKind.select_message ? (
-            <CheckboxGroup classNames={{ base: "flex-1" }}>
+            <CheckboxGroup classNames={{ base: "flex-1", wrapper: "gap-3" }}>
               <>
                 {messages.map((message, idx) => {
                   if (message.user_id === user?.id) {
@@ -101,16 +106,14 @@ export const Main = () => {
                       return (
                         <MessageEditions
                           key={idx}
-                          wrapper="flex justify-end"
+                          wrapper="flex justify-end h-[64px]"
                           seenMessages={message.seen_messages}
                           onClickAction={(e) => {
-                            const action = e.currentTarget.dataset
-                              .key as MessageActionKind;
-
-                            setChosenMessage({
-                              type: action,
-                              message_data: message
-                            });
+                            dispatchActionsHandler.messageActionsHandler(
+                              e,
+                              messages,
+                              message
+                            );
                           }}
                           functionality={MAIN_MESSAGE_FUNCTIONALITY_SENDER}
                         >
@@ -164,15 +167,13 @@ export const Main = () => {
                     return (
                       <MessageEditions
                         key={idx}
-                        wrapper="flex"
+                        wrapper="flex h-[64px]"
                         onClickAction={(e) => {
-                          const action = e.currentTarget.dataset
-                            .key as MessageActionKind;
-
-                          setChosenMessage({
-                            type: action,
-                            message_data: message
-                          });
+                          dispatchActionsHandler.messageActionsHandler(
+                            e,
+                            messages,
+                            message
+                          );
                         }}
                         functionality={MAIN_MESSAGE_FUNCTIONALITY_OTHERS}
                       >

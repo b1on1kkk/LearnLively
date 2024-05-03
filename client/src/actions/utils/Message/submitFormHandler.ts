@@ -4,7 +4,7 @@ import {
   ChosenMessage,
   MessageActionKind
 } from "../../interfaces/Message/Chats";
-import { User } from "../../interfaces/Registration/Validation";
+import type { User } from "../../interfaces/Registration/Validation";
 
 export function submitFormHandler(
   user: User,
@@ -88,6 +88,7 @@ export function submitFormHandler(
       };
 
       chat_socket?.sendMessage(messageData);
+
       break;
     }
   }

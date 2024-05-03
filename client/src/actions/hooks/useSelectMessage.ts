@@ -5,8 +5,12 @@ import { AppDispatch } from "../store/store";
 import { messagesActions } from "../store/features/messages.slice";
 
 import type { TMessage } from "../interfaces/api/newChat";
+import { ChosenMessage } from "../interfaces/Message/Chats";
 
-const useSelectMessage = (messages: Array<TMessage>) => {
+const useSelectMessage = (
+  messages: Array<TMessage>,
+  chosenMessage: ChosenMessage | null
+) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [id, setId] = useState<number | null>(null);
@@ -19,7 +23,12 @@ const useSelectMessage = (messages: Array<TMessage>) => {
         return msg;
       });
 
-      dispatch(messagesActions.messageInit(updatedMessages));
+      dispatch(
+        messagesActions.messageInit({
+          messages: updatedMessages,
+          chosenMessage: chosenMessage
+        })
+      );
       setId(null);
     }
   }, [id]);
