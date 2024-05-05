@@ -9,25 +9,15 @@ import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
 
 import { DispatchActionsHandler } from "../../utils/handlers/dispatchActionsHandler";
 
-import type { TMessage } from "../../interfaces/api/newChat";
-import type { ChatType } from "../../interfaces/api/chatType";
 import type {
   ChosenConv,
   TConversations
 } from "../../interfaces/Message/Chats";
-
-interface MessageData {
-  uuid: string;
-  message: Omit<TMessage, "id">;
-}
-
-interface TReadMessage {
-  meta_data: {
-    seen_user_id: number;
-    uuid: string;
-  };
-  message: Array<TMessage>;
-}
+import type { TMessage } from "../../interfaces/api/newChat";
+import type { ChatType } from "../../interfaces/api/chatType";
+import type { MessageData } from "../../interfaces/api/messageData";
+import type { TReadMessage } from "../../interfaces/api/readMessage";
+import type { TDeleteMessages } from "../../interfaces/api/deleteMessages";
 
 export class ChatSocket implements WebSocket {
   private socket: Socket | null;
@@ -78,11 +68,7 @@ export class ChatSocket implements WebSocket {
     this.socket?.emit("changeEditedMessage", message);
   }
 
-  public deleteMessages(message: {
-    uuid: string;
-    message: Array<TMessage>;
-    conversation_id: number;
-  }) {
+  public deleteMessages(message: TDeleteMessages) {
     this.socket?.emit("deleteMessages", message);
   }
 

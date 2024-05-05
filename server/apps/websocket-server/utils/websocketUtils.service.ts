@@ -3,7 +3,7 @@ import { SharedService } from '@sharedService/shared';
 import { ActiveUsersDTO } from '../dto/activeUsersDTO';
 import { Server, Socket } from 'socket.io';
 import { StudentDataDTO } from '../dto/studentDataDTO';
-import { MessageDTO } from '../dto/messageDTO';
+import { SendMessageDTO } from '../dto/sendMessageDTO';
 
 @Injectable()
 export class WebsocketUtils {
@@ -58,7 +58,7 @@ export class WebsocketUtils {
     return null;
   }
 
-  public MessageSender(dto: MessageDTO, id: number, server: Server) {
+  public MessageSender(dto: SendMessageDTO, id: number, server: Server) {
     const message = {
       message: {
         id,

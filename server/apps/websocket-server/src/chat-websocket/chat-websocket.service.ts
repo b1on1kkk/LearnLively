@@ -12,46 +12,18 @@ import {
 } from '@nestjs/websockets';
 import { PrismaService } from '@prismaORM/prisma';
 
+import { ApiService } from 'apps/project-name/src/api/api.service';
 import { WebsocketUtils } from 'apps/websocket-server/utils/websocketUtils.service';
 
 import WebSocket from '../abstract/webSocket';
 
-import type { MessageDTO } from 'apps/websocket-server/dto/messageDTO';
 import type { startChatDTO } from 'apps/websocket-server/dto/startChatDTO';
 import type { ChosenConvDTO } from 'apps/websocket-server/dto/chosenConvDTO';
 import type { ActiveUsersDTO } from 'apps/websocket-server/dto/activeUsersDTO';
+import type { SendMessageDTO } from 'apps/websocket-server/dto/sendMessageDTO';
+import type { ReadMessageDTO } from 'apps/websocket-server/dto/readMessageDTO';
 import type { ConnectedUserDTO } from 'apps/websocket-server/dto/connectedUserDTO';
-import { ApiService } from 'apps/project-name/src/api/api.service';
-
-interface deleteMessagesDTO {
-  uuid: string;
-  message: Array<{
-    id: number;
-    user_id: number;
-    conversation_id: number;
-    content: string;
-    sent_at: Date;
-    delivered_at: Date;
-    edited: boolean;
-    seen: boolean;
-    messages: {
-      content: string;
-      users: {
-        img_hash_name: string;
-        name: string;
-        lastname: string;
-      };
-    } | null;
-    replies_to: number | null;
-    users: {
-      img_hash_name: string;
-      name: string;
-      lastname: string;
-    };
-    selected: boolean;
-  }>;
-  conversation_id: number;
-}
+import type { DeleteMessagesDTO } from 'apps/websocket-server/dto/deleteMessagesDTO';
 
 @Injectable()
 @WebSocketGateway({ cors: { origin: '*' }, namespace: 'chat' })
@@ -223,7 +195,7 @@ export class ChatWebsocketService implements WebSocket {
   }
 
   @SubscribeMessage('sendMessage')
-  async sendMessage(@MessageBody() dto: MessageDTO) {
+  async sendMessage(@MessageBody() dto: SendMessageDTO) {
     try {
       const message_id = await this.prisma.messages.create({
         data: {
@@ -248,7 +220,7 @@ export class ChatWebsocketService implements WebSocket {
   }
 
   @SubscribeMessage('changeEditedMessage')
-  async changeEditedMessage(@MessageBody() dto: MessageDTO) {
+  async changeEditedMessage(@MessageBody() dto: SendMessageDTO) {
     try {
       const { message } = dto;
 
@@ -267,9 +239,10 @@ export class ChatWebsocketService implements WebSocket {
   }
 
   @SubscribeMessage('deleteMessages')
-  async deleteMessages(@MessageBody() dto: deleteMessagesDTO) {
+  async deleteMessages(@MessageBody() dto: DeleteMessagesDTO) {
     try {
-      const { message, conversation_id } = dto;
+      const { message } = dto;
+      const { uuid, conversation_id } = dto.meta_data;
 
       const insertionPromises = message.map(async (msg) => {
         if (msg.selected) {
@@ -292,7 +265,7 @@ export class ChatWebsocketService implements WebSocket {
       await Promise.all(insertionPromises);
 
       this.server
-        .in(dto.uuid)
+        .in(uuid)
         .emit('getDeletedMessages', [
           ...(await this.apiService.getMessages(conversation_id)),
         ]);
@@ -304,37 +277,7 @@ export class ChatWebsocketService implements WebSocket {
   @SubscribeMessage('readMessage')
   async readMessage(
     @MessageBody()
-    dto: {
-      meta_data: {
-        seen_user_id: number;
-        uuid: string;
-      };
-      message: Array<{
-        id: number;
-        user_id: number;
-        conversation_id: number;
-        content: string;
-        sent_at: Date;
-        delivered_at: Date;
-        edited: boolean;
-        seen: boolean;
-        messages: {
-          content: string;
-          users: {
-            img_hash_name: string;
-            name: string;
-            lastname: string;
-          };
-        } | null;
-        replies_to: number | null;
-        users: {
-          img_hash_name: string;
-          name: string;
-          lastname: string;
-        };
-        selected: boolean;
-      }>;
-    },
+    dto: ReadMessageDTO,
   ) {
     try {
       const { message, meta_data } = dto;
