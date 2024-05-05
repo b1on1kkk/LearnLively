@@ -21,6 +21,14 @@ interface MessageData {
   message: Omit<TMessage, "id">;
 }
 
+interface TReadMessage {
+  meta_data: {
+    seen_user_id: number;
+    uuid: string;
+  };
+  message: Array<TMessage>;
+}
+
 export class ChatSocket implements WebSocket {
   private socket: Socket | null;
   private reduxDispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>;
@@ -86,6 +94,10 @@ export class ChatSocket implements WebSocket {
     if (uuid) this.socket?.emit("leaveChatRoom", uuid);
   }
 
+  public readMessage(readed_user: TReadMessage) {
+    this.socket?.emit("readMessage", readed_user);
+  }
+
   ////////////////////////////////////////listeners////////////////////////////////////////////////
   public getMessage(messages: Array<TMessage>) {
     this.socket?.on("getMessage", (data: TMessage) => {
@@ -110,10 +122,11 @@ export class ChatSocket implements WebSocket {
     });
   }
 
+  // this function uses also for seen message, change it name
   public getDeletedMessages() {
     this.socket?.on("getDeletedMessages", (message: Array<TMessage>) => {
       this.actionsHandler.messageInitHandler({
-        messages: [...message],
+        messages: message,
         chosenMessage: null
       });
     });
@@ -122,6 +135,15 @@ export class ChatSocket implements WebSocket {
   public getJustCreatedChats() {
     this.socket?.on("getJustCreatedChats", (data: Array<TConversations>) => {
       this.reduxDispatch(chatsActions.initChats(data));
+    });
+  }
+
+  public getReadMessage() {
+    this.socket?.on("getReadMessage", (readed_messages: Array<TMessage>) => {
+      this.actionsHandler.messageInitHandler({
+        messages: readed_messages,
+        chosenMessage: null
+      });
     });
   }
 }

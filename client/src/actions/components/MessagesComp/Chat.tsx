@@ -1,14 +1,26 @@
+import { useDisclosure } from "@nextui-org/react";
 import useChatListeners from "../../hooks/useChatListeners";
 import useRoomConnection from "../../hooks/useRoomConnection";
 
 import { Main } from "./Main";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
+import { ConfirmationModal } from "./ConfirmationModal";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 export const Chat = () => {
-  useChatListeners();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
+  useChatListeners();
   useRoomConnection();
+
+  const { chat_socket } = useSelector((c: RootState) => c.chatSocket);
+
+  useEffect(() => {
+    if (chat_socket) chat_socket.getReadMessage();
+  }, [chat_socket]);
 
   return (
     <div className="flex h-full p-3 flex-col overflow-hidden">
@@ -16,7 +28,9 @@ export const Chat = () => {
 
       <Main />
 
-      <Footer />
+      <Footer onOpen={onOpen} />
+
+      <ConfirmationModal isOpen={isOpen} onOpenChange={onOpenChange} />
     </div>
   );
 };

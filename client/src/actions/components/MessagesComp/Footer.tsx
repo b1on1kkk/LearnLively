@@ -1,22 +1,21 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useMemo, useRef, useState } from "react";
-import useSelectedMessagesCounter from "../../hooks/useSelectedMessagesCounter";
 
 import { Button } from "@nextui-org/react";
 import { SystemButton } from "../SystemButton";
 import { MessageAction } from "./MessageAction";
-import { Paperclip, Reply, Trash, X } from "lucide-react";
+import { Paperclip } from "lucide-react";
 import { MessageActionSubmitButton } from "./MessageActionSubmitButton";
 
 import { AppDispatch, RootState } from "../../store/store";
 import { submitFormHandler } from "../../utils/Message/submitFormHandler";
 import { DispatchActionsHandler } from "../../utils/handlers/dispatchActionsHandler";
 
-import { ChatSocketController } from "../../api/chat-socket/chat-socket-controller";
-
 import { MessageActionKind } from "../../interfaces/Message/Chats";
 
-export const Footer = () => {
+import { SelectedFooterMessagesButtons } from "./SelectedFooterMessagesButtons";
+
+export const Footer = ({ onOpen }: { onOpen: () => void }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const inputFileRef = useRef<HTMLInputElement | null>(null);
@@ -28,14 +27,8 @@ export const Footer = () => {
   const { user } = useSelector((c: RootState) => c.user);
   const { messages, chosenMessage } = useSelector((m: RootState) => m.messages);
 
-  const { selectedMessages } = useSelectedMessagesCounter(messages);
-
   const dispatchActionsHandler = useMemo(
     () => new DispatchActionsHandler(dispatch),
-    []
-  );
-  const chatSocketController = useMemo(
-    () => new ChatSocketController(chat_socket),
     []
   );
 
@@ -60,9 +53,7 @@ export const Footer = () => {
         }
 
         case MessageActionKind.delete_message: {
-          const message = [{ ...chosenMessage.message_data, selected: true }];
-          chatSocketController.deleteMsgController(chosenConvId, message);
-
+          onOpen();
           break;
         }
       }
@@ -75,49 +66,20 @@ export const Footer = () => {
     >
       {chosenMessage &&
       chosenMessage.type === MessageActionKind.select_message ? (
-        <div className="flex">
-          <div className="flex-1 flex gap-2">
-            <Button
-              color="primary"
-              className="font-semibold min-w-32"
-              startContent={<Reply height={18} width={18}></Reply>}
-              endContent={<span>{selectedMessages}</span>}
-              onClick={() => {}}
-            >
-              Forward
-            </Button>
-            <Button
-              color="danger"
-              className="font-semibold min-w-32"
-              startContent={<Trash height={18} width={18}></Trash>}
-              endContent={<span>{selectedMessages}</span>}
-              onClick={() => {
-                chatSocketController.deleteMsgController(
-                  chosenConvId,
-                  messages
-                );
-              }}
-            >
-              Delete
-            </Button>
-          </div>
-
-          <SystemButton
-            icon={<X width={18} height={18} />}
-            label="close"
-            onClick={() => {
-              dispatchActionsHandler.messageInitHandler({
-                messages: [
-                  ...messages.map((message) => ({
-                    ...message,
-                    selected: false
-                  }))
-                ],
-                chosenMessage: null
-              });
-            }}
-          />
-        </div>
+        <SelectedFooterMessagesButtons
+          onOpen={onOpen}
+          onCloseSelection={() => {
+            dispatchActionsHandler.messageInitHandler({
+              messages: [
+                ...messages.map((message) => ({
+                  ...message,
+                  selected: false
+                }))
+              ],
+              chosenMessage: null
+            });
+          }}
+        />
       ) : (
         <>
           <MessageAction />

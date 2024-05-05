@@ -31,10 +31,10 @@ export const UserMessage = ({ message }: { message: TMessage }) => {
             <span className="text-[10px] font-semibold">edited</span>
           )}
           <span className="text-[11px] font-semibold">
-            {new Date(message.delivered_at).toISOString().slice(11, 16)}
+            {message.delivered_at}
           </span>
           <span>
-            {message.seen_messages.length > 0 ? (
+            {message.seen ? (
               <CheckCheck width={13} height={13} />
             ) : (
               <Check width={13} height={13} />

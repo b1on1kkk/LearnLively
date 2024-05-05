@@ -1,12 +1,10 @@
-import type { TConversations } from "../Message/Chats";
-
-export interface TMessage {
+export class Message {
   id: number;
   user_id: number;
   conversation_id: number;
   content: string;
-  sent_at: string;
-  delivered_at: string;
+  sent_at: Date;
+  delivered_at: Date;
   edited: boolean;
   seen: boolean;
   messages: {
@@ -24,9 +22,4 @@ export interface TMessage {
     lastname: string;
   };
   selected: boolean;
-}
-
-export interface TStartChat {
-  chats: Array<TConversations>;
-  message: Array<TMessage>;
 }

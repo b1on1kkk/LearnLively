@@ -22,6 +22,7 @@ import { SharedService } from '@sharedService/shared/shared.service';
 import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.interceptor';
 
 import type { EncodedJwt } from './interfaces/encoded_jwt.interface';
+// import type { Message } from './interfaces/message.interface';
 
 @Controller('api')
 export class ApiController {
@@ -133,4 +134,38 @@ export class ApiController {
       })
       .json(await this.apiService.getMessages(body.conv_id));
   }
+
+  @HttpCode(200)
+  @Post('seen_message')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(ErrorCatcherInterceptor)
+  async getSeenMessages(
+    @Body() body: { message_id: number },
+    @Res() res: Response,
+  ) {
+    return res
+      .cookie('jwt_lg', this.sharedService.getCookie(), {
+        httpOnly: true,
+        maxAge: 259200000,
+      })
+      .json(await this.apiService.getSeenMessages(body.message_id));
+  }
+
+  // @HttpCode(200)
+  // @Post('user_seen_message')
+  // @UseGuards(JwtAuthGuard)
+  // @UseInterceptors(ErrorCatcherInterceptor)
+  // async addUserSeenMessage(
+  //   @Body() body: { messages: Array<Message>; user_id: number },
+  //   @Res() res: Response,
+  // ) {
+  //   return res
+  //     .cookie('jwt_lg', this.sharedService.getCookie(), {
+  //       httpOnly: true,
+  //       maxAge: 259200000,
+  //     })
+  //     .json(
+  //       await this.apiService.addUserSeenMessage(body.messages, body.user_id),
+  //     );
+  // }
 }

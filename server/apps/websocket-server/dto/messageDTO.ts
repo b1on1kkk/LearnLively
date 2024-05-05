@@ -5,8 +5,8 @@ export class MessageDTO {
     user_id: number;
     conversation_id: number;
     content: string;
-    sent_at: Date;
-    delivered_at: Date;
+    sent_at: string;
+    delivered_at: string;
     edited: boolean;
     messages: {
       content: string;
@@ -22,7 +22,6 @@ export class MessageDTO {
       name: string;
       lastname: string;
     };
-    seen_messages: any[];
     selected: boolean;
   };
 }

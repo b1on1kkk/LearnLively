@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@prismaORM/prisma';
 
 import { SharedService } from '@sharedService/shared';
+// import { Message } from './interfaces/message.interface';
 
 @Injectable()
 export class ApiService {
@@ -161,19 +162,6 @@ export class ApiService {
             img_hash_name: true,
           },
         },
-        seen_messages: {
-          select: {
-            message_id: true,
-            seen_at: true,
-            users: {
-              select: {
-                img_hash_name: true,
-                name: true,
-                lastname: true,
-              },
-            },
-          },
-        },
         messages: {
           select: {
             content: true,
@@ -189,4 +177,55 @@ export class ApiService {
       },
     });
   }
+
+  async getSeenMessages(message_id: number) {
+    return await this.prisma.seen_messages.findMany({
+      where: { message_id: message_id },
+      select: {
+        seen_at: true,
+        users: {
+          select: {
+            img_hash_name: true,
+            name: true,
+            lastname: true,
+          },
+        },
+      },
+    });
+  }
+
+  // think about it
+  // async addUserSeenMessage(messages: Array<Message>, user_id: number) {
+  //   try {
+  //     const buff: Array<any> = [];
+
+  //     const a = messages.map(async (message) => {
+  //       buff.push(
+  //         ...(await this.prisma.seen_messages.findMany({
+  //           where: { id: message.id, user_id },
+  //         })),
+  //       );
+
+  //       return '';
+  //     });
+
+  //     await Promise.all(a);
+
+  //     console.log(buff);
+
+  //     if (buff.length > 0) throw Error('leave');
+
+  //     // await this.prisma.seen_messages.create({
+  //     //   data: {
+  //     //     message_id: message.id,
+  //     //     user_id: user_id,
+  //     //     seen_at: new Date().toLocaleTimeString(),
+  //     //   },
+  //     // });
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+
+  //   return { message: 'done', code: 200 };
+  // }
 }

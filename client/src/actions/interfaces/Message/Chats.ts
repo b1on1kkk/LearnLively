@@ -3,7 +3,7 @@ import { ReactElement } from "react";
 import { ChatType } from "../api/chatType";
 
 import type { Student } from "../Students/Main";
-import type { SeenMessages, TMessage } from "../api/newChat";
+import type { TMessage } from "../api/newChat";
 
 export interface TConversations {
   conversations: {
@@ -39,11 +39,12 @@ export interface MainMessageFunc {
 }
 
 export interface TMessageEditions {
+  id: number;
+  message_id: number;
   children: ReactElement;
   wrapper: string;
   onClickAction: React.MouseEventHandler<HTMLLIElement>;
   functionality: Array<MainMessageFunc>;
-  seenMessages?: Array<SeenMessages>;
 }
 
 export enum MessageActionKind {

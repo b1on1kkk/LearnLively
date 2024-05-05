@@ -37,8 +37,8 @@ export function submitFormHandler(
           user_id: user.id,
           conversation_id: chosenConvId.id,
           content: messageText,
-          sent_at: new Date(),
-          delivered_at: new Date(),
+          sent_at: new Date().toLocaleTimeString(),
+          delivered_at: new Date().toLocaleTimeString(),
           edited: false,
           users: {
             img_hash_name: user.img_hash_name,
@@ -72,8 +72,8 @@ export function submitFormHandler(
           user_id: user.id,
           conversation_id: chosenConvId.id,
           content: messageText,
-          sent_at: new Date(),
-          delivered_at: new Date(),
+          sent_at: new Date().toLocaleTimeString(),
+          delivered_at: new Date().toLocaleTimeString(),
           edited: false,
           users: {
             img_hash_name: user.img_hash_name,

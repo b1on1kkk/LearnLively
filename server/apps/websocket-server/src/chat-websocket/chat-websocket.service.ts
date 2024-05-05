@@ -33,6 +33,7 @@ interface deleteMessagesDTO {
     sent_at: Date;
     delivered_at: Date;
     edited: boolean;
+    seen: boolean;
     messages: {
       content: string;
       users: {
@@ -47,7 +48,6 @@ interface deleteMessagesDTO {
       name: string;
       lastname: string;
     };
-    seen_messages: any[];
     selected: boolean;
   }>;
   conversation_id: number;
@@ -145,9 +145,10 @@ export class ChatWebsocketService implements WebSocket {
           user_id: dto.users_idx[0],
           conversation_id: newConvId,
           content: dto.message,
-          sent_at: new Date(),
-          delivered_at: new Date(),
+          sent_at: new Date().toLocaleTimeString(),
+          delivered_at: new Date().toLocaleTimeString(),
           edited: false,
+          seen: false,
         },
         select: {
           id: true,
@@ -175,19 +176,6 @@ export class ChatWebsocketService implements WebSocket {
               name: true,
               lastname: true,
               img_hash_name: true,
-            },
-          },
-          seen_messages: {
-            select: {
-              message_id: true,
-              seen_at: true,
-              users: {
-                select: {
-                  img_hash_name: true,
-                  name: true,
-                  lastname: true,
-                },
-              },
             },
           },
         },
@@ -246,6 +234,7 @@ export class ChatWebsocketService implements WebSocket {
           sent_at: dto.message.sent_at,
           delivered_at: dto.message.delivered_at,
           replies_to: dto.message.replies_to,
+          seen: false,
         },
         select: {
           id: true,
@@ -284,6 +273,10 @@ export class ChatWebsocketService implements WebSocket {
 
       const insertionPromises = message.map(async (msg) => {
         if (msg.selected) {
+          await this.prisma.seen_messages.deleteMany({
+            where: { message_id: msg.id },
+          });
+
           await this.prisma.messages.updateMany({
             where: {
               replies_to: msg.id,
@@ -302,6 +295,73 @@ export class ChatWebsocketService implements WebSocket {
         .in(dto.uuid)
         .emit('getDeletedMessages', [
           ...(await this.apiService.getMessages(conversation_id)),
+        ]);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  @SubscribeMessage('readMessage')
+  async readMessage(
+    @MessageBody()
+    dto: {
+      meta_data: {
+        seen_user_id: number;
+        uuid: string;
+      };
+      message: Array<{
+        id: number;
+        user_id: number;
+        conversation_id: number;
+        content: string;
+        sent_at: Date;
+        delivered_at: Date;
+        edited: boolean;
+        seen: boolean;
+        messages: {
+          content: string;
+          users: {
+            img_hash_name: string;
+            name: string;
+            lastname: string;
+          };
+        } | null;
+        replies_to: number | null;
+        users: {
+          img_hash_name: string;
+          name: string;
+          lastname: string;
+        };
+        selected: boolean;
+      }>;
+    },
+  ) {
+    try {
+      const { message, meta_data } = dto;
+
+      const insertionPromises = message.map(async (msg) => {
+        await this.prisma.messages.update({
+          where: { id: msg.id },
+          data: {
+            seen: true,
+          },
+        });
+
+        return await this.prisma.seen_messages.create({
+          data: {
+            message_id: msg.id,
+            user_id: meta_data.seen_user_id,
+            seen_at: new Date().toLocaleTimeString(),
+          },
+        });
+      });
+
+      await Promise.all(insertionPromises);
+
+      this.server
+        .to(meta_data.uuid)
+        .emit('getReadMessage', [
+          ...(await this.apiService.getMessages(message[0].conversation_id)),
         ]);
     } catch (error) {
       console.log(error);

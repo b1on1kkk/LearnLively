@@ -59,10 +59,11 @@ model messages {
   user_id         Int
   conversation_id Int
   content         String          @db.VarChar
-  sent_at         DateTime        @db.Timestamp(6)
-  delivered_at    DateTime        @db.Timestamp(6)
+  sent_at         String          @db.VarChar(255)
+  delivered_at    String          @db.VarChar(255)
   edited          Boolean
   replies_to      Int?
+  seen            Boolean
   conversations   conversations   @relation(fields: [conversation_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   messages        messages?       @relation("messagesTomessages", fields: [replies_to], references: [id], onDelete: NoAction, onUpdate: NoAction)
   other_messages  messages[]      @relation("messagesTomessages")
@@ -82,7 +83,7 @@ model seen_messages {
   id         Int      @id @default(autoincrement())
   message_id Int
   user_id    Int
-  seen_at    DateTime @db.Timestamp(6)
+  seen_at    String   @db.VarChar(255)
   messages   messages @relation(fields: [message_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }

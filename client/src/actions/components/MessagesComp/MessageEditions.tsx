@@ -3,19 +3,63 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownSection,
-  DropdownItem
+  DropdownItem,
+  Tooltip
 } from "@nextui-org/react";
 import { CheckCheck } from "lucide-react";
 
 import type { TMessageEditions } from "../../interfaces/Message/Chats";
 
+import { Image } from "@nextui-org/react";
+import { toImageLink } from "../../utils/Students/toImageLink";
+
+import { useMutation } from "@tanstack/react-query";
+import axios, { AxiosError } from "axios";
+import { QUERY_ROOT } from "../../constants/Query/query";
+import { useEffect, useState } from "react";
+
+const useLastSeenMessage = () => {
+  return useMutation<Array<TSeenMessages>, AxiosError, { message_id: number }>({
+    mutationFn: (message: { message_id: number }) =>
+      axios
+        .post(
+          `${QUERY_ROOT}api/seen_message`,
+          {
+            message_id: message.message_id
+          },
+          { withCredentials: true }
+        )
+        .then((res) => {
+          return res.data;
+        })
+  });
+};
+
+interface TSeenMessages {
+  seen_at: string;
+  users: {
+    name: string;
+    lastname: string;
+    img_hash_name: string;
+  };
+}
+
 export const MessageEditions = ({
+  id,
   children,
   wrapper,
   onClickAction,
-  seenMessages,
-  functionality
+  functionality,
+  message_id
 }: TMessageEditions) => {
+  const [seenMessages, setSeenMessages] = useState<Array<TSeenMessages>>([]);
+
+  const seen_message = useLastSeenMessage();
+
+  useEffect(() => {
+    if (seen_message.data) setSeenMessages(seen_message.data);
+  }, [seen_message]);
+
   return (
     <Dropdown
       classNames={{
@@ -23,18 +67,26 @@ export const MessageEditions = ({
         content: "bg-[#00010d]"
       }}
     >
-      <div className={wrapper}>
-        <DropdownTrigger>{children}</DropdownTrigger>
+      <div
+        className={wrapper}
+        id="chat_message"
+        message-id={`message_${id}`}
+        onContextMenu={(e) => e.preventDefault()}
+      >
+        <DropdownTrigger>
+          <div
+            className="transition-all duration-200"
+            onClick={() => seen_message.mutate({ message_id })}
+          >
+            {children}
+          </div>
+        </DropdownTrigger>
       </div>
       <DropdownMenu
         aria-label="message actions"
         classNames={{ base: "bg-[#00010d]" }}
-        disabledKeys={["message_seen"]}
       >
-        <DropdownSection
-          showDivider={seenMessages && seenMessages.length > 0 ? true : false}
-          aria-label="Main"
-        >
+        <DropdownSection aria-label="Main">
           {functionality.map((item) => {
             return (
               <DropdownItem
@@ -52,26 +104,97 @@ export const MessageEditions = ({
 
         <DropdownSection
           aria-label="Preferences"
-          hidden={seenMessages && seenMessages.length > 0 ? false : true}
+          hidden={
+            seenMessages.length === 0 && !seen_message.isPending ? true : false
+          }
         >
-          {/* think about how to optimize this code */}
           <DropdownItem
             key="message_seen"
-            startContent={<CheckCheck width={14} height={14} />}
-            classNames={{ title: "text-xs" }}
-            className="cursor-default"
-            isReadOnly={true}
+            classNames={{ title: "text-xs flex flex-col gap-2" }}
             textValue="data is not exist"
           >
-            {seenMessages &&
-              seenMessages.map((seen) => {
-                return (
-                  <>
-                    Today at{" "}
-                    {new Date(seen.seen_at).toISOString().slice(11, 16)}
-                  </>
-                );
-              })}
+            {seen_message.isPending ? (
+              <span className="font-semibold">Loading...</span>
+            ) : seenMessages.length > 1 ? (
+              <Tooltip
+                closeDelay={0}
+                placement="right"
+                offset={15}
+                content={
+                  <div className="flex flex-col gap-3 p-1">
+                    {seenMessages.map((seen, idx) => {
+                      return (
+                        <div className="flex items-center gap-2" key={idx}>
+                          <div>
+                            <Image
+                              width={30}
+                              src={toImageLink(seen.users.img_hash_name)}
+                              className="rounded-full"
+                            />
+                          </div>
+                          <div>
+                            <span className="font-semibold">
+                              Seen at {seen.seen_at}
+                            </span>
+                          </div>
+                          <div>
+                            <CheckCheck width={14} height={14} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                }
+              >
+                <div className="flex items-center">
+                  <div className="flex flex-1 gap-1 items-center">
+                    <CheckCheck width={14} height={14} />
+
+                    <div>
+                      <span className="text-sm font-semibold">
+                        {seenMessages.length} Seen
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex -space-x-3">
+                    {seenMessages.map((msg) => {
+                      return (
+                        <Image
+                          width={30}
+                          src={toImageLink(msg.users.img_hash_name)}
+                          className="rounded-full"
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              </Tooltip>
+            ) : (
+              <>
+                {seenMessages.map((seen, idx) => {
+                  return (
+                    <div className="flex items-center gap-2" key={idx}>
+                      <div>
+                        <Image
+                          width={30}
+                          src={toImageLink(seen.users.img_hash_name)}
+                          className="rounded-full"
+                        />
+                      </div>
+                      <div>
+                        <span className="font-semibold">
+                          Seen at {seen.seen_at}
+                        </span>
+                      </div>
+                      <div>
+                        <CheckCheck width={14} height={14} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
+            )}
           </DropdownItem>
         </DropdownSection>
       </DropdownMenu>

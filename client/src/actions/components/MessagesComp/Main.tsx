@@ -25,12 +25,41 @@ import { DispatchActionsHandler } from "../../utils/handlers/dispatchActionsHand
 
 import type { TMessage } from "../../interfaces/api/newChat";
 import { MessageActionKind } from "../../interfaces/Message/Chats";
+// import { useMutation } from "@tanstack/react-query";
+// import axios, { AxiosError } from "axios";
+// import { QUERY_ROOT } from "../../constants/Query/query";
+
+// const useAddUserSeenMessage = () => {
+//   return useMutation<
+//     { message: string; code: number },
+//     AxiosError,
+//     { messages: Array<TMessage>; user_id: number }
+//   >({
+//     mutationFn: (message: { messages: Array<TMessage>; user_id: number }) =>
+//       axios
+//         .post(
+//           `${QUERY_ROOT}api/user_seen_message`,
+//           {
+//             messages: message.messages,
+//             user_id: message.user_id
+//           },
+//           { withCredentials: true }
+//         )
+//         .then((res) => {
+//           return res.data;
+//         })
+//   });
+// };
 
 export const Main = () => {
   const dispatch = useDispatch<AppDispatch>();
 
+  // const userSeenMessage = useAddUserSeenMessage();
+
   const { user } = useSelector((u: RootState) => u.user);
-  const { chosenConvId } = useSelector((c: RootState) => c.chatSocket);
+  const { chat_socket, chosenConvId } = useSelector(
+    (c: RootState) => c.chatSocket
+  );
   const { messages, chosenMessage } = useSelector((m: RootState) => m.messages);
 
   const { setId } = useSelectMessage(messages, chosenMessage);
@@ -47,6 +76,42 @@ export const Main = () => {
   useEffect(() => {
     if (chosenConvId) refetch();
   }, [chosenConvId]);
+
+  // not optimize solution, think also about group chat
+  useEffect(() => {
+    if (!messages.length || !user || !chosenConvId) return;
+
+    const unreadedMessages = [];
+
+    for (let i = 0; i < messages.length; i++) {
+      if (messages[i].user_id !== user.id && !messages[i].seen) {
+        unreadedMessages.push({
+          ...messages[i],
+          seen: true
+        });
+      }
+    }
+
+    if (unreadedMessages.length > 0) {
+      chat_socket?.readMessage({
+        meta_data: {
+          seen_user_id: user.id,
+          uuid: chosenConvId.uuid
+        },
+        message: unreadedMessages
+      });
+    }
+
+    // else {
+    //   // here typical post request to add user as reader
+    //   userSeenMessage.mutate({
+    //     messages: messages,
+    //     user_id: user.id
+    //   });
+    // }
+  }, [messages, user, chosenConvId]);
+
+  console.log(messages);
 
   return (
     <main
@@ -106,8 +171,9 @@ export const Main = () => {
                       return (
                         <MessageEditions
                           key={idx}
-                          wrapper="flex justify-end h-[64px]"
-                          seenMessages={message.seen_messages}
+                          id={idx}
+                          message_id={message.id}
+                          wrapper="flex justify-end"
                           onClickAction={(e) => {
                             dispatchActionsHandler.messageActionsHandler(
                               e,
@@ -117,8 +183,8 @@ export const Main = () => {
                           }}
                           functionality={MAIN_MESSAGE_FUNCTIONALITY_SENDER}
                         >
-                          <div className="flex transition-all duration-200 gap-3">
-                            <div className="max-w-[300px] min-w-[150px] px-3 py-2 rounded-2xl bg-indigo-500 break-all text-white">
+                          <div className="flex gap-3 min-h-[64px]">
+                            <div className="max-w-[300px] min-w-[150px] px-3 py-2 rounded-2xl bg-indigo-500 break-all text-white flex flex-col">
                               {message.replies_to && (
                                 <div className="flex flex-col p-1 border-l-3 bg-white/20 rounded-r-lg pl-2">
                                   <h1 className="text-sm font-semibold">
@@ -130,7 +196,9 @@ export const Main = () => {
                                 </div>
                               )}
 
-                              <p className="font-semibold">{message.content}</p>
+                              <p className="font-semibold flex-1">
+                                {message.content}
+                              </p>
 
                               <div className="flex gap-1 justify-end items-center">
                                 {message.edited && (
@@ -139,12 +207,10 @@ export const Main = () => {
                                   </span>
                                 )}
                                 <span className="text-[11px] font-semibold">
-                                  {new Date(message.delivered_at)
-                                    .toISOString()
-                                    .slice(11, 16)}
+                                  {message.delivered_at}
                                 </span>
                                 <span>
-                                  {message.seen_messages.length > 0 ? (
+                                  {message.seen ? (
                                     <CheckCheck width={13} height={13} />
                                   ) : (
                                     <Check width={13} height={13} />
@@ -167,7 +233,9 @@ export const Main = () => {
                     return (
                       <MessageEditions
                         key={idx}
-                        wrapper="flex h-[64px]"
+                        id={idx}
+                        wrapper="flex"
+                        message_id={message.id}
                         onClickAction={(e) => {
                           dispatchActionsHandler.messageActionsHandler(
                             e,
@@ -177,7 +245,7 @@ export const Main = () => {
                         }}
                         functionality={MAIN_MESSAGE_FUNCTIONALITY_OTHERS}
                       >
-                        <div className="flex transition-all duration-200 gap-3">
+                        <div className="flex gap-3 min-h-[64px]">
                           <div className="flex items-end">
                             <Image
                               width={45}
@@ -185,7 +253,7 @@ export const Main = () => {
                               className="rounded-full"
                             />
                           </div>
-                          <div className="max-w-[300px] min-w-[150px] px-3 py-2 rounded-2xl bg-[#00010d] break-all text-slate-400">
+                          <div className="max-w-[300px] min-w-[150px] px-3 py-2 rounded-2xl bg-[#00010d] break-all text-slate-400 flex flex-col">
                             {message.replies_to && (
                               <div className="flex flex-col p-1 border-l-3 bg-white/20 rounded-r-lg pl-2">
                                 <h1 className="text-sm font-semibold">
@@ -197,13 +265,13 @@ export const Main = () => {
                               </div>
                             )}
 
-                            <p className="font-semibold">{message.content}</p>
+                            <p className="font-semibold flex-1">
+                              {message.content}
+                            </p>
 
                             <div className="flex gap-1 justify-end">
                               <span className="text-[11px] font-semibold">
-                                {new Date(message.delivered_at)
-                                  .toISOString()
-                                  .slice(11, 16)}
+                                {message.delivered_at}
                               </span>
                               {message.edited && (
                                 <span className="text-[10px] font-semibold">
