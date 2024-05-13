@@ -185,6 +185,7 @@ export class ApiService {
         seen_at: true,
         users: {
           select: {
+            id: true,
             img_hash_name: true,
             name: true,
             lastname: true,

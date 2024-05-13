@@ -52,9 +52,9 @@ export const MessageEditions = ({
   functionality,
   message_id
 }: TMessageEditions) => {
-  const [seenMessages, setSeenMessages] = useState<Array<TSeenMessages>>([]);
-
   const seen_message = useLastSeenMessage();
+
+  const [seenMessages, setSeenMessages] = useState<Array<TSeenMessages>>([]);
 
   useEffect(() => {
     if (seen_message.data) setSeenMessages(seen_message.data);
@@ -158,9 +158,10 @@ export const MessageEditions = ({
                   </div>
 
                   <div className="flex -space-x-3">
-                    {seenMessages.map((msg) => {
+                    {seenMessages.map((msg, idx) => {
                       return (
                         <Image
+                          key={idx}
                           width={30}
                           src={toImageLink(msg.users.img_hash_name)}
                           className="rounded-full"
@@ -184,7 +185,7 @@ export const MessageEditions = ({
                       </div>
                       <div>
                         <span className="font-semibold">
-                          Seen at {seen.seen_at}
+                          Seen at {seen.seen_at.slice(0, -3)}
                         </span>
                       </div>
                       <div>

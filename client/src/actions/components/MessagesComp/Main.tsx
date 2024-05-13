@@ -101,14 +101,6 @@ export const Main = () => {
         message: unreadedMessages
       });
     }
-
-    // else {
-    //   // here typical post request to add user as reader
-    //   userSeenMessage.mutate({
-    //     messages: messages,
-    //     user_id: user.id
-    //   });
-    // }
   }, [messages, user, chosenConvId]);
 
   console.log(messages);
@@ -207,7 +199,7 @@ export const Main = () => {
                                   </span>
                                 )}
                                 <span className="text-[11px] font-semibold">
-                                  {message.delivered_at}
+                                  {message.delivered_at.slice(0, -3)}
                                 </span>
                                 <span>
                                   {message.seen ? (
@@ -271,7 +263,7 @@ export const Main = () => {
 
                             <div className="flex gap-1 justify-end">
                               <span className="text-[11px] font-semibold">
-                                {message.delivered_at}
+                                {message.delivered_at.slice(0, -3)}
                               </span>
                               {message.edited && (
                                 <span className="text-[10px] font-semibold">
