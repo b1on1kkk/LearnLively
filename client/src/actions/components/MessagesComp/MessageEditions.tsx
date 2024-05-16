@@ -17,6 +17,8 @@ import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import { QUERY_ROOT } from "../../constants/Query/query";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 const useLastSeenMessage = () => {
   return useMutation<Array<TSeenMessages>, AxiosError, { message_id: number }>({
@@ -37,7 +39,11 @@ const useLastSeenMessage = () => {
 
 interface TSeenMessages {
   seen_at: string;
+  messages: {
+    user_id: number;
+  };
   users: {
+    id: number;
     name: string;
     lastname: string;
     img_hash_name: string;
@@ -50,15 +56,19 @@ export const MessageEditions = ({
   wrapper,
   onClickAction,
   functionality,
-  message_id
+  message
 }: TMessageEditions) => {
   const seen_message = useLastSeenMessage();
+
+  const { user } = useSelector((u: RootState) => u.user);
 
   const [seenMessages, setSeenMessages] = useState<Array<TSeenMessages>>([]);
 
   useEffect(() => {
     if (seen_message.data) setSeenMessages(seen_message.data);
   }, [seen_message]);
+
+  console.log(seenMessages);
 
   return (
     <Dropdown
@@ -76,7 +86,7 @@ export const MessageEditions = ({
         <DropdownTrigger>
           <div
             className="transition-all duration-200"
-            onClick={() => seen_message.mutate({ message_id })}
+            onClick={() => seen_message.mutate({ message_id: message.id })}
           >
             {children}
           </div>
@@ -104,9 +114,7 @@ export const MessageEditions = ({
 
         <DropdownSection
           aria-label="Preferences"
-          hidden={
-            seenMessages.length === 0 && !seen_message.isPending ? true : false
-          }
+          hidden={user?.id === message.user_id ? false : true}
         >
           <DropdownItem
             key="message_seen"
@@ -115,13 +123,66 @@ export const MessageEditions = ({
           >
             {seen_message.isPending ? (
               <span className="font-semibold">Loading...</span>
-            ) : seenMessages.length > 1 ? (
-              <Tooltip
-                closeDelay={0}
-                placement="right"
-                offset={15}
-                content={
-                  <div className="flex flex-col gap-3 p-1">
+            ) : user?.id === message.user_id ? (
+              <>
+                {seenMessages.length > 1 ? (
+                  <Tooltip
+                    closeDelay={0}
+                    placement="right"
+                    offset={15}
+                    content={
+                      <div className="flex flex-col gap-3 p-1">
+                        {seenMessages.map((seen, idx) => {
+                          return (
+                            <div className="flex items-center gap-2" key={idx}>
+                              <div>
+                                <Image
+                                  width={30}
+                                  src={toImageLink(seen.users.img_hash_name)}
+                                  className="rounded-full"
+                                />
+                              </div>
+                              <div>
+                                <span className="font-semibold">
+                                  Seen at {seen.seen_at}
+                                </span>
+                              </div>
+                              <div>
+                                <CheckCheck width={14} height={14} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    }
+                  >
+                    <div className="flex items-center">
+                      <div className="flex flex-1 gap-1 items-center">
+                        <CheckCheck width={14} height={14} />
+
+                        <div>
+                          <span className="text-sm font-semibold">
+                            {seenMessages.length} Seen
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex -space-x-3">
+                        {seenMessages.map((msg, idx) => {
+                          return (
+                            <Image
+                              key={idx}
+                              width={30}
+                              src={toImageLink(msg.users.img_hash_name)}
+                              className="rounded-full"
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </Tooltip>
+                ) : (
+                  <>
                     {seenMessages.map((seen, idx) => {
                       return (
                         <div className="flex items-center gap-2" key={idx}>
@@ -134,7 +195,7 @@ export const MessageEditions = ({
                           </div>
                           <div>
                             <span className="font-semibold">
-                              Seen at {seen.seen_at}
+                              Seen at {seen.seen_at.slice(0, -3)}
                             </span>
                           </div>
                           <div>
@@ -143,58 +204,11 @@ export const MessageEditions = ({
                         </div>
                       );
                     })}
-                  </div>
-                }
-              >
-                <div className="flex items-center">
-                  <div className="flex flex-1 gap-1 items-center">
-                    <CheckCheck width={14} height={14} />
-
-                    <div>
-                      <span className="text-sm font-semibold">
-                        {seenMessages.length} Seen
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex -space-x-3">
-                    {seenMessages.map((msg, idx) => {
-                      return (
-                        <Image
-                          key={idx}
-                          width={30}
-                          src={toImageLink(msg.users.img_hash_name)}
-                          className="rounded-full"
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
-              </Tooltip>
-            ) : (
-              <>
-                {seenMessages.map((seen, idx) => {
-                  return (
-                    <div className="flex items-center gap-2" key={idx}>
-                      <div>
-                        <Image
-                          width={30}
-                          src={toImageLink(seen.users.img_hash_name)}
-                          className="rounded-full"
-                        />
-                      </div>
-                      <div>
-                        <span className="font-semibold">
-                          Seen at {seen.seen_at.slice(0, -3)}
-                        </span>
-                      </div>
-                      <div>
-                        <CheckCheck width={14} height={14} />
-                      </div>
-                    </div>
-                  );
-                })}
+                  </>
+                )}
               </>
+            ) : (
+              <></>
             )}
           </DropdownItem>
         </DropdownSection>

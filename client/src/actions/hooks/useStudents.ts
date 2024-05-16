@@ -23,7 +23,8 @@ const useStudents = () => {
           return res.data;
         })
         .catch((err) => err);
-    }
+    },
+    enabled: false
   });
 };
 

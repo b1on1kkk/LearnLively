@@ -40,7 +40,7 @@ export interface MainMessageFunc {
 
 export interface TMessageEditions {
   id: number;
-  message_id: number;
+  message: TMessage;
   children: ReactElement;
   wrapper: string;
   onClickAction: React.MouseEventHandler<HTMLLIElement>;

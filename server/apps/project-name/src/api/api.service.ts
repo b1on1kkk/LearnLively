@@ -183,6 +183,11 @@ export class ApiService {
       where: { message_id: message_id },
       select: {
         seen_at: true,
+        messages: {
+          select: {
+            user_id: true,
+          },
+        },
         users: {
           select: {
             id: true,

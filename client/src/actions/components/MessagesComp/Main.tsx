@@ -164,7 +164,7 @@ export const Main = () => {
                         <MessageEditions
                           key={idx}
                           id={idx}
-                          message_id={message.id}
+                          message={message}
                           wrapper="flex justify-end"
                           onClickAction={(e) => {
                             dispatchActionsHandler.messageActionsHandler(
@@ -227,7 +227,7 @@ export const Main = () => {
                         key={idx}
                         id={idx}
                         wrapper="flex"
-                        message_id={message.id}
+                        message={message}
                         onClickAction={(e) => {
                           dispatchActionsHandler.messageActionsHandler(
                             e,
