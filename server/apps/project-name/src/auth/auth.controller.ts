@@ -44,14 +44,9 @@ export class AuthController {
   @UseGuards(EmptyTokenGuard)
   @UseInterceptors(ErrorCatcherInterceptor)
   async signup(@Body() authPayload: SignUpDTO, @Res() res: Response) {
-    const token = await this.authService.signup(authPayload);
+    const status = await this.authService.signup(authPayload);
 
-    return res
-      .cookie('jwt_lg', token, {
-        httpOnly: true,
-        maxAge: 259200000,
-      })
-      .json({ text: 'Logged in!', status: 200 });
+    return res.json(status);
   }
 
   @HttpCode(200)

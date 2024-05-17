@@ -8,6 +8,8 @@ import { Loading } from "../Loading/Loading";
 export const RegistrationGuard = ({ children }: { children: ReactElement }) => {
   const { data, isError, isLoading } = useCheckUserAuth();
 
+  console.log(data);
+
   if (isLoading) return <Loading></Loading>;
 
   if (isError) return <Navigate to="/registration/login" replace />;

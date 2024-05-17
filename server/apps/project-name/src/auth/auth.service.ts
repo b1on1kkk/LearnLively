@@ -70,7 +70,7 @@ export class AuthService {
       );
     }
 
-    return this.login({ email, password });
+    return { text: 'Logged in!', status: 200 };
   }
 
   async logout(cookies: { [key: string]: string } | undefined) {

@@ -1,8 +1,13 @@
 import { Tooltip } from "@nextui-org/react";
 import { Notification } from "../Notification";
-import { Info, MessageSquareX } from "lucide-react";
+import { Info, MessageSquareX, UsersRound } from "lucide-react";
+import { SystemButton } from "../SystemButton";
 
-export const WarningEmptyChats = () => {
+interface TWarningEmptyChats {
+  onOpenGroupModal: (e: React.MouseEvent<HTMLButtonElement>) => void;
+}
+
+export const WarningEmptyChats = ({ onOpenGroupModal }: TWarningEmptyChats) => {
   return (
     <>
       <header className="flex justify-end">
@@ -13,10 +18,16 @@ export const WarningEmptyChats = () => {
           placement="left"
           className="bg-gradient-to-r from-green-400 to-blue-500 font-semibold"
         >
-          <div className="hover:text-white transition-colors duration-200">
+          <div className="hover:text-white transition-colors duration-200 min-w-10 flex items-center justify-center">
             <Info width={20} height={20} />
           </div>
         </Tooltip>
+
+        <SystemButton
+          label="create_group"
+          icon={<UsersRound width={18} height={18} />}
+          onClick={onOpenGroupModal}
+        />
       </header>
 
       <main className="flex flex-col flex-1">

@@ -35,3 +35,15 @@ export interface TRequestsButton extends TooltipProps {
   image: ReactElement;
   classNameStatus: "positive" | "negative";
 }
+
+export interface ExtendedStudents extends Student {
+  chosen_status: boolean;
+}
+
+export interface GroupModalSteps {
+  title: string;
+  backButton: boolean;
+  nextButton: boolean;
+  createButton: boolean;
+  slide: boolean;
+}
