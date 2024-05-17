@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import useChats from "../../hooks/useChats";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -21,11 +21,20 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
-  useDisclosure
+  useDisclosure,
+  User,
+  Checkbox,
+  cn
 } from "@nextui-org/react";
+
 import useStudents from "../../hooks/useStudents";
+import { toImageLink } from "../../utils/Students/toImageLink";
+import { Student } from "../../interfaces/Students/Main";
 
 // in development
+interface ExtendedStudents extends Student {
+  chosen_status: boolean;
+}
 
 export const Message = () => {
   const outlet = useOutlet();
@@ -44,6 +53,53 @@ export const Message = () => {
 
   // think about error handling
   const { isLoading: studentsLoading, refetch } = useStudents();
+
+  const [extendedStudents, setExtendedStudents] = useState<
+    Array<ExtendedStudents>
+  >([]);
+  const [createGroupIndexes, setCreateGroupIndexes] = useState<
+    Array<ExtendedStudents>
+  >([]);
+
+  useEffect(() => {
+    if (students && students.length > 0) {
+      setExtendedStudents([
+        ...students.map((student) => {
+          return { ...student, chosen_status: false };
+        })
+      ]);
+    }
+  }, [students]);
+
+  function SelectedUser(id: number) {
+    setExtendedStudents([
+      ...extendedStudents.map((student) => {
+        if (student.id === id) {
+          const extended_student = {
+            ...student,
+            chosen_status: !student.chosen_status
+          };
+
+          if (extended_student.chosen_status) {
+            setCreateGroupIndexes([...createGroupIndexes, extended_student]);
+          } else {
+            setCreateGroupIndexes(
+              createGroupIndexes.filter((group_student) => {
+                if (group_student.id !== extended_student.id) {
+                  return group_student;
+                }
+              })
+            );
+          }
+
+          return extended_student;
+        }
+        return { ...student };
+      })
+    ]);
+  }
+
+  console.log(createGroupIndexes);
 
   return (
     <div className="flex h-full relative p-8 gap-8 w-full">
@@ -117,24 +173,49 @@ export const Message = () => {
               <ModalHeader className="flex flex-col gap-1">
                 Create group with:
               </ModalHeader>
-              <ModalBody>
+              <ModalBody className="overflow-auto max-h-[400px] gap-6">
                 {studentsLoading ? (
                   <>Loading...</>
                 ) : (
                   <>
-                    {students &&
-                      students.map((test) => {
-                        return <div>{test.name}</div>;
-                      })}
+                    {extendedStudents.map((student) => {
+                      return (
+                        <Checkbox
+                          aria-label={student.name}
+                          classNames={{
+                            base: cn(
+                              "inline-flex w-full max-w-md bg-content1",
+                              "hover:bg-content2 items-center justify-start",
+                              "cursor-pointer rounded-lg gap-2 border-2 border-transparent",
+                              `${student.chosen_status && "border-primary"}`
+                            ),
+                            label: "w-full flex"
+                          }}
+                          isSelected={student.chosen_status}
+                          onChange={() => SelectedUser(student.id)}
+                        >
+                          <User
+                            className="justify-start items-center"
+                            name={`${student.name} ${student.lastname}`}
+                            description={student.role}
+                            avatarProps={{
+                              src: toImageLink(student.img_hash_name)
+                            }}
+                          />
+                        </Checkbox>
+                      );
+                    })}
                   </>
                 )}
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Close
-                </Button>
-                <Button color="primary" onPress={onClose}>
-                  Create
+                <Button
+                  color="primary"
+                  onPress={() => {
+                    onClose();
+                  }}
+                >
+                  Create group
                 </Button>
               </ModalFooter>
             </>

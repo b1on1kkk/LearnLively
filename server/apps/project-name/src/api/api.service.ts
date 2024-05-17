@@ -88,6 +88,11 @@ export class ApiService {
       },
       select: {
         users_conversations: {
+          where: {
+            conversations: {
+              type: 'private',
+            },
+          },
           select: {
             conversations: {
               select: {
