@@ -66,3 +66,8 @@ export interface ChosenConv {
   id: number;
   uuid: string;
 }
+
+export interface TGroupChatModal {
+  isOpen: boolean;
+  onOpenChange: () => void;
+}

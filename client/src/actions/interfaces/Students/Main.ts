@@ -46,4 +46,21 @@ export interface GroupModalSteps {
   nextButton: boolean;
   createButton: boolean;
   slide: boolean;
+  tooltip_text: string;
+}
+
+export interface GroupData {
+  title: string;
+  description: string;
+}
+
+export interface TBodyGroupChatModal {
+  next: GroupModalSteps;
+  groupHandler: GroupData;
+  extendedStudents: Array<ExtendedStudents>;
+
+  selectedUser: (id: number) => void;
+  groupDataHandler: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
 }

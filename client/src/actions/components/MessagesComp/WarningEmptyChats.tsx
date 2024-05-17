@@ -14,9 +14,16 @@ export const WarningEmptyChats = ({ onOpenGroupModal }: TWarningEmptyChats) => {
         <Tooltip
           delay={0}
           closeDelay={0}
-          content="Add users to friends list, and start chatting!"
+          content={
+            <div className="p-1">
+              <div className="text-small font-semibold">Small tip</div>
+              <div className="text-tiny">
+                Add users to friends list, and start chatting!
+              </div>
+            </div>
+          }
           placement="left"
-          className="bg-gradient-to-r from-green-400 to-blue-500 font-semibold"
+          color="primary"
         >
           <div className="hover:text-white transition-colors duration-200 min-w-10 flex items-center justify-center">
             <Info width={20} height={20} />
