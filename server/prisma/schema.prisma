@@ -32,6 +32,8 @@ model users {
   created_at                       DateTime              @db.Timestamp(6)
   friends_friends_friend_idTousers friends[]             @relation("friends_friend_idTousers")
   friends_friends_user_idTousers   friends[]             @relation("friends_user_idTousers")
+  group_users                      group_users[]
+  groups                           groups[]
   messages                         messages[]
   refresh_token                    refresh_token[]
   seen_messages                    seen_messages[]
@@ -50,6 +52,7 @@ model conversations {
   id                  Int                   @id @default(autoincrement())
   type                chat_type
   group_uuid          String                @db.VarChar(255)
+  groups              groups[]
   messages            messages[]
   users_conversations users_conversations[]
 }
@@ -58,7 +61,7 @@ model messages {
   id              Int             @id @default(autoincrement())
   user_id         Int
   conversation_id Int
-  content         String          @db.VarChar
+  content         String          @db.VarChar(255)
   sent_at         String          @db.VarChar(255)
   delivered_at    String          @db.VarChar(255)
   edited          Boolean
@@ -86,6 +89,25 @@ model seen_messages {
   seen_at    String   @db.VarChar(255)
   messages   messages @relation(fields: [message_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model group_users {
+  id       Int     @id @default(autoincrement())
+  group_id Int?
+  user_id  Int?
+  groups   groups? @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users    users?  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model groups {
+  id              Int            @id @default(autoincrement())
+  conversation_id Int?
+  owner_id        Int?
+  group_name      String         @db.VarChar(255)
+  description     String         @db.VarChar(255)
+  group_users     group_users[]
+  conversations   conversations? @relation(fields: [conversation_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users           users?         @relation(fields: [owner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum roles {

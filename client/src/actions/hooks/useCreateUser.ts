@@ -8,9 +8,7 @@ import type { SignState } from "../interfaces/Registration/Validation";
 const useCreateUser = () => {
   return useMutation<null, AxiosError, SignState>({
     mutationFn: (user: SignState) =>
-      axios
-        .post(`${QUERY_ROOT}auth/signup`, user, { withCredentials: true })
-        .then((res) => res.data)
+      axios.post(`${QUERY_ROOT}auth/signup`, user).then((res) => res.data)
   });
 };
 

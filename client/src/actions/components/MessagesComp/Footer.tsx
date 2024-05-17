@@ -6,14 +6,13 @@ import { SystemButton } from "../SystemButton";
 import { MessageAction } from "./MessageAction";
 import { Paperclip } from "lucide-react";
 import { MessageActionSubmitButton } from "./MessageActionSubmitButton";
+import { SelectedFooterMessagesButtons } from "./SelectedFooterMessagesButtons";
 
 import { AppDispatch, RootState } from "../../store/store";
 import { submitFormHandler } from "../../utils/Message/submitFormHandler";
 import { DispatchActionsHandler } from "../../utils/handlers/dispatchActionsHandler";
 
 import { MessageActionKind } from "../../interfaces/Message/Chats";
-
-import { SelectedFooterMessagesButtons } from "./SelectedFooterMessagesButtons";
 
 export const Footer = ({ onOpen }: { onOpen: () => void }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -25,6 +24,7 @@ export const Footer = ({ onOpen }: { onOpen: () => void }) => {
     (c: RootState) => c.chatSocket
   );
   const { user } = useSelector((c: RootState) => c.user);
+  const { chosenUser } = useSelector((cu: RootState) => cu.chosenUserChat);
   const { messages, chosenMessage } = useSelector((m: RootState) => m.messages);
 
   const dispatchActionsHandler = useMemo(
@@ -88,21 +88,32 @@ export const Footer = ({ onOpen }: { onOpen: () => void }) => {
             onSubmit={(e) => {
               e.preventDefault();
 
-              if (
-                messageText.replace(/\s+/g, "") === "" ||
-                !user ||
-                !chosenConvId
-              ) {
-                return;
-              }
+              // think about adapting for group messaging!!!
+              // if there are no messages - user send "start message"
+              if (messages.length === 0) {
+                chat_socket?.startChat(
+                  [user!.id, chosenUser!.id],
+                  "private",
+                  messageText
+                );
+                // otherwise user send regular message
+              } else {
+                if (
+                  messageText.replace(/\s+/g, "") === "" ||
+                  !user ||
+                  !chosenConvId
+                ) {
+                  return;
+                }
 
-              submitFormHandler(
-                user,
-                messageText,
-                chosenConvId,
-                chat_socket,
-                chosenMessage
-              );
+                submitFormHandler(
+                  user,
+                  messageText,
+                  chosenConvId,
+                  chat_socket,
+                  chosenMessage
+                );
+              }
 
               setMessageText("");
             }}
