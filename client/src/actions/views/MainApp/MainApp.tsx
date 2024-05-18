@@ -3,6 +3,7 @@ import { Outlet } from "react-router";
 import { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import useMessages from "../../hooks/useMessages";
 import useChatActivity from "../../hooks/useChatActivity";
 import useConnectChatSocket from "../../hooks/useConnectChatSocket";
 import useConnectServiceSocket from "../../hooks/useConnectServiceSocket";
@@ -13,6 +14,7 @@ import { Header } from "../../components/NavigationComp/Header";
 import { Navigation } from "../../components/NavigationComp/Navigation";
 
 import { AppDispatch, RootState } from "../../store/store";
+
 import { SOCKETS_ROOT } from "../../constants/Sockets/sockets";
 
 import type { ChosenConv } from "../../interfaces/Message/Chats";
@@ -31,17 +33,20 @@ export const MainApp = () => {
     if (chosenConvId) chosenConvIdRef.current = chosenConvId;
   }, [chosenConvId]);
 
+  const { refetch } = useMessages(chosenConvId);
+
   // connections
   useConnectChatSocket(SOCKETS_ROOT.chat_socket, user, dispatch);
   useConnectServiceSocket(SOCKETS_ROOT.service_logic_socket, user, dispatch);
 
-  // callback is used if user reconnects and user is in chat - connect new socket id into the room
+  // callback is used if user reconnects and user is in chat - connect new socket id into the room and refetch messages
   const reconnectCB = useCallback(() => {
     chat_socket?.connectUser(user!.id);
     if (chosenConvIdRef.current) {
+      refetch();
       chat_socket?.connectToChatRoom(chosenConvIdRef.current);
     }
-  }, [chat_socket, user, dispatch]);
+  }, [chat_socket, user, dispatch, chosenConvId]);
 
   // callback that disconnects socket and leave from the room
   const disconnectCB = useCallback(() => {
@@ -51,7 +56,7 @@ export const MainApp = () => {
     }
   }, [chat_socket]);
 
-  // hooks that disconnect users
+  // hooks that disconnect users or track its activity
   useChatActivity(user, chat_socket, dispatch, reconnectCB, disconnectCB);
   usePageHideMainListener(
     user,

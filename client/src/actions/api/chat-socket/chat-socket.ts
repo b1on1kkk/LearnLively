@@ -121,6 +121,12 @@ export class ChatSocket implements WebSocket {
   public getJustCreatedChats() {
     this.socket?.on("getJustCreatedChats", (data: Array<TConversations>) => {
       this.reduxDispatch(chatsActions.initChats(data));
+      this.reduxDispatch(
+        chatSocketAcitons.chosenConvIdInit({
+          id: data[data.length - 1].conversations.id,
+          uuid: data[data.length - 1].conversations.group_uuid
+        })
+      );
     });
   }
 

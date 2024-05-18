@@ -15,7 +15,7 @@ const useMessages = (conv_id: ChosenConv | null) => {
   const dispatch = useDispatch<AppDispatch>();
 
   return useQuery<Array<TMessage>, AxiosError>({
-    queryKey: ["api", "messages"],
+    queryKey: ["api", "messages", conv_id],
     queryFn: async () => {
       if (conv_id) {
         return await axios
@@ -49,7 +49,8 @@ const useMessages = (conv_id: ChosenConv | null) => {
       }
 
       return [];
-    }
+    },
+    staleTime: 0
   });
 };
 

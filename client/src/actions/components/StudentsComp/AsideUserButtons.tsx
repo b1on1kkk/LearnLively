@@ -26,7 +26,7 @@ export const AsideUserButtons = () => {
               "accepted") ? (
             <>
               <Link
-                to={`/message/${chosenUser.id}`}
+                to={`/message/:${chosenUser.id}`}
                 className="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-white hover:bg-indigo-500 flex-1 py-[11px] rounded-xl transition-colors duration-200 justify-center"
               >
                 <div>

@@ -41,6 +41,7 @@ const useChatActivity = (
       }
 
       timeoutId = setTimeout(() => {
+        console.log("chat socket disconnected");
         disconnectCB();
         status = true;
       }, 40000);

@@ -1,7 +1,7 @@
 import useChats from "../../hooks/useChats";
-import useStudents from "../../hooks/useStudents";
-import { useEffect } from "react";
+import { useEffect, useState, Key } from "react";
 import { useDisclosure } from "@nextui-org/react";
+import useStudents from "../../hooks/useStudents";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Bot, UsersRound } from "lucide-react";
@@ -17,15 +17,21 @@ import { WarningEmptyChats } from "../../components/MessagesComp/WarningEmptyCha
 import { AppDispatch, RootState } from "../../store/store";
 import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
 import { chosenUserChatActions } from "../../store/features/chosenUserChat.slice";
+import { messagesActions } from "../../store/features/messages.slice";
+
+import { Tabs, Tab } from "@nextui-org/react";
 
 export const Message = () => {
   const outlet = useOutlet();
+
+  const [selectedChatType, setSelectedChatType] =
+    useState<Exclude<Key, bigint>>("private");
 
   // for modal
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   // data handlers
-  const { isLoading } = useChats();
+  const { isLoading } = useChats(selectedChatType);
   const { refetch } = useStudents();
 
   const dispatch = useDispatch<AppDispatch>();
@@ -35,6 +41,15 @@ export const Message = () => {
   // listener
   useEffect(() => {
     if (chat_socket) chat_socket.getJustCreatedChats();
+
+    // remove all previous data if user leave "message" page after some action
+    return () => {
+      dispatch(chatSocketAcitons.chosenConvIdInit(null));
+      dispatch(chosenUserChatActions.chosenUserInit(null));
+      dispatch(
+        messagesActions.messageInit({ chosenMessage: null, messages: [] })
+      );
+    };
   }, [chat_socket]);
 
   return (
@@ -51,54 +66,65 @@ export const Message = () => {
       </main>
 
       <aside className="z-10 flex-1 bg-[#050615] rounded-2xl shadow-2xl border-2 border-slate-900 p-3 flex flex-col text-slate-400 gap-2">
-        {isLoading ? (
-          <Loading />
-        ) : (
-          <>
-            {chats.length > 0 ? (
-              <>
-                <div className="flex justify-end">
-                  <SystemButton
-                    label="create_group"
-                    icon={<UsersRound width={18} height={18} />}
-                    onClick={() => {
-                      refetch();
-                      onOpen();
-                    }}
-                  />
-                </div>
+        <header className="flex items-center gap-3">
+          <Tabs
+            size="md"
+            aria-label="type chat tabs"
+            color="primary"
+            variant="bordered"
+            selectedKey={selectedChatType}
+            onSelectionChange={setSelectedChatType}
+            classNames={{ base: "flex-1", tabList: "flex-1 border-slate-900" }}
+          >
+            <Tab key="private" title="Private chats" />
+            <Tab key="group" title="Group chats" />
+          </Tabs>
 
-                {chats.map((conv) => {
-                  const user = conv.conversations.users_conversations[0].users;
+          <SystemButton
+            label="create_group"
+            icon={<UsersRound width={18} height={18} />}
+            onClick={() => {
+              refetch();
+              onOpen();
+            }}
+          />
+        </header>
 
-                  return (
-                    <ChatCard
-                      key={user.id}
-                      users={user}
-                      onClick={() => {
-                        dispatch(chosenUserChatActions.chosenUserInit(user));
+        <main className="flex flex-col flex-1">
+          {isLoading ? (
+            <Loading />
+          ) : (
+            <>
+              {chats.length > 0 ? (
+                <>
+                  {chats.map((conv) => {
+                    const user =
+                      conv.conversations.users_conversations[0].users;
 
-                        dispatch(
-                          chatSocketAcitons.chosenConvIdInit({
-                            id: conv.conversations.id,
-                            uuid: conv.conversations.group_uuid
-                          })
-                        );
-                      }}
-                    />
-                  );
-                })}
-              </>
-            ) : (
-              <WarningEmptyChats
-                onOpenGroupModal={() => {
-                  refetch();
-                  onOpen();
-                }}
-              />
-            )}
-          </>
-        )}
+                    return (
+                      <ChatCard
+                        key={user.id}
+                        users={user}
+                        onClick={() => {
+                          dispatch(chosenUserChatActions.chosenUserInit(user));
+
+                          dispatch(
+                            chatSocketAcitons.chosenConvIdInit({
+                              id: conv.conversations.id,
+                              uuid: conv.conversations.group_uuid
+                            })
+                          );
+                        }}
+                      />
+                    );
+                  })}
+                </>
+              ) : (
+                <WarningEmptyChats />
+              )}
+            </>
+          )}
+        </main>
       </aside>
 
       <GroupChatModal isOpen={isOpen} onOpenChange={onOpenChange} />

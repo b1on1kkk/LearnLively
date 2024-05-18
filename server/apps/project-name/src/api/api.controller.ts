@@ -24,6 +24,8 @@ import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.intercep
 import type { EncodedJwt } from './interfaces/encoded_jwt.interface';
 // import type { Message } from './interfaces/message.interface';
 
+import type { ChatType } from './interfaces/chatType.type';
+
 @Controller('api')
 export class ApiController {
   constructor(
@@ -119,7 +121,14 @@ export class ApiController {
         httpOnly: true,
         maxAge: 259200000,
       })
-      .json(await this.apiService.getChats(encoded_values.id));
+      .json(
+        req.query.type
+          ? await this.apiService.getChats(
+              req.query.type as ChatType,
+              encoded_values.id,
+            )
+          : { users_conversations: [] },
+      );
   }
 
   @HttpCode(200)

@@ -25,36 +25,9 @@ import { DispatchActionsHandler } from "../../utils/handlers/dispatchActionsHand
 
 import type { TMessage } from "../../interfaces/api/newChat";
 import { MessageActionKind } from "../../interfaces/Message/Chats";
-// import { useMutation } from "@tanstack/react-query";
-// import axios, { AxiosError } from "axios";
-// import { QUERY_ROOT } from "../../constants/Query/query";
-
-// const useAddUserSeenMessage = () => {
-//   return useMutation<
-//     { message: string; code: number },
-//     AxiosError,
-//     { messages: Array<TMessage>; user_id: number }
-//   >({
-//     mutationFn: (message: { messages: Array<TMessage>; user_id: number }) =>
-//       axios
-//         .post(
-//           `${QUERY_ROOT}api/user_seen_message`,
-//           {
-//             messages: message.messages,
-//             user_id: message.user_id
-//           },
-//           { withCredentials: true }
-//         )
-//         .then((res) => {
-//           return res.data;
-//         })
-//   });
-// };
 
 export const Main = () => {
   const dispatch = useDispatch<AppDispatch>();
-
-  // const userSeenMessage = useAddUserSeenMessage();
 
   const { user } = useSelector((u: RootState) => u.user);
   const { chat_socket, chosenConvId } = useSelector(
@@ -63,7 +36,7 @@ export const Main = () => {
   const { messages, chosenMessage } = useSelector((m: RootState) => m.messages);
 
   const { setId } = useSelectMessage(messages, chosenMessage);
-  const { data, isLoading, refetch } = useMessages(chosenConvId);
+  const { data, isLoading } = useMessages(chosenConvId);
 
   const dispatchActionsHandler = useMemo(
     () => new DispatchActionsHandler(dispatch),
@@ -72,10 +45,6 @@ export const Main = () => {
   const elemToScrollToButton = useScrollToBottom<Array<TMessage> | undefined>(
     data
   );
-
-  useEffect(() => {
-    if (chosenConvId) refetch();
-  }, [chosenConvId]);
 
   // not optimize solution, think also about group chat
   useEffect(() => {

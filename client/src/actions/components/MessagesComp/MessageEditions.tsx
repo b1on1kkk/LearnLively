@@ -68,8 +68,6 @@ export const MessageEditions = ({
     if (seen_message.data) setSeenMessages(seen_message.data);
   }, [seen_message]);
 
-  console.log(seenMessages);
-
   return (
     <Dropdown
       classNames={{

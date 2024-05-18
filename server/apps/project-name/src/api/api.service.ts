@@ -4,7 +4,8 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@prismaORM/prisma';
 
 import { SharedService } from '@sharedService/shared';
-// import { Message } from './interfaces/message.interface';
+
+import type { ChatType } from './interfaces/chatType.type';
 
 @Injectable()
 export class ApiService {
@@ -81,7 +82,7 @@ export class ApiService {
     }
   }
 
-  async getChats(user_id: number) {
+  async getChats(type: ChatType, user_id: number) {
     return await this.prisma.users.findUnique({
       where: {
         id: user_id,
@@ -90,7 +91,7 @@ export class ApiService {
         users_conversations: {
           where: {
             conversations: {
-              type: 'private',
+              type,
             },
           },
           select: {
