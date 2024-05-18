@@ -5,9 +5,9 @@ const useStudentSelection = (students: Array<Student> | null) => {
   const [extendedStudents, setExtendedStudents] = useState<
     Array<ExtendedStudents>
   >([]);
-  const [createGroupIndexes, setCreateGroupIndexes] = useState<
-    Array<ExtendedStudents>
-  >([]);
+  const [createGroupIndexes, setCreateGroupIndexes] = useState<Array<number>>(
+    []
+  );
 
   useEffect(() => {
     if (students && students.length > 0 && extendedStudents.length === 0) {
@@ -29,11 +29,11 @@ const useStudentSelection = (students: Array<Student> | null) => {
           };
 
           if (extended_student.chosen_status) {
-            setCreateGroupIndexes([...createGroupIndexes, extended_student]);
+            setCreateGroupIndexes([...createGroupIndexes, extended_student.id]);
           } else {
             setCreateGroupIndexes(
               createGroupIndexes.filter((group_student) => {
-                if (group_student.id !== extended_student.id) {
+                if (group_student !== extended_student.id) {
                   return group_student;
                 }
               })

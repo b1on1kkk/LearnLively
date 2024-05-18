@@ -71,3 +71,16 @@ export interface TGroupChatModal {
   isOpen: boolean;
   onOpenChange: () => void;
 }
+
+export interface Group {
+  conversation_id: number;
+  group_name: string;
+  description: string;
+  group_users: Array<{
+    users: Student;
+  }>;
+}
+
+export interface TGroups {
+  groups: Array<Group>;
+}

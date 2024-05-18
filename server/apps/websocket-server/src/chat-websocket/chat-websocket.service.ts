@@ -25,6 +25,12 @@ import type { ReadMessageDTO } from 'apps/websocket-server/dto/readMessageDTO';
 import type { ConnectedUserDTO } from 'apps/websocket-server/dto/connectedUserDTO';
 import type { DeleteMessagesDTO } from 'apps/websocket-server/dto/deleteMessagesDTO';
 
+interface CreateGroupDTO extends Exclude<startChatDTO, 'messages'> {
+  group_name: string;
+  description: string;
+  owner_id: number;
+}
+
 @Injectable()
 @WebSocketGateway({ cors: { origin: '*' }, namespace: 'chat' })
 export class ChatWebsocketService implements WebSocket {
@@ -87,6 +93,72 @@ export class ChatWebsocketService implements WebSocket {
     if (dto) {
       console.log(client.id, 'leave the room');
       client.leave(dto.uuid);
+    }
+  }
+
+  @SubscribeMessage('startGroupChat')
+  async startGroupChat(
+    @MessageBody() dto: CreateGroupDTO,
+    @ConnectedSocket() client: Socket,
+  ) {
+    try {
+      const group_uuid = uuidv4();
+
+      // create new conversation
+      const { id: newConvId } = await this.prisma.conversations.create({
+        data: {
+          type: dto.chat_type,
+          group_uuid: group_uuid,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      await this.prisma.users_conversations.create({
+        data: {
+          user_id: dto.owner_id,
+          conversation_id: newConvId,
+        },
+      });
+
+      const { id: newGroupId } = await this.prisma.groups.create({
+        data: {
+          conversation_id: newConvId,
+          owner_id: dto.owner_id,
+          group_name: dto.group_name,
+          description: dto.description,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      // adding owner to group
+      await this.prisma.group_users.create({
+        data: {
+          group_id: newGroupId,
+          user_id: dto.owner_id,
+        },
+      });
+
+      // add other users
+      const insertionPromises = dto.users_idx.map(async (idx) => {
+        return await this.prisma.group_users.create({
+          data: {
+            group_id: newGroupId,
+            user_id: idx,
+          },
+        });
+      });
+
+      // wait till data will be inserted
+      await Promise.all(insertionPromises);
+
+      // than create room and connect user to new conversation
+      this.connectToChatRoom({ id: 666, uuid: group_uuid }, client);
+    } catch (error) {
+      console.log(error);
     }
   }
 

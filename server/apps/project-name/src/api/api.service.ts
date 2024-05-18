@@ -5,8 +5,6 @@ import { PrismaService } from '@prismaORM/prisma';
 
 import { SharedService } from '@sharedService/shared';
 
-import type { ChatType } from './interfaces/chatType.type';
-
 @Injectable()
 export class ApiService {
   constructor(
@@ -82,7 +80,7 @@ export class ApiService {
     }
   }
 
-  async getChats(type: ChatType, user_id: number) {
+  async getChats(user_id: number) {
     return await this.prisma.users.findUnique({
       where: {
         id: user_id,
@@ -91,7 +89,7 @@ export class ApiService {
         users_conversations: {
           where: {
             conversations: {
-              type,
+              type: 'private',
             },
           },
           select: {
@@ -154,6 +152,120 @@ export class ApiService {
     });
   }
 
+  async getGroupChats(user_id: number) {
+    return await this.prisma.group_users.findMany({
+      where: {
+        user_id: user_id,
+      },
+      select: {
+        groups: {
+          select: {
+            conversation_id: true,
+            group_name: true,
+            description: true,
+            group_users: {
+              select: {
+                users: {
+                  select: {
+                    id: true,
+                    name: true,
+                    lastname: true,
+                    surname: true,
+                    role: true,
+                    email: true,
+                    end_semester: true,
+                    now_semester: true,
+                    department: true,
+                    img_hash_name: true,
+                    created_at: true,
+                    friends_friends_friend_idTousers: {
+                      where: {
+                        user_id: user_id,
+                      },
+                      select: {
+                        id: true,
+                        user_id: true,
+                        friend_id: true,
+                        status: true,
+                      },
+                    },
+                    friends_friends_user_idTousers: {
+                      where: {
+                        friend_id: user_id,
+                      },
+                      select: {
+                        id: true,
+                        user_id: true,
+                        friend_id: true,
+                        status: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // return await this.prisma.users.findUnique({
+    //   where: {
+    //     id: user_id,
+    //   },
+    //   select: {
+    //     groups: {
+    //       select: {
+    //         conversation_id: true,
+    //         group_name: true,
+    //         description: true,
+    //         group_users: {
+    //           select: {
+    //             users: {
+    //               select: {
+    //                 id: true,
+    //                 name: true,
+    //                 lastname: true,
+    //                 surname: true,
+    //                 role: true,
+    //                 email: true,
+    //                 end_semester: true,
+    //                 now_semester: true,
+    //                 department: true,
+    //                 img_hash_name: true,
+    //                 created_at: true,
+    //                 friends_friends_friend_idTousers: {
+    //                   where: {
+    //                     user_id: user_id,
+    //                   },
+    //                   select: {
+    //                     id: true,
+    //                     user_id: true,
+    //                     friend_id: true,
+    //                     status: true,
+    //                   },
+    //                 },
+    //                 friends_friends_user_idTousers: {
+    //                   where: {
+    //                     friend_id: user_id,
+    //                   },
+    //                   select: {
+    //                     id: true,
+    //                     user_id: true,
+    //                     friend_id: true,
+    //                     status: true,
+    //                   },
+    //                 },
+    //               },
+    //             },
+    //           },
+    //         },
+    //       },
+    //     },
+    //   },
+    // });
+  }
+
   async getMessages(conversation_id: number) {
     return await this.prisma.messages.findMany({
       where: { conversation_id: { equals: conversation_id } },
@@ -205,39 +317,4 @@ export class ApiService {
       },
     });
   }
-
-  // think about it
-  // async addUserSeenMessage(messages: Array<Message>, user_id: number) {
-  //   try {
-  //     const buff: Array<any> = [];
-
-  //     const a = messages.map(async (message) => {
-  //       buff.push(
-  //         ...(await this.prisma.seen_messages.findMany({
-  //           where: { id: message.id, user_id },
-  //         })),
-  //       );
-
-  //       return '';
-  //     });
-
-  //     await Promise.all(a);
-
-  //     console.log(buff);
-
-  //     if (buff.length > 0) throw Error('leave');
-
-  //     // await this.prisma.seen_messages.create({
-  //     //   data: {
-  //     //     message_id: message.id,
-  //     //     user_id: user_id,
-  //     //     seen_at: new Date().toLocaleTimeString(),
-  //     //   },
-  //     // });
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-
-  //   return { message: 'done', code: 200 };
-  // }
 }

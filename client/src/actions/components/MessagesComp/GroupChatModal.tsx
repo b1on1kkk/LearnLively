@@ -35,6 +35,12 @@ export const GroupChatModal = ({ isOpen, onOpenChange }: TGroupChatModal) => {
 
   const [next, setNext] = useState<GroupModalSteps>(START_GROUP_MODAL_SLIDE);
 
+  const { chat_socket } = useSelector((c: RootState) => c.chatSocket);
+
+  const { user } = useSelector((u: RootState) => u.user);
+
+  console.log(createGroupIndexes);
+
   return (
     <Modal
       isOpen={isOpen}
@@ -62,7 +68,15 @@ export const GroupChatModal = ({ isOpen, onOpenChange }: TGroupChatModal) => {
                 chosenIndexesLength={createGroupIndexes.length}
                 onPressBack={() => setNext(START_GROUP_MODAL_SLIDE)}
                 onPressNext={() => setNext(END_GROUP_MODAL_SLIDE)}
-                onPressCreateGroup={() => {}}
+                onPressCreateGroup={() => {
+                  chat_socket?.createGroupChat(
+                    createGroupIndexes,
+                    "group",
+                    groupHandler.title,
+                    groupHandler.description,
+                    user!.id
+                  );
+                }}
               />
             </ModalFooter>
           </>

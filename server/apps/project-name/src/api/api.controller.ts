@@ -24,8 +24,6 @@ import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.intercep
 import type { EncodedJwt } from './interfaces/encoded_jwt.interface';
 // import type { Message } from './interfaces/message.interface';
 
-import type { ChatType } from './interfaces/chatType.type';
-
 @Controller('api')
 export class ApiController {
   constructor(
@@ -108,7 +106,7 @@ export class ApiController {
       .json(await this.apiService.getStudents(encoded_values.id));
   }
 
-  @Get('chats')
+  @Get('private_chats')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(ErrorCatcherInterceptor)
   async getChats(@Req() req: Request, @Res() res: Response) {
@@ -121,14 +119,23 @@ export class ApiController {
         httpOnly: true,
         maxAge: 259200000,
       })
-      .json(
-        req.query.type
-          ? await this.apiService.getChats(
-              req.query.type as ChatType,
-              encoded_values.id,
-            )
-          : { users_conversations: [] },
-      );
+      .json(await this.apiService.getChats(encoded_values.id));
+  }
+
+  @Get('group_chats')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(ErrorCatcherInterceptor)
+  async getGroupChats(@Req() req: Request, @Res() res: Response) {
+    const encoded_values: EncodedJwt = await this.jwtService.decode(
+      req.cookies.jwt_lg,
+    );
+
+    return res
+      .cookie('jwt_lg', this.sharedService.getCookie(), {
+        httpOnly: true,
+        maxAge: 259200000,
+      })
+      .json(await this.apiService.getGroupChats(encoded_values.id));
   }
 
   @HttpCode(200)

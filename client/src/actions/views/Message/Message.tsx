@@ -10,9 +10,7 @@ import { Outlet, useOutlet } from "react-router-dom";
 import { Loading } from "../../components/Loading/Loading";
 import { Notification } from "../../components/Notification";
 import { SystemButton } from "../../components/SystemButton";
-import { ChatCard } from "../../components/MessagesComp/ChatCard";
 import { GroupChatModal } from "../../components/MessagesComp/GroupChatModal";
-import { WarningEmptyChats } from "../../components/MessagesComp/WarningEmptyChats";
 
 import { AppDispatch, RootState } from "../../store/store";
 import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
@@ -20,6 +18,9 @@ import { chosenUserChatActions } from "../../store/features/chosenUserChat.slice
 import { messagesActions } from "../../store/features/messages.slice";
 
 import { Tabs, Tab } from "@nextui-org/react";
+import { TChats, TGroups } from "../../interfaces/Message/Chats";
+
+import { ChatsType } from "../../components/ChatsType/ChatsType";
 
 export const Message = () => {
   const outlet = useOutlet();
@@ -31,11 +32,10 @@ export const Message = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   // data handlers
-  const { isLoading } = useChats(selectedChatType);
+  const { isLoading } = useChats<TChats | TGroups>(selectedChatType);
   const { refetch } = useStudents();
 
   const dispatch = useDispatch<AppDispatch>();
-  const { chats } = useSelector((c: RootState) => c.chats);
   const { chat_socket } = useSelector((s: RootState) => s.chatSocket);
 
   // listener
@@ -90,40 +90,9 @@ export const Message = () => {
           />
         </header>
 
-        <main className="flex flex-col flex-1">
-          {isLoading ? (
-            <Loading />
-          ) : (
-            <>
-              {chats.length > 0 ? (
-                <>
-                  {chats.map((conv) => {
-                    const user =
-                      conv.conversations.users_conversations[0].users;
-
-                    return (
-                      <ChatCard
-                        key={user.id}
-                        users={user}
-                        onClick={() => {
-                          dispatch(chosenUserChatActions.chosenUserInit(user));
-
-                          dispatch(
-                            chatSocketAcitons.chosenConvIdInit({
-                              id: conv.conversations.id,
-                              uuid: conv.conversations.group_uuid
-                            })
-                          );
-                        }}
-                      />
-                    );
-                  })}
-                </>
-              ) : (
-                <WarningEmptyChats />
-              )}
-            </>
-          )}
+        <main className="flex flex-col flex-1 gap-2">
+          {/* in development */}
+          {/* {isLoading ? <Loading /> : <ChatsType type={selectedChatType} />} */}
         </main>
       </aside>
 

@@ -60,6 +60,22 @@ export class ChatSocket implements WebSocket {
     this.socket?.emit("startChat", { users_idx, chat_type, message });
   }
 
+  public createGroupChat(
+    users_idx: number[],
+    chat_type: ChatType,
+    group_name: string,
+    description: string,
+    owner_id: number
+  ) {
+    this.socket?.emit("startGroupChat", {
+      users_idx,
+      chat_type,
+      group_name,
+      description,
+      owner_id
+    });
+  }
+
   public sendMessage(message: MessageData) {
     this.socket?.emit("sendMessage", message);
   }
