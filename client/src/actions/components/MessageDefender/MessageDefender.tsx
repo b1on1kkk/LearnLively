@@ -6,11 +6,11 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 
 export const MessageDefender = ({ children }: { children: ReactElement }) => {
-  const { chosenUser } = useSelector((cu: RootState) => cu.chosenUserChat);
+  const { chosenUser, chosenGroup } = useSelector(
+    (cu: RootState) => cu.chosenUserChat
+  );
 
-  console.log(chosenUser);
-
-  if (!chosenUser) return <Navigate to="/message" replace />;
+  if (!chosenUser && !chosenGroup) return <Navigate to="/message" replace />;
 
   return children;
 };

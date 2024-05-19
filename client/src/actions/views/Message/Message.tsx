@@ -1,15 +1,16 @@
+import { useDispatch } from "react-redux";
 import useChats from "../../hooks/useChats";
 import { useEffect, useState, Key } from "react";
-import { useDisclosure } from "@nextui-org/react";
 import useStudents from "../../hooks/useStudents";
-import { useDispatch } from "react-redux";
 
 import { Bot, UsersRound } from "lucide-react";
 import { Outlet, useOutlet } from "react-router-dom";
+import { useDisclosure, Tabs, Tab } from "@nextui-org/react";
 
 import { Loading } from "../../components/Loading/Loading";
 import { Notification } from "../../components/Notification";
 import { SystemButton } from "../../components/SystemButton";
+import { ChatsType } from "../../components/ChatsType/ChatsType";
 import { GroupChatModal } from "../../components/MessagesComp/GroupChatModal";
 
 import { AppDispatch } from "../../store/store";
@@ -17,10 +18,7 @@ import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
 import { chosenUserChatActions } from "../../store/features/chosenUserChat.slice";
 import { messagesActions } from "../../store/features/messages.slice";
 
-import { Tabs, Tab } from "@nextui-org/react";
-import { TChats, TGroups } from "../../interfaces/Message/Chats";
-
-import { ChatsType } from "../../components/ChatsType/ChatsType";
+import type { TChats, TGroups } from "../../interfaces/Message/Chats";
 
 export const Message = () => {
   const outlet = useOutlet();
