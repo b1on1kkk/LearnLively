@@ -29,7 +29,7 @@ export class ServiceSocket implements WebSocket {
     if (!this.socket?.connected) this.socket?.connect();
 
     this.socket?.emit("userConnected", {
-      user_id
+      id: user_id
     });
   }
 
@@ -61,7 +61,12 @@ export class ServiceSocket implements WebSocket {
     this.socket?.on("newStudents", (data: Array<Student>) => {
       if (chosenUser) {
         const student = data.find((student) => student.id === chosenUser.id);
-        this.reduxDispatch(chosenUserChatActions.chosenUserInit(student!));
+        this.reduxDispatch(
+          chosenUserChatActions.chosenUserInit({
+            chosenGroup: null,
+            chosenUser: student!
+          })
+        );
       }
 
       this.reduxDispatch(studentsActions.initStudents(data));

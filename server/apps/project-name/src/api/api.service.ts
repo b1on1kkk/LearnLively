@@ -140,6 +140,21 @@ export class ApiService {
                             status: true,
                           },
                         },
+                        users_conversations: {
+                          where: {
+                            conversations: {
+                              type: 'private',
+                            },
+                          },
+                          select: {
+                            conversation_id: true,
+                            conversations: {
+                              select: {
+                                conversation_hash: true,
+                              },
+                            },
+                          },
+                        },
                       },
                     },
                   },

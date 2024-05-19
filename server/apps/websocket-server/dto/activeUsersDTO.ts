@@ -1,4 +1,4 @@
 export class ActiveUsersDTO {
-  user_id: number;
+  id: number;
   socket_id: string;
 }

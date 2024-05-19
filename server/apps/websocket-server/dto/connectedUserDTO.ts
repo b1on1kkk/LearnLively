@@ -1,3 +1,3 @@
 export class ConnectedUserDTO {
-  user_id: number;
+  id: number;
 }

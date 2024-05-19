@@ -24,6 +24,7 @@ import type { SendMessageDTO } from 'apps/websocket-server/dto/sendMessageDTO';
 import type { ReadMessageDTO } from 'apps/websocket-server/dto/readMessageDTO';
 import type { ConnectedUserDTO } from 'apps/websocket-server/dto/connectedUserDTO';
 import type { DeleteMessagesDTO } from 'apps/websocket-server/dto/deleteMessagesDTO';
+import type { CachedUuidsDTO } from 'apps/websocket-server/dto/cachedUuidsDTO';
 
 interface CreateGroupDTO extends Exclude<startChatDTO, 'messages'> {
   group_name: string;
@@ -37,6 +38,7 @@ export class ChatWebsocketService implements WebSocket {
   @WebSocketServer()
   private server: Server;
   private ActiveChatUsers: Array<ActiveUsersDTO>;
+  private cachedUsersUuids: Array<CachedUuidsDTO>;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -44,6 +46,7 @@ export class ChatWebsocketService implements WebSocket {
     private readonly apiService: ApiService,
   ) {
     this.ActiveChatUsers = [];
+    this.cachedUsersUuids = [];
   }
 
   //////////////////////////////////////////////MAIN//////////////////////////////////////////////////////
@@ -52,10 +55,8 @@ export class ChatWebsocketService implements WebSocket {
     @MessageBody() dto: ConnectedUserDTO,
     @ConnectedSocket() client: Socket,
   ) {
-    this.ActiveChatUsers.push({ user_id: dto.user_id, socket_id: client.id });
-    this.ActiveChatUsers = this.ActiveChatUsers.sort(
-      (a, b) => a.user_id - b.user_id,
-    );
+    this.ActiveChatUsers.push({ id: dto.id, socket_id: client.id });
+    this.ActiveChatUsers = this.ActiveChatUsers.sort((a, b) => a.id - b.id);
 
     console.log(this.ActiveChatUsers, 'chat_socket connected');
   }
@@ -82,11 +83,29 @@ export class ChatWebsocketService implements WebSocket {
     if (dto) {
       console.log(client.id, 'connect to room');
 
-      const { group_uuid } = await this.prisma.conversations.findFirst({
-        where: { id: dto.id },
-      });
+      // find if in cache we have chat uuid
+      const idx = this.websocketUtilsService.binaryUserSearchByUserId<
+        Array<CachedUuidsDTO>
+      >(this.cachedUsersUuids, dto.id);
 
-      client.join(group_uuid);
+      // if it - just connet
+      if (idx !== null) {
+        client.join(this.cachedUsersUuids[idx].uuid);
+      } else {
+        // if not - push
+        const { group_uuid } = await this.prisma.conversations.findFirst({
+          where: { id: dto.id },
+        });
+
+        this.cachedUsersUuids.push({ id: dto.id, uuid: group_uuid });
+        this.cachedUsersUuids = this.cachedUsersUuids.sort(
+          (a, b) => a.id - b.id,
+        );
+
+        client.join(group_uuid);
+      }
+
+      console.log(this.cachedUsersUuids, 'cache uuids after connection');
     }
   }
 
@@ -98,11 +117,13 @@ export class ChatWebsocketService implements WebSocket {
     if (dto) {
       console.log(client.id, 'leave the room');
 
-      const { group_uuid } = await this.prisma.conversations.findFirst({
-        where: { id: dto.id },
-      });
+      const idx = this.websocketUtilsService.binaryUserSearchByUserId<
+        Array<CachedUuidsDTO>
+      >(this.cachedUsersUuids, dto.id);
 
-      client.leave(group_uuid);
+      client.leave(this.cachedUsersUuids[idx].uuid);
+
+      console.log(this.cachedUsersUuids, 'cache uuids after disconnection');
     }
   }
 
@@ -187,7 +208,16 @@ export class ChatWebsocketService implements WebSocket {
         },
       });
 
-      this.websocketUtilsService.MessageSender(dto, message_id.id, this.server);
+      const { group_uuid } = await this.prisma.conversations.findFirst({
+        where: { id: dto.conv_id },
+      });
+
+      this.websocketUtilsService.MessageSender(
+        dto,
+        group_uuid,
+        message_id.id,
+        this.server,
+      );
     } catch (error) {
       console.log(error);
     }
@@ -206,7 +236,13 @@ export class ChatWebsocketService implements WebSocket {
         },
       });
 
-      this.server.in(dto.uuid).emit('getChangedEditedMessage', { ...message });
+      const { group_uuid } = await this.prisma.conversations.findFirst({
+        where: { id: dto.conv_id },
+      });
+
+      this.server
+        .in(group_uuid)
+        .emit('getChangedEditedMessage', { ...message });
     } catch (error) {
       console.log(error);
     }
@@ -215,10 +251,7 @@ export class ChatWebsocketService implements WebSocket {
   @SubscribeMessage('deleteMessages')
   async deleteMessages(@MessageBody() dto: DeleteMessagesDTO) {
     try {
-      const { message } = dto;
-      const { uuid, conversation_id } = dto.meta_data;
-
-      const insertionPromises = message.map(async (msg) => {
+      const insertionPromises = dto.message.map(async (msg) => {
         if (msg.selected) {
           await this.prisma.seen_messages.deleteMany({
             where: { message_id: msg.id },
@@ -238,10 +271,14 @@ export class ChatWebsocketService implements WebSocket {
       // wait till all manipulations will be done
       await Promise.all(insertionPromises);
 
+      const { group_uuid } = await this.prisma.conversations.findFirst({
+        where: { id: dto.conv_id },
+      });
+
       this.server
-        .in(uuid)
+        .in(group_uuid)
         .emit('getDeletedMessages', [
-          ...(await this.apiService.getMessages(conversation_id)),
+          ...(await this.apiService.getMessages(dto.conv_id)),
         ]);
     } catch (error) {
       console.log(error);
@@ -273,12 +310,17 @@ export class ChatWebsocketService implements WebSocket {
         });
       });
 
+      // wait till all manipulations will be done
       await Promise.all(insertionPromises);
 
+      const { group_uuid } = await this.prisma.conversations.findFirst({
+        where: { id: meta_data.conv_id },
+      });
+
       this.server
-        .to(meta_data.uuid)
+        .to(group_uuid)
         .emit('getReadMessage', [
-          ...(await this.apiService.getMessages(message[0].conversation_id)),
+          ...(await this.apiService.getMessages(meta_data.conv_id)),
         ]);
     } catch (error) {
       console.log(error);

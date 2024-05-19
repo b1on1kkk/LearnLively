@@ -36,7 +36,7 @@ export class ChatSocket implements WebSocket {
     if (!this.socket?.connected) this.socket?.connect();
 
     this.socket?.emit("userChatConnected", {
-      user_id
+      id: user_id
     });
   }
 

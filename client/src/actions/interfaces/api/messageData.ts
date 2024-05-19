@@ -1,3 +1,6 @@
 import type { TMessage } from "./newChat";
 
-export type MessageData = Omit<TMessage, "id">;
+export interface MessageData {
+  conv_id: number;
+  message: Omit<TMessage, "id">;
+}

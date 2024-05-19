@@ -15,10 +15,7 @@ export class ChatSocketController {
   ) {
     if (chosenConv) {
       this.socket?.deleteMessages({
-        meta_data: {
-          uuid: chosenConv.uuid,
-          conversation_id: chosenConv.id
-        },
+        conv_id: chosenConv.id,
         message: message
       });
     }

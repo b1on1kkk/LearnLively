@@ -4,6 +4,7 @@ import { ActiveUsersDTO } from '../dto/activeUsersDTO';
 import { Server, Socket } from 'socket.io';
 import { StudentDataDTO } from '../dto/studentDataDTO';
 import { SendMessageDTO } from '../dto/sendMessageDTO';
+import { CachedUuidsDTO } from '../dto/cachedUuidsDTO';
 
 @Injectable()
 export class WebsocketUtils {
@@ -37,10 +38,9 @@ export class WebsocketUtils {
     }
   }
 
-  public binaryUserSearchByUserId(
-    array: Array<ActiveUsersDTO>,
-    user_id: number,
-  ): number | null {
+  public binaryUserSearchByUserId<
+    T extends Array<ActiveUsersDTO> | Array<CachedUuidsDTO>,
+  >(array: T, id: number): number | null {
     if (array.length === 0) return null;
 
     let left = 0;
@@ -49,16 +49,21 @@ export class WebsocketUtils {
     while (left <= right) {
       const mid = Math.floor((left + right) / 2);
 
-      if (array[mid].user_id === user_id) return mid;
+      if (array[mid].id === id) return mid;
 
-      if (array[mid].user_id < user_id) left = mid + 1;
+      if (array[mid].id < id) left = mid + 1;
       else right = mid - 1;
     }
 
     return null;
   }
 
-  public MessageSender(dto: SendMessageDTO, id: number, server: Server) {
+  public MessageSender(
+    dto: SendMessageDTO,
+    uuid: string,
+    id: number,
+    server: Server,
+  ) {
     const message = {
       message: {
         id,
@@ -80,6 +85,6 @@ export class WebsocketUtils {
       },
     };
 
-    server.in(dto.uuid).emit('getMessage', { ...message.message });
+    server.in(uuid).emit('getMessage', { ...message.message });
   }
 }

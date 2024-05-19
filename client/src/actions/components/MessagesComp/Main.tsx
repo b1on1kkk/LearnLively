@@ -65,7 +65,7 @@ export const Main = () => {
       chat_socket?.readMessage({
         meta_data: {
           seen_user_id: user.id,
-          uuid: chosenConvId.uuid
+          conv_id: chosenConvId.id
         },
         message: unreadedMessages
       });

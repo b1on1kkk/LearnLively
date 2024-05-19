@@ -40,15 +40,16 @@ export class ServiceWebsocketService implements WebSocket {
     @MessageBody() dto: ConnectedUserDTO,
     @ConnectedSocket() client: Socket,
   ) {
-    const idx = this.websocketUtilsService.binaryUserSearchByUserId(
-      this.ActiveUsers,
-      dto.user_id,
-    );
+    const idx = this.websocketUtilsService.binaryUserSearchByUserId<
+      Array<ActiveUsersDTO>
+    >(this.ActiveUsers, dto.id);
 
     if (idx === null) {
       this.ActiveUsers.push({ ...dto, socket_id: client.id });
-      this.ActiveUsers = this.ActiveUsers.sort((a, b) => a.user_id - b.user_id);
-    } else this.ActiveUsers[idx].socket_id = client.id;
+      this.ActiveUsers = this.ActiveUsers.sort((a, b) => a.id - b.id);
+    } else {
+      this.ActiveUsers[idx].socket_id = client.id;
+    }
 
     console.log(this.ActiveUsers, 'service_logic_socket connected');
   }
