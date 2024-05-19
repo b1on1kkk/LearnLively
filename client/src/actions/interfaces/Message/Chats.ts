@@ -9,7 +9,7 @@ export interface TConversations {
   conversations: {
     id: number;
     type: ChatType;
-    group_uuid: string;
+    conversation_hash: string;
     users_conversations: Array<{
       users: Student;
     }>;
@@ -64,7 +64,6 @@ export interface ChosenMessage {
 
 export interface ChosenConv {
   id: number;
-  uuid: string;
 }
 
 export interface TGroupChatModal {
@@ -73,14 +72,20 @@ export interface TGroupChatModal {
 }
 
 export interface Group {
+  id: number;
   conversation_id: number;
   group_name: string;
   description: string;
+  conversations: {
+    id: number;
+    type: ChatType;
+    conversation_hash: string;
+  };
   group_users: Array<{
     users: Student;
   }>;
 }
 
 export interface TGroups {
-  groups: Array<Group>;
+  groups: Group;
 }

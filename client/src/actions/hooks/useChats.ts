@@ -12,14 +12,14 @@ import type { TChats, TGroups } from "../interfaces/Message/Chats";
 import { Key } from "react";
 import { groupsActions } from "../store/features/groups.slice";
 
-function isTChats(data: TChats | TGroups): data is TChats {
+function isTChats(data: TChats | Array<TGroups>): data is TChats {
   return (data as TChats).users_conversations !== undefined;
 }
 
-const useChats = <T extends TChats | TGroups>(type: Exclude<Key, bigint>) => {
+const useChats = <T extends TChats | Array<TGroups>>(
+  type: Exclude<Key, bigint>
+) => {
   const dispatch = useDispatch<AppDispatch>();
-
-  console.log(type);
 
   return useQuery<T, AxiosError>({
     queryKey: ["api", type],
@@ -29,12 +29,10 @@ const useChats = <T extends TChats | TGroups>(type: Exclude<Key, bigint>) => {
           withCredentials: true
         })
         .then((res) => {
-          // console.log(isTChats(res.data));
-
           if (isTChats(res.data)) {
             dispatch(chatsActions.initChats(res.data.users_conversations));
           } else {
-            dispatch(groupsActions.initGroups(res.data.groups));
+            dispatch(groupsActions.initGroups(res.data));
           }
 
           return res.data;

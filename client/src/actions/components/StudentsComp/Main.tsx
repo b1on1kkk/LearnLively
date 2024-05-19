@@ -40,7 +40,12 @@ export const Main = ({ isLoading, isError }: TMainStudents) => {
                 <Button
                   className="text-sm text-slate-500 font-semibold w-full bg-transparent justify-start text-start h-unit-2xl hover:bg-gray-600 hover:text-white flex-1"
                   onClick={() =>
-                    dispatch(chosenUserChatActions.chosenUserInit(student))
+                    dispatch(
+                      chosenUserChatActions.chosenUserInit({
+                        chosenGroup: null,
+                        chosenUser: student
+                      })
+                    )
                   }
                 >
                   <span className="flex-[2]">

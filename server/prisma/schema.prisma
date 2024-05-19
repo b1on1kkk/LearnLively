@@ -52,6 +52,7 @@ model conversations {
   id                  Int                   @id @default(autoincrement())
   type                chat_type
   group_uuid          String                @db.VarChar(255)
+  conversation_hash   String                @db.VarChar(255)
   groups              groups[]
   messages            messages[]
   users_conversations users_conversations[]

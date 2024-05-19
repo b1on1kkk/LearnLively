@@ -58,7 +58,7 @@ export const FooterGroupChatModal = ({
           color="primary"
           onPress={onPressNext}
           className="font-semibold text-sm"
-          isDisabled={chosenIndexesLength > 0 ? false : true}
+          isDisabled={chosenIndexesLength > 1 ? false : true}
         >
           Next
         </Button>

@@ -24,7 +24,7 @@ export const Footer = ({ onOpen }: { onOpen: () => void }) => {
     (c: RootState) => c.chatSocket
   );
   const { user } = useSelector((c: RootState) => c.user);
-  const { chosenUser } = useSelector((cu: RootState) => cu.chosenUserChat);
+  // const { chosenUser } = useSelector((cu: RootState) => cu.chosenUserChat);
   const { messages, chosenMessage } = useSelector((m: RootState) => m.messages);
 
   const dispatchActionsHandler = useMemo(
@@ -88,32 +88,21 @@ export const Footer = ({ onOpen }: { onOpen: () => void }) => {
             onSubmit={(e) => {
               e.preventDefault();
 
-              // think about adapting for group messaging!!!
-              // if there are no messages - user send "start message"
-              if (messages.length === 0) {
-                chat_socket?.startChat(
-                  [user!.id, chosenUser!.id],
-                  "private",
-                  messageText
-                );
-                // otherwise user send regular message
-              } else {
-                if (
-                  messageText.replace(/\s+/g, "") === "" ||
-                  !user ||
-                  !chosenConvId
-                ) {
-                  return;
-                }
-
-                submitFormHandler(
-                  user,
-                  messageText,
-                  chosenConvId,
-                  chat_socket,
-                  chosenMessage
-                );
+              if (
+                messageText.replace(/\s+/g, "") === "" ||
+                !user ||
+                !chosenConvId
+              ) {
+                return;
               }
+
+              submitFormHandler(
+                user,
+                messageText,
+                chosenConvId,
+                chat_socket,
+                chosenMessage
+              );
 
               setMessageText("");
             }}

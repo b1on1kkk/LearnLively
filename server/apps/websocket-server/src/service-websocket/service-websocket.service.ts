@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 import { Server, Socket } from 'socket.io';
 
 import { Injectable } from '@nestjs/common';
@@ -91,6 +93,8 @@ export class ServiceWebsocketService implements WebSocket {
     @MessageBody() dto: StudentDataDTO,
     @ConnectedSocket() client: Socket,
   ) {
+    const group_uuid = uuidv4();
+
     await this.prisma.friends.update({
       where: {
         id: dto.request_id,
@@ -99,6 +103,31 @@ export class ServiceWebsocketService implements WebSocket {
         status: 'accepted',
       },
     });
+
+    const { id } = await this.prisma.conversations.create({
+      data: {
+        type: 'private',
+        group_uuid: group_uuid,
+        conversation_hash: uuidv4(),
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const usersCreateChatWith = [dto.sender_id, dto.recipient];
+
+    const insertionPromises = usersCreateChatWith.map(async (idx) => {
+      return await this.prisma.users_conversations.create({
+        data: {
+          user_id: idx,
+          conversation_id: id,
+        },
+      });
+    });
+
+    // wait till data will be inserted
+    await Promise.all(insertionPromises);
 
     await this.websocketUtilsService.studentData(
       this.ActiveUsers,

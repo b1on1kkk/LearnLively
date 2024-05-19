@@ -97,7 +97,7 @@ export class ApiService {
               select: {
                 id: true,
                 type: true,
-                group_uuid: true,
+                conversation_hash: true,
                 users_conversations: {
                   where: {
                     users: {
@@ -160,9 +160,17 @@ export class ApiService {
       select: {
         groups: {
           select: {
+            id: true,
             conversation_id: true,
             group_name: true,
             description: true,
+            conversations: {
+              select: {
+                id: true,
+                type: true,
+                conversation_hash: true,
+              },
+            },
             group_users: {
               select: {
                 users: {
@@ -208,62 +216,6 @@ export class ApiService {
         },
       },
     });
-
-    // return await this.prisma.users.findUnique({
-    //   where: {
-    //     id: user_id,
-    //   },
-    //   select: {
-    //     groups: {
-    //       select: {
-    //         conversation_id: true,
-    //         group_name: true,
-    //         description: true,
-    //         group_users: {
-    //           select: {
-    //             users: {
-    //               select: {
-    //                 id: true,
-    //                 name: true,
-    //                 lastname: true,
-    //                 surname: true,
-    //                 role: true,
-    //                 email: true,
-    //                 end_semester: true,
-    //                 now_semester: true,
-    //                 department: true,
-    //                 img_hash_name: true,
-    //                 created_at: true,
-    //                 friends_friends_friend_idTousers: {
-    //                   where: {
-    //                     user_id: user_id,
-    //                   },
-    //                   select: {
-    //                     id: true,
-    //                     user_id: true,
-    //                     friend_id: true,
-    //                     status: true,
-    //                   },
-    //                 },
-    //                 friends_friends_user_idTousers: {
-    //                   where: {
-    //                     friend_id: user_id,
-    //                   },
-    //                   select: {
-    //                     id: true,
-    //                     user_id: true,
-    //                     friend_id: true,
-    //                     status: true,
-    //                   },
-    //                 },
-    //               },
-    //             },
-    //           },
-    //         },
-    //       },
-    //     },
-    //   },
-    // });
   }
 
   async getMessages(conversation_id: number) {

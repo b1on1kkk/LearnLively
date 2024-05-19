@@ -2,7 +2,7 @@ import useChats from "../../hooks/useChats";
 import { useEffect, useState, Key } from "react";
 import { useDisclosure } from "@nextui-org/react";
 import useStudents from "../../hooks/useStudents";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import { Bot, UsersRound } from "lucide-react";
 import { Outlet, useOutlet } from "react-router-dom";
@@ -12,7 +12,7 @@ import { Notification } from "../../components/Notification";
 import { SystemButton } from "../../components/SystemButton";
 import { GroupChatModal } from "../../components/MessagesComp/GroupChatModal";
 
-import { AppDispatch, RootState } from "../../store/store";
+import { AppDispatch } from "../../store/store";
 import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
 import { chosenUserChatActions } from "../../store/features/chosenUserChat.slice";
 import { messagesActions } from "../../store/features/messages.slice";
@@ -32,25 +32,27 @@ export const Message = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   // data handlers
-  const { isLoading } = useChats<TChats | TGroups>(selectedChatType);
+  const { isLoading } = useChats<TChats | Array<TGroups>>(selectedChatType);
   const { refetch } = useStudents();
 
   const dispatch = useDispatch<AppDispatch>();
-  const { chat_socket } = useSelector((s: RootState) => s.chatSocket);
 
   // listener
   useEffect(() => {
-    if (chat_socket) chat_socket.getJustCreatedChats();
-
     // remove all previous data if user leave "message" page after some action
     return () => {
       dispatch(chatSocketAcitons.chosenConvIdInit(null));
-      dispatch(chosenUserChatActions.chosenUserInit(null));
+      dispatch(
+        chosenUserChatActions.chosenUserInit({
+          chosenGroup: null,
+          chosenUser: null
+        })
+      );
       dispatch(
         messagesActions.messageInit({ chosenMessage: null, messages: [] })
       );
     };
-  }, [chat_socket]);
+  }, []);
 
   return (
     <div className="flex h-full relative p-8 gap-8 w-full">
@@ -92,7 +94,7 @@ export const Message = () => {
 
         <main className="flex flex-col flex-1 gap-2">
           {/* in development */}
-          {/* {isLoading ? <Loading /> : <ChatsType type={selectedChatType} />} */}
+          {isLoading ? <Loading /> : <ChatsType type={selectedChatType} />}
         </main>
       </aside>
 

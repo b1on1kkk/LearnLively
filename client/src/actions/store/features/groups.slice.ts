@@ -1,9 +1,9 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
-import { type Group } from "../../interfaces/Message/Chats";
+import { TGroups } from "../../interfaces/Message/Chats";
 
 const initialState: {
-  groups: Array<Group>;
+  groups: Array<TGroups>;
 } = {
   groups: []
 };
@@ -12,7 +12,7 @@ export const groupsSlice = createSlice({
   name: "groupsSlice",
   initialState,
   reducers: {
-    initGroups: (state, action: PayloadAction<Array<Group>>) => {
+    initGroups: (state, action: PayloadAction<Array<TGroups>>) => {
       return {
         ...state,
         groups: action.payload

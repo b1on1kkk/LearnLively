@@ -22,6 +22,12 @@ export interface Student {
   created_at: Date;
   friends_friends_friend_idTousers: Array<RequestInitiator>;
   friends_friends_user_idTousers: Array<RequestInitiator>;
+  users_conversations: Array<{
+    conversation_id: number;
+    conversations: {
+      conversation_hash: string;
+    };
+  }>;
 }
 
 export interface TMainStudents {

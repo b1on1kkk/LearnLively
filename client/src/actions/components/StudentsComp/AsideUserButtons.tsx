@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { Button, Divider, Tooltip } from "@nextui-org/react";
 import {
@@ -8,9 +8,11 @@ import {
   PhoneOff
 } from "lucide-react";
 
-import { RootState } from "../../store/store";
+import { AppDispatch, RootState } from "../../store/store";
+import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
 
 export const AsideUserButtons = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const { students } = useSelector((u: RootState) => u.students);
   const { chosenUser } = useSelector((cu: RootState) => cu.chosenUserChat);
 
@@ -26,8 +28,15 @@ export const AsideUserButtons = () => {
               "accepted") ? (
             <>
               <Link
-                to={`/message/:${chosenUser.id}`}
+                to={`/message/${chosenUser.users_conversations[0].conversations.conversation_hash}`}
                 className="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-white hover:bg-indigo-500 flex-1 py-[11px] rounded-xl transition-colors duration-200 justify-center"
+                onClick={() => {
+                  dispatch(
+                    chatSocketAcitons.chosenConvIdInit({
+                      id: chosenUser.users_conversations[0].conversation_id
+                    })
+                  );
+                }}
               >
                 <div>
                   <MessageSquareMore width={18} height={18} />

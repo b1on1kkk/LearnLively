@@ -18,20 +18,26 @@ export const ChatsType = ({ type }: { type: Exclude<Key, bigint> }) => {
         <>
           {chats.length > 0 ? (
             <>
-              {chats.map((conv) => {
-                const user = conv.conversations.users_conversations[0].users;
+              {chats.map((chat) => {
+                const user = chat.conversations.users_conversations[0].users;
+                const { id, conversation_hash } = chat.conversations;
 
                 return (
                   <ChatCard
+                    data={user}
                     key={user.id}
-                    users={user}
+                    uuid_code={conversation_hash}
                     onClick={() => {
-                      dispatch(chosenUserChatActions.chosenUserInit(user));
+                      dispatch(
+                        chosenUserChatActions.chosenUserInit({
+                          chosenGroup: null,
+                          chosenUser: user
+                        })
+                      );
 
                       dispatch(
                         chatSocketAcitons.chosenConvIdInit({
-                          id: conv.conversations.id,
-                          uuid: conv.conversations.group_uuid
+                          id: id
                         })
                       );
                     }}
@@ -49,7 +55,33 @@ export const ChatsType = ({ type }: { type: Exclude<Key, bigint> }) => {
       return (
         <>
           {groups.length > 0 ? (
-            <>{/* group ui in future */}</>
+            <>
+              {groups.map((group) => {
+                const { groups } = group;
+
+                return (
+                  <ChatCard
+                    data={groups}
+                    key={groups.id}
+                    uuid_code={groups.conversations.conversation_hash}
+                    onClick={() => {
+                      dispatch(
+                        chosenUserChatActions.chosenUserInit({
+                          chosenGroup: groups,
+                          chosenUser: null
+                        })
+                      );
+
+                      dispatch(
+                        chatSocketAcitons.chosenConvIdInit({
+                          id: groups.conversations.id
+                        })
+                      );
+                    }}
+                  />
+                );
+              })}
+            </>
           ) : (
             <WarningEmptyChats type={type} />
           )}

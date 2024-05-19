@@ -75,27 +75,38 @@ export class ChatWebsocketService implements WebSocket {
   //////////////////////////////////////////////MAIN END//////////////////////////////////////////////////
 
   @SubscribeMessage('connectToChatRoom')
-  connectToChatRoom(
+  async connectToChatRoom(
     @MessageBody() dto: ChosenConvDTO | null,
     @ConnectedSocket() client: Socket,
   ) {
     if (dto) {
       console.log(client.id, 'connect to room');
-      client.join(dto.uuid);
+
+      const { group_uuid } = await this.prisma.conversations.findFirst({
+        where: { id: dto.id },
+      });
+
+      client.join(group_uuid);
     }
   }
 
   @SubscribeMessage('leaveChatRoom')
-  leaveChatRoom(
+  async leaveChatRoom(
     @MessageBody() dto: ChosenConvDTO | null,
     @ConnectedSocket() client: Socket,
   ) {
     if (dto) {
       console.log(client.id, 'leave the room');
-      client.leave(dto.uuid);
+
+      const { group_uuid } = await this.prisma.conversations.findFirst({
+        where: { id: dto.id },
+      });
+
+      client.leave(group_uuid);
     }
   }
 
+  // in development
   @SubscribeMessage('startGroupChat')
   async startGroupChat(
     @MessageBody() dto: CreateGroupDTO,
@@ -109,6 +120,7 @@ export class ChatWebsocketService implements WebSocket {
         data: {
           type: dto.chat_type,
           group_uuid: group_uuid,
+          conversation_hash: uuidv4(),
         },
         select: {
           id: true,
@@ -143,7 +155,7 @@ export class ChatWebsocketService implements WebSocket {
       });
 
       // add other users
-      const insertionPromises = dto.users_idx.map(async (idx) => {
+      dto.users_idx.map(async (idx) => {
         return await this.prisma.group_users.create({
           data: {
             group_id: newGroupId,
@@ -151,116 +163,6 @@ export class ChatWebsocketService implements WebSocket {
           },
         });
       });
-
-      // wait till data will be inserted
-      await Promise.all(insertionPromises);
-
-      // than create room and connect user to new conversation
-      this.connectToChatRoom({ id: 666, uuid: group_uuid }, client);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  @SubscribeMessage('startChat')
-  async startChat(
-    @MessageBody() dto: startChatDTO,
-    @ConnectedSocket() client: Socket,
-  ) {
-    try {
-      const group_uuid = uuidv4();
-
-      // create new conversation
-      const { id: newConvId } = await this.prisma.conversations.create({
-        data: {
-          type: dto.chat_type,
-          group_uuid: group_uuid,
-        },
-        select: {
-          id: true,
-        },
-      });
-
-      // create room and connect user to new conversation
-      this.connectToChatRoom({ id: 666, uuid: group_uuid }, client);
-
-      const message = await this.prisma.messages.create({
-        data: {
-          user_id: dto.users_idx[0],
-          conversation_id: newConvId,
-          content: dto.message,
-          sent_at: new Date().toLocaleTimeString(),
-          delivered_at: new Date().toLocaleTimeString(),
-          edited: false,
-          seen: false,
-        },
-        select: {
-          id: true,
-          user_id: true,
-          conversation_id: true,
-          content: true,
-          sent_at: true,
-          delivered_at: true,
-          edited: true,
-          replies_to: true,
-          messages: {
-            select: {
-              content: true,
-              users: {
-                select: {
-                  img_hash_name: true,
-                  name: true,
-                  lastname: true,
-                },
-              },
-            },
-          },
-          users: {
-            select: {
-              name: true,
-              lastname: true,
-              img_hash_name: true,
-            },
-          },
-        },
-      });
-
-      const insertionPromises = dto.users_idx.map(async (user_id) => {
-        return await this.prisma.users_conversations.create({
-          data: {
-            user_id: user_id,
-            conversation_id: newConvId,
-          },
-        });
-      });
-
-      // wait till data will be inserted
-      await Promise.all(insertionPromises);
-
-      dto.users_idx.forEach(async (user_id) => {
-        const idx = this.websocketUtilsService.binaryUserSearchByUserId(
-          this.ActiveChatUsers,
-          user_id,
-        );
-
-        if (idx !== null) {
-          this.server
-            .to(this.ActiveChatUsers[idx].socket_id)
-            .emit('getJustCreatedChats', [
-              ...(
-                await this.apiService.getChats(
-                  this.ActiveChatUsers[idx].user_id,
-                )
-              ).users_conversations,
-            ]);
-        }
-      });
-
-      this.websocketUtilsService.MessageSender(
-        { uuid: group_uuid, message: { ...message, selected: false } },
-        message.id,
-        this.server,
-      );
     } catch (error) {
       console.log(error);
     }

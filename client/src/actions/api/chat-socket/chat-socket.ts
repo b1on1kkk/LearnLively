@@ -4,17 +4,13 @@ import WebSocket from "../abstract/webSocket";
 import { AppDispatch } from "../../store/store";
 import { ThunkDispatch, UnknownAction } from "@reduxjs/toolkit";
 
-import { chatsActions } from "../../store/features/chats.slice";
 import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
 
 import { DispatchActionsHandler } from "../../utils/handlers/dispatchActionsHandler";
 
-import type {
-  ChosenConv,
-  TConversations
-} from "../../interfaces/Message/Chats";
 import type { TMessage } from "../../interfaces/api/newChat";
 import type { ChatType } from "../../interfaces/api/chatType";
+import type { ChosenConv } from "../../interfaces/Message/Chats";
 import type { MessageData } from "../../interfaces/api/messageData";
 import type { TReadMessage } from "../../interfaces/api/readMessage";
 import type { TDeleteMessages } from "../../interfaces/api/deleteMessages";
@@ -56,10 +52,6 @@ export class ChatSocket implements WebSocket {
     }, 1000);
   }
 
-  public startChat(users_idx: number[], chat_type: ChatType, message: string) {
-    this.socket?.emit("startChat", { users_idx, chat_type, message });
-  }
-
   public createGroupChat(
     users_idx: number[],
     chat_type: ChatType,
@@ -80,7 +72,7 @@ export class ChatSocket implements WebSocket {
     this.socket?.emit("sendMessage", message);
   }
 
-  public changeEditedMessage(message: { uuid: string; message: TMessage }) {
+  public changeEditedMessage(message: MessageData) {
     this.socket?.emit("changeEditedMessage", message);
   }
 
@@ -88,12 +80,12 @@ export class ChatSocket implements WebSocket {
     this.socket?.emit("deleteMessages", message);
   }
 
-  public connectToChatRoom(uuid: ChosenConv | null) {
-    if (uuid) this.socket?.emit("connectToChatRoom", uuid);
+  public connectToChatRoom(conv_id: ChosenConv | null) {
+    if (conv_id) this.socket?.emit("connectToChatRoom", conv_id);
   }
 
-  public leaveChatRoom(uuid: ChosenConv | null) {
-    if (uuid) this.socket?.emit("leaveChatRoom", uuid);
+  public leaveChatRoom(conv_id: ChosenConv | null) {
+    if (conv_id) this.socket?.emit("leaveChatRoom", conv_id);
   }
 
   public readMessage(readed_user: TReadMessage) {
@@ -131,18 +123,6 @@ export class ChatSocket implements WebSocket {
         messages: message,
         chosenMessage: null
       });
-    });
-  }
-
-  public getJustCreatedChats() {
-    this.socket?.on("getJustCreatedChats", (data: Array<TConversations>) => {
-      this.reduxDispatch(chatsActions.initChats(data));
-      this.reduxDispatch(
-        chatSocketAcitons.chosenConvIdInit({
-          id: data[data.length - 1].conversations.id,
-          uuid: data[data.length - 1].conversations.group_uuid
-        })
-      );
     });
   }
 

@@ -72,8 +72,6 @@ export const Main = () => {
     }
   }, [messages, user, chosenConvId]);
 
-  console.log(messages);
-
   return (
     <main
       className="flex-1 overflow-auto flex flex-col p-5 gap-3"
