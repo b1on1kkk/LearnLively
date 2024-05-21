@@ -22,6 +22,7 @@ import { MODAL_CREATION_GROUPCHAT_STYLES } from "../../constants/GroupModal/styl
 
 import type { GroupModalSteps } from "../../interfaces/Students/Main";
 import type { TGroupChatModal } from "../../interfaces/Message/Chats";
+import useReturnBackGroupModal from "../../hooks/useReturnBackGroupModal";
 
 export const GroupChatModal = ({
   isOpen,
@@ -35,14 +36,16 @@ export const GroupChatModal = ({
 
   // extened students array to check user/users with whom create group chat
   const { extendedStudents, createGroupIndexes, selectedUser } =
-    useStudentSelection(students);
+    useStudentSelection<boolean>(students, isOpen);
 
   // additional group data
-  const { groupHandler, groupDataHandler } = useGroupDataHandler();
+  const { groupHandler, groupDataHandler } =
+    useGroupDataHandler<boolean>(isOpen);
 
-  const { chat_socket } = useSelector((c: RootState) => c.chatSocket);
+  // trigges to return user to the first page
+  useReturnBackGroupModal(isOpen, next, setNext);
 
-  console.log(createGroupIndexes);
+  const { service_socket } = useSelector((s: RootState) => s.serviceSocket);
 
   return (
     <Modal
@@ -72,7 +75,7 @@ export const GroupChatModal = ({
                 onPressBack={() => setNext(START_GROUP_MODAL_SLIDE)}
                 onPressNext={() => setNext(END_GROUP_MODAL_SLIDE)}
                 onPressCreateGroup={() => {
-                  chat_socket?.createGroupChat(
+                  service_socket?.createGroupChat(
                     createGroupIndexes,
                     "group",
                     groupHandler.title,

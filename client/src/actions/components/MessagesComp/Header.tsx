@@ -1,9 +1,11 @@
 import { Info, Phone } from "lucide-react";
 import { useSelector } from "react-redux";
 
-import { RootState } from "../../store/store";
-
+import { Tooltip } from "@nextui-org/react";
+import { MembersList } from "./MembersList";
 import { SystemButton } from "../SystemButton";
+
+import { RootState } from "../../store/store";
 
 export const Header = () => {
   const { chosenUser, chosenGroup } = useSelector(
@@ -33,20 +35,34 @@ export const Header = () => {
         </>
       ) : (
         <>
-          <div className="flex-1 flex flex-col">
-            <span>
-              <h1 className="font-semibold">{chosenGroup?.group_name}</h1>
-            </span>
-            <span className="text-sm opacity-55">4 subscribers</span>
-          </div>
+          {chosenGroup && (
+            <>
+              <div className="flex-1 flex flex-col">
+                <span>
+                  <h1 className="font-semibold">{chosenGroup.group_name}</h1>
+                </span>
+                <span className="text-sm opacity-55">
+                  {chosenGroup.group_users.length} members
+                </span>
+              </div>
 
-          <div>
-            <SystemButton
-              icon={<Info width={18} height={18} />}
-              label="info"
-              onClick={() => {}}
-            />
-          </div>
+              <div>
+                <Tooltip
+                  delay={0}
+                  closeDelay={0}
+                  content={<MembersList chosenGroup={chosenGroup} />}
+                  placement="bottom"
+                  className="p-2"
+                >
+                  <Info
+                    width={20}
+                    height={20}
+                    className="text-slate-400 hover:text-white transition-colors duration-200"
+                  />
+                </Tooltip>
+              </div>
+            </>
+          )}
         </>
       )}
     </header>

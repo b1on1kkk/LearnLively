@@ -229,14 +229,14 @@ export const Main = () => {
                             </p>
 
                             <div className="flex gap-1 justify-end">
-                              <span className="text-[11px] font-semibold">
-                                {message.delivered_at.slice(0, -3)}
-                              </span>
                               {message.edited && (
                                 <span className="text-[10px] font-semibold">
                                   edited
                                 </span>
                               )}
+                              <span className="text-[11px] font-semibold">
+                                {message.delivered_at.slice(0, -3)}
+                              </span>
                             </div>
                           </div>
                         </div>

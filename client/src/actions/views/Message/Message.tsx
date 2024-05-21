@@ -1,7 +1,7 @@
-import { useDispatch } from "react-redux";
+import { useState, Key } from "react";
 import useChats from "../../hooks/useChats";
-import { useEffect, useState, Key } from "react";
 import useStudents from "../../hooks/useStudents";
+import useGroupChangeListener from "../../hooks/useGroupChangeListener";
 
 import { Bot, UsersRound } from "lucide-react";
 import { Outlet, useOutlet } from "react-router-dom";
@@ -13,11 +13,6 @@ import { SystemButton } from "../../components/SystemButton";
 import { ChatsType } from "../../components/ChatsType/ChatsType";
 import { GroupChatModal } from "../../components/MessagesComp/GroupChatModal";
 
-import { AppDispatch } from "../../store/store";
-import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
-import { chosenUserChatActions } from "../../store/features/chosenUserChat.slice";
-import { messagesActions } from "../../store/features/messages.slice";
-
 import type { TChats, TGroups } from "../../interfaces/Message/Chats";
 
 export const Message = () => {
@@ -26,31 +21,14 @@ export const Message = () => {
   const [selectedChatType, setSelectedChatType] =
     useState<Exclude<Key, bigint>>("private");
 
-  // for modal
+  // for group modal
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
   // data handlers
   const { isLoading } = useChats<TChats | Array<TGroups>>(selectedChatType);
   const { refetch } = useStudents();
 
-  const dispatch = useDispatch<AppDispatch>();
-
-  // listener
-  useEffect(() => {
-    // remove all previous data if user leave "message" page after some action
-    return () => {
-      dispatch(chatSocketAcitons.chosenConvIdInit(null));
-      dispatch(
-        chosenUserChatActions.chosenUserInit({
-          chosenGroup: null,
-          chosenUser: null
-        })
-      );
-      dispatch(
-        messagesActions.messageInit({ chosenMessage: null, messages: [] })
-      );
-    };
-  }, []);
+  useGroupChangeListener();
 
   return (
     <div className="flex h-full relative p-8 gap-8 w-full">

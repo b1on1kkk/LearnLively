@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import type { GroupData } from "../interfaces/Students/Main";
 
-const useGroupDataHandler = () => {
+const useGroupDataHandler = <T>(trigger: T) => {
   const [groupHandler, setGroupHandler] = useState<GroupData>({
     title: "",
     description: ""
@@ -19,7 +19,16 @@ const useGroupDataHandler = () => {
     }));
   }
 
-  return { groupDataHandler, groupHandler, setGroupHandler };
+  // trigger to clear all data when user close new group modal
+  useEffect(() => {
+    const { description, title } = groupHandler;
+
+    if (description.trim() !== "" || (title.trim() !== "" && !trigger)) {
+      setGroupHandler({ title: "", description: "" });
+    }
+  }, [trigger]);
+
+  return { groupDataHandler, groupHandler };
 };
 
 export default useGroupDataHandler;

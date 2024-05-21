@@ -5,7 +5,7 @@ import { AppDispatch } from "../store/store";
 import { messagesActions } from "../store/features/messages.slice";
 
 import type { TMessage } from "../interfaces/api/newChat";
-import { ChosenMessage } from "../interfaces/Message/Chats";
+import type { ChosenMessage } from "../interfaces/Message/Chats";
 
 const useSelectMessage = (
   messages: Array<TMessage>,

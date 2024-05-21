@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { ExtendedStudents, Student } from "../interfaces/Students/Main";
 
-const useStudentSelection = (students: Array<Student> | null) => {
+const useStudentSelection = <T>(
+  students: Array<Student> | null,
+  trigger: T
+) => {
   const [extendedStudents, setExtendedStudents] = useState<
     Array<ExtendedStudents>
   >([]);
@@ -10,14 +13,18 @@ const useStudentSelection = (students: Array<Student> | null) => {
   );
 
   useEffect(() => {
-    if (students && students.length > 0 && extendedStudents.length === 0) {
+    if (students && students.length > 0) {
       setExtendedStudents([
         ...students.map((student) => {
           return { ...student, chosen_status: false };
         })
       ]);
     }
-  }, [students]);
+  }, [students, trigger]);
+
+  useEffect(() => {
+    if (!trigger) setCreateGroupIndexes([]);
+  }, [trigger]);
 
   const selectedUser = (id: number) => {
     setExtendedStudents([

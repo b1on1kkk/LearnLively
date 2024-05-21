@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+// import { v4 as uuidv4 } from 'uuid';
 
 import { Server, Socket } from 'socket.io';
 
@@ -17,20 +17,13 @@ import { WebsocketUtils } from 'apps/websocket-server/utils/websocketUtils.servi
 
 import WebSocket from '../abstract/webSocket';
 
-import type { startChatDTO } from 'apps/websocket-server/dto/startChatDTO';
 import type { ChosenConvDTO } from 'apps/websocket-server/dto/chosenConvDTO';
 import type { ActiveUsersDTO } from 'apps/websocket-server/dto/activeUsersDTO';
 import type { SendMessageDTO } from 'apps/websocket-server/dto/sendMessageDTO';
 import type { ReadMessageDTO } from 'apps/websocket-server/dto/readMessageDTO';
+import type { CachedUuidsDTO } from 'apps/websocket-server/dto/cachedUuidsDTO';
 import type { ConnectedUserDTO } from 'apps/websocket-server/dto/connectedUserDTO';
 import type { DeleteMessagesDTO } from 'apps/websocket-server/dto/deleteMessagesDTO';
-import type { CachedUuidsDTO } from 'apps/websocket-server/dto/cachedUuidsDTO';
-
-interface CreateGroupDTO extends Exclude<startChatDTO, 'messages'> {
-  group_name: string;
-  description: string;
-  owner_id: number;
-}
 
 @Injectable()
 @WebSocketGateway({ cors: { origin: '*' }, namespace: 'chat' })
@@ -127,79 +120,6 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
-  // in development
-  @SubscribeMessage('startGroupChat')
-  async startGroupChat(
-    @MessageBody() dto: CreateGroupDTO,
-    @ConnectedSocket() client: Socket,
-  ) {
-    try {
-      console.log(dto.users_idx, dto.owner_id);
-
-      const group_uuid = uuidv4();
-
-      // create new conversation
-      const { id: newConvId } = await this.prisma.conversations.create({
-        data: {
-          type: dto.chat_type,
-          group_uuid: group_uuid,
-          conversation_hash: uuidv4(),
-        },
-        select: {
-          id: true,
-        },
-      });
-
-      await this.prisma.users_conversations.create({
-        data: {
-          user_id: dto.owner_id,
-          conversation_id: newConvId,
-        },
-      });
-
-      const { id: newGroupId } = await this.prisma.groups.create({
-        data: {
-          conversation_id: newConvId,
-          owner_id: dto.owner_id,
-          group_name: dto.group_name,
-          description: dto.description,
-        },
-        select: {
-          id: true,
-        },
-      });
-
-      // adding owner to group
-      await this.prisma.group_users.create({
-        data: {
-          group_id: newGroupId,
-          user_id: dto.owner_id,
-        },
-      });
-
-      // add other users
-      const insertionPromises = dto.users_idx.map(async (idx) => {
-        return await this.prisma.group_users.create({
-          data: {
-            group_id: newGroupId,
-            user_id: idx,
-          },
-        });
-      });
-
-      // wait till all manipulations will be done
-      await Promise.all(insertionPromises);
-
-      // send whom...
-      this.server.emit(
-        'getGroups',
-        await this.apiService.getGroupChats(dto.owner_id),
-      );
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   @SubscribeMessage('sendMessage')
   async sendMessage(@MessageBody() dto: SendMessageDTO) {
     try {
@@ -228,13 +148,13 @@ export class ChatWebsocketService implements WebSocket {
         },
       });
 
-      const { group_uuid } = await this.prisma.conversations.findFirst({
-        where: { id: dto.conv_id },
-      });
+      const idx = this.websocketUtilsService.binaryUserSearchByUserId<
+        Array<CachedUuidsDTO>
+      >(this.cachedUsersUuids, dto.conv_id);
 
       this.websocketUtilsService.MessageSender(
         dto,
-        group_uuid,
+        this.cachedUsersUuids[idx].uuid,
         id,
         this.server,
       );
@@ -256,12 +176,12 @@ export class ChatWebsocketService implements WebSocket {
         },
       });
 
-      const { group_uuid } = await this.prisma.conversations.findFirst({
-        where: { id: dto.conv_id },
-      });
+      const idx = this.websocketUtilsService.binaryUserSearchByUserId<
+        Array<CachedUuidsDTO>
+      >(this.cachedUsersUuids, dto.conv_id);
 
       this.server
-        .in(group_uuid)
+        .in(this.cachedUsersUuids[idx].uuid)
         .emit('getChangedEditedMessage', { ...message });
     } catch (error) {
       console.log(error);
@@ -294,12 +214,12 @@ export class ChatWebsocketService implements WebSocket {
       // wait till all manipulations will be done
       await Promise.all(insertionPromises);
 
-      const { group_uuid } = await this.prisma.conversations.findFirst({
-        where: { id: dto.conv_id },
-      });
+      const idx = this.websocketUtilsService.binaryUserSearchByUserId<
+        Array<CachedUuidsDTO>
+      >(this.cachedUsersUuids, dto.conv_id);
 
       this.server
-        .in(group_uuid)
+        .in(this.cachedUsersUuids[idx].uuid)
         .emit('getDeletedMessages', [
           ...(await this.apiService.getMessages(dto.conv_id)),
         ]);
@@ -308,6 +228,7 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
+  // will be changed in next generation
   @SubscribeMessage('readMessage')
   async readMessage(
     @MessageBody()
@@ -336,12 +257,12 @@ export class ChatWebsocketService implements WebSocket {
       // wait till all manipulations will be done
       await Promise.all(insertionPromises);
 
-      const { group_uuid } = await this.prisma.conversations.findFirst({
-        where: { id: meta_data.conv_id },
-      });
+      const idx = this.websocketUtilsService.binaryUserSearchByUserId<
+        Array<CachedUuidsDTO>
+      >(this.cachedUsersUuids, dto.meta_data.conv_id);
 
       this.server
-        .to(group_uuid)
+        .to(this.cachedUsersUuids[idx].uuid)
         .emit('getReadMessage', [
           ...(await this.apiService.getMessages(meta_data.conv_id)),
         ]);

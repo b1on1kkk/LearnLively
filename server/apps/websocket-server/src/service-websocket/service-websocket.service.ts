@@ -5,6 +5,8 @@ import { Server, Socket } from 'socket.io';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@prismaORM/prisma';
 
+import { ApiService } from 'apps/project-name/src/api/api.service';
+
 import {
   MessageBody,
   ConnectedSocket,
@@ -19,6 +21,7 @@ import { WebsocketUtils } from 'apps/websocket-server/utils/websocketUtils.servi
 
 import type { ActiveUsersDTO } from 'apps/websocket-server/dto/activeUsersDTO';
 import type { StudentDataDTO } from 'apps/websocket-server/dto/studentDataDTO';
+import type { CreateGroupDTO } from 'apps/websocket-server/dto/createGroupDTO';
 import type { ConnectedUserDTO } from 'apps/websocket-server/dto/connectedUserDTO';
 
 @Injectable()
@@ -31,6 +34,7 @@ export class ServiceWebsocketService implements WebSocket {
   constructor(
     private readonly prisma: PrismaService,
     private readonly websocketUtilsService: WebsocketUtils,
+    private readonly apiService: ApiService,
   ) {
     this.ActiveUsers = [];
   }
@@ -151,5 +155,91 @@ export class ServiceWebsocketService implements WebSocket {
       this.server,
       client,
     );
+  }
+
+  // in development
+  @SubscribeMessage('startGroupChat')
+  async startGroupChat(
+    @MessageBody() dto: CreateGroupDTO,
+    @ConnectedSocket() client: Socket,
+  ) {
+    try {
+      const group_uuid = uuidv4();
+
+      // create new conversation
+      const { id: newConvId } = await this.prisma.conversations.create({
+        data: {
+          type: dto.chat_type,
+          group_uuid: group_uuid,
+          conversation_hash: uuidv4(),
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      await this.prisma.users_conversations.create({
+        data: {
+          user_id: dto.owner_id,
+          conversation_id: newConvId,
+        },
+      });
+
+      const { id: newGroupId } = await this.prisma.groups.create({
+        data: {
+          conversation_id: newConvId,
+          owner_id: dto.owner_id,
+          group_name: dto.group_name,
+          description: dto.description,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      // adding owner to group
+      await this.prisma.group_users.create({
+        data: {
+          group_id: newGroupId,
+          user_id: dto.owner_id,
+        },
+      });
+
+      // add other users
+      const insertionPromises = dto.users_idx.map(async (idx) => {
+        return await this.prisma.group_users.create({
+          data: {
+            group_id: newGroupId,
+            user_id: idx,
+          },
+        });
+      });
+
+      // wait till all manipulations will be done
+      await Promise.all(insertionPromises);
+
+      // first new data to sender
+      this.server
+        .to(client.id)
+        .emit('getGroups', await this.apiService.getGroupChats(dto.owner_id));
+
+      // then send others that online
+      dto.users_idx.forEach(async (id) => {
+        const idx = this.websocketUtilsService.binaryUserSearchByUserId<
+          Array<ActiveUsersDTO>
+        >(this.ActiveUsers, id);
+
+        if (idx !== null) {
+          this.server
+            .to(this.ActiveUsers[idx].socket_id)
+            .emit(
+              'getGroups',
+              await this.apiService.getGroupChats(dto.owner_id),
+            );
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

@@ -1,3 +1,6 @@
+import { useMemo } from "react";
+import { useSelector } from "react-redux";
+
 import {
   Button,
   Modal,
@@ -6,10 +9,10 @@ import {
   ModalFooter,
   ModalHeader
 } from "@nextui-org/react";
-import { useMemo } from "react";
-import { ChatSocketController } from "../../api/chat-socket/chat-socket-controller";
+
 import { RootState } from "../../store/store";
-import { useSelector } from "react-redux";
+
+import { ChatSocketController } from "../../api/chat-socket/chat-socket-controller";
 
 interface TConfirmation {
   isOpen: boolean;
@@ -20,7 +23,7 @@ export const ConfirmationModal = ({ isOpen, onOpenChange }: TConfirmation) => {
   const { chat_socket, chosenConvId } = useSelector(
     (c: RootState) => c.chatSocket
   );
-  const { messages } = useSelector((m: RootState) => m.messages);
+  const { messages, chosenMessage } = useSelector((m: RootState) => m.messages);
 
   const chatSocketController = useMemo(
     () => new ChatSocketController(chat_socket),
@@ -51,7 +54,8 @@ export const ConfirmationModal = ({ isOpen, onOpenChange }: TConfirmation) => {
                 onPress={() => {
                   chatSocketController.deleteMsgController(
                     chosenConvId,
-                    messages
+                    messages,
+                    chosenMessage?.message_data
                   );
 
                   onClose();

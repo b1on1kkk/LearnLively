@@ -9,6 +9,9 @@ import type { Student } from "../../interfaces/Students/Main";
 import type { TSendFriendRequest } from "../../interfaces/api/sendFriendRequest";
 import type { TFriendRequest } from "../../interfaces/api/acceptFriendRequest";
 import { chosenUserChatActions } from "../../store/features/chosenUserChat.slice";
+import { TGroups } from "../../interfaces/Message/Chats";
+import { groupsActions } from "../../store/features/groups.slice";
+import { ChatType } from "../../interfaces/api/chatType";
 
 export class ServiceSocket implements WebSocket {
   private socket: Socket | null;
@@ -53,6 +56,22 @@ export class ServiceSocket implements WebSocket {
     this.socket?.emit("rejectFriendRequest", dto);
   }
 
+  public createGroupChat(
+    users_idx: number[],
+    chat_type: ChatType,
+    group_name: string,
+    description: string,
+    owner_id: number
+  ) {
+    this.socket?.emit("startGroupChat", {
+      users_idx,
+      chat_type,
+      group_name,
+      description,
+      owner_id
+    });
+  }
+
   ////////////////////////////////////////listeners////////////////////////////////////////////////
   public getNewStudents(
     chosenUser: Student | null,
@@ -72,6 +91,14 @@ export class ServiceSocket implements WebSocket {
       this.reduxDispatch(studentsActions.initStudents(data));
 
       setTempStudents(data);
+    });
+  }
+
+  public getGroups() {
+    this.socket?.on("getGroups", (data: Array<TGroups>) => {
+      console.log(data);
+
+      this.reduxDispatch(groupsActions.initGroups([...data]));
     });
   }
 }

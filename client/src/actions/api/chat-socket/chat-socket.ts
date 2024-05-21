@@ -9,12 +9,10 @@ import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
 import { DispatchActionsHandler } from "../../utils/handlers/dispatchActionsHandler";
 
 import type { TMessage } from "../../interfaces/api/newChat";
-import type { ChatType } from "../../interfaces/api/chatType";
-import type { ChosenConv, TGroups } from "../../interfaces/Message/Chats";
+import type { ChosenConv } from "../../interfaces/Message/Chats";
 import type { MessageData } from "../../interfaces/api/messageData";
 import type { TReadMessage } from "../../interfaces/api/readMessage";
 import type { TDeleteMessages } from "../../interfaces/api/deleteMessages";
-import { groupsActions } from "../../store/features/groups.slice";
 
 export class ChatSocket implements WebSocket {
   private socket: Socket | null;
@@ -51,22 +49,6 @@ export class ChatSocket implements WebSocket {
 
       if (dispatch) dispatch(chatSocketAcitons.chatSocketInit(null));
     }, 1000);
-  }
-
-  public createGroupChat(
-    users_idx: number[],
-    chat_type: ChatType,
-    group_name: string,
-    description: string,
-    owner_id: number
-  ) {
-    this.socket?.emit("startGroupChat", {
-      users_idx,
-      chat_type,
-      group_name,
-      description,
-      owner_id
-    });
   }
 
   public sendMessage(message: MessageData) {
@@ -133,12 +115,6 @@ export class ChatSocket implements WebSocket {
         messages: readed_messages,
         chosenMessage: null
       });
-    });
-  }
-
-  public getGroups() {
-    this.socket?.on("getGroups", (data: Array<TGroups>) => {
-      this.reduxDispatch(groupsActions.initGroups([...data]));
     });
   }
 }
