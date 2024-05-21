@@ -27,7 +27,7 @@ export const Message = () => {
     useState<Exclude<Key, bigint>>("private");
 
   // for modal
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
   // data handlers
   const { isLoading } = useChats<TChats | Array<TGroups>>(selectedChatType);
@@ -65,7 +65,7 @@ export const Message = () => {
         )}
       </main>
 
-      <aside className="z-10 flex-1 bg-[#050615] rounded-2xl shadow-2xl border-2 border-slate-900 p-3 flex flex-col text-slate-400 gap-2">
+      <aside className="z-10 w-[380px] bg-[#050615] rounded-2xl shadow-2xl border-2 border-slate-900 p-3 flex flex-col text-slate-400 gap-2">
         <header className="flex items-center gap-3">
           <Tabs
             size="md"
@@ -96,7 +96,11 @@ export const Message = () => {
         </main>
       </aside>
 
-      <GroupChatModal isOpen={isOpen} onOpenChange={onOpenChange} />
+      <GroupChatModal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        onClose={onClose}
+      />
     </div>
   );
 };

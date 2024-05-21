@@ -19,19 +19,19 @@ export const ChatsType = ({ type }: { type: Exclude<Key, bigint> }) => {
           {chats.length > 0 ? (
             <>
               {chats.map((chat) => {
-                const user = chat.conversations.users_conversations[0].users;
                 const { id, conversation_hash } = chat.conversations;
 
                 return (
                   <ChatCard
-                    data={user}
-                    key={user.id}
+                    data={chat}
+                    key={chat.conversations.id}
                     uuid_code={conversation_hash}
                     onClick={() => {
                       dispatch(
                         chosenUserChatActions.chosenUserInit({
                           chosenGroup: null,
-                          chosenUser: user
+                          chosenUser:
+                            chat.conversations.users_conversations[0].users
                         })
                       );
 

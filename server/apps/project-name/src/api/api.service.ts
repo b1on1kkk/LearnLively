@@ -98,6 +98,14 @@ export class ApiService {
                 id: true,
                 type: true,
                 conversation_hash: true,
+                last_message: {
+                  select: {
+                    content: true,
+                    seen: true,
+                    sent_at: true,
+                    user_id: true,
+                  },
+                },
                 users_conversations: {
                   where: {
                     users: {
@@ -184,6 +192,19 @@ export class ApiService {
                 id: true,
                 type: true,
                 conversation_hash: true,
+                last_message: {
+                  select: {
+                    content: true,
+                    seen: true,
+                    sent_at: true,
+                    user_id: true,
+                    users: {
+                      select: {
+                        name: true,
+                      },
+                    },
+                  },
+                },
               },
             },
             group_users: {

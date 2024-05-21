@@ -23,7 +23,14 @@ import { MODAL_CREATION_GROUPCHAT_STYLES } from "../../constants/GroupModal/styl
 import type { GroupModalSteps } from "../../interfaces/Students/Main";
 import type { TGroupChatModal } from "../../interfaces/Message/Chats";
 
-export const GroupChatModal = ({ isOpen, onOpenChange }: TGroupChatModal) => {
+export const GroupChatModal = ({
+  isOpen,
+  onClose,
+  onOpenChange
+}: TGroupChatModal) => {
+  const [next, setNext] = useState<GroupModalSteps>(START_GROUP_MODAL_SLIDE);
+
+  const { user } = useSelector((u: RootState) => u.user);
   const { students } = useSelector((u: RootState) => u.students);
 
   // extened students array to check user/users with whom create group chat
@@ -33,11 +40,7 @@ export const GroupChatModal = ({ isOpen, onOpenChange }: TGroupChatModal) => {
   // additional group data
   const { groupHandler, groupDataHandler } = useGroupDataHandler();
 
-  const [next, setNext] = useState<GroupModalSteps>(START_GROUP_MODAL_SLIDE);
-
   const { chat_socket } = useSelector((c: RootState) => c.chatSocket);
-
-  const { user } = useSelector((u: RootState) => u.user);
 
   console.log(createGroupIndexes);
 
@@ -76,6 +79,8 @@ export const GroupChatModal = ({ isOpen, onOpenChange }: TGroupChatModal) => {
                     groupHandler.description,
                     user!.id
                   );
+
+                  onClose();
                 }}
               />
             </ModalFooter>

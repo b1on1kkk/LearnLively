@@ -134,6 +134,8 @@ export class ChatWebsocketService implements WebSocket {
     @ConnectedSocket() client: Socket,
   ) {
     try {
+      console.log(dto.users_idx, dto.owner_id);
+
       const group_uuid = uuidv4();
 
       // create new conversation
@@ -176,7 +178,7 @@ export class ChatWebsocketService implements WebSocket {
       });
 
       // add other users
-      dto.users_idx.map(async (idx) => {
+      const insertionPromises = dto.users_idx.map(async (idx) => {
         return await this.prisma.group_users.create({
           data: {
             group_id: newGroupId,
@@ -184,6 +186,15 @@ export class ChatWebsocketService implements WebSocket {
           },
         });
       });
+
+      // wait till all manipulations will be done
+      await Promise.all(insertionPromises);
+
+      // send whom...
+      this.server.emit(
+        'getGroups',
+        await this.apiService.getGroupChats(dto.owner_id),
+      );
     } catch (error) {
       console.log(error);
     }
@@ -192,7 +203,7 @@ export class ChatWebsocketService implements WebSocket {
   @SubscribeMessage('sendMessage')
   async sendMessage(@MessageBody() dto: SendMessageDTO) {
     try {
-      const message_id = await this.prisma.messages.create({
+      const { id } = await this.prisma.messages.create({
         data: {
           user_id: dto.message.user_id,
           conversation_id: dto.message.conversation_id,
@@ -208,6 +219,15 @@ export class ChatWebsocketService implements WebSocket {
         },
       });
 
+      await this.prisma.conversations.update({
+        where: {
+          id: dto.message.conversation_id,
+        },
+        data: {
+          last_msg: id,
+        },
+      });
+
       const { group_uuid } = await this.prisma.conversations.findFirst({
         where: { id: dto.conv_id },
       });
@@ -215,7 +235,7 @@ export class ChatWebsocketService implements WebSocket {
       this.websocketUtilsService.MessageSender(
         dto,
         group_uuid,
-        message_id.id,
+        id,
         this.server,
       );
     } catch (error) {
@@ -258,10 +278,13 @@ export class ChatWebsocketService implements WebSocket {
           });
 
           await this.prisma.messages.updateMany({
-            where: {
-              replies_to: msg.id,
-            },
+            where: { replies_to: msg.id },
             data: { replies_to: null },
+          });
+
+          await this.prisma.conversations.update({
+            where: { id: dto.conv_id },
+            data: { last_msg: null },
           });
 
           return await this.prisma.messages.delete({ where: { id: msg.id } });

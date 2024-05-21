@@ -10,6 +10,12 @@ export interface TConversations {
     id: number;
     type: ChatType;
     conversation_hash: string;
+    last_message: {
+      content: string;
+      seen: boolean;
+      sent_at: string;
+      user_id: number;
+    } | null;
     users_conversations: Array<{
       users: Student;
     }>;
@@ -68,6 +74,7 @@ export interface ChosenConv {
 
 export interface TGroupChatModal {
   isOpen: boolean;
+  onClose: () => void;
   onOpenChange: () => void;
 }
 
@@ -80,6 +87,15 @@ export interface Group {
     id: number;
     type: ChatType;
     conversation_hash: string;
+    last_message: {
+      content: string;
+      seen: boolean;
+      sent_at: string;
+      user_id: number;
+      users: {
+        name: string;
+      };
+    };
   };
   group_users: Array<{
     users: Student;

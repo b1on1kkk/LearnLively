@@ -1,6 +1,7 @@
-import { ChosenConv } from "../../interfaces/Message/Chats";
-import { TMessage } from "../../interfaces/api/newChat";
 import { ChatSocket } from "./chat-socket";
+
+import type { TMessage } from "../../interfaces/api/newChat";
+import type { ChosenConv } from "../../interfaces/Message/Chats";
 
 export class ChatSocketController {
   private socket: ChatSocket | null;
@@ -16,7 +17,12 @@ export class ChatSocketController {
     if (chosenConv) {
       this.socket?.deleteMessages({
         conv_id: chosenConv.id,
-        message: message
+        message: [
+          ...message.map((msg) => {
+            if (!msg.selected) return { ...msg, selected: true };
+            return { ...msg };
+          })
+        ]
       });
     }
   }

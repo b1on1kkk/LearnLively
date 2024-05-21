@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import { useDisclosure } from "@nextui-org/react";
 import useChatListeners from "../../hooks/useChatListeners";
 import useRoomConnection from "../../hooks/useRoomConnection";
@@ -6,8 +8,7 @@ import { Main } from "./Main";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { ConfirmationModal } from "./ConfirmationModal";
-import { useEffect } from "react";
-import { useSelector } from "react-redux";
+
 import { RootState } from "../../store/store";
 
 export const Chat = () => {
