@@ -1,11 +1,18 @@
+import { useSelector } from "react-redux";
+
 import { Image } from "@nextui-org/react";
 import { UsersRound } from "lucide-react";
 
+import { isOnline } from "../../utils/Message/isOnline";
 import { toImageLink } from "../../utils/Students/toImageLink";
+
+import { RootState } from "../../store/store";
 
 import type { Group } from "../../interfaces/Message/Chats";
 
 export const MembersList = ({ chosenGroup }: { chosenGroup: Group }) => {
+  const { online_users } = useSelector((i: RootState) => i.onlineUsers);
+
   return (
     <div className="flex flex-col gap-3">
       <header className="flex gap-3 px-2 py-1">
@@ -34,7 +41,11 @@ export const MembersList = ({ chosenGroup }: { chosenGroup: Group }) => {
                   <p>
                     {users.name} {users.lastname}
                   </p>
-                  <p className="text-xs text-slate-400">online</p>
+                  {isOnline(online_users, users.id) ? (
+                    <p className="text-xs text-primary-500">online</p>
+                  ) : (
+                    <p className="text-xs text-slate-400">offline</p>
+                  )}
                 </div>
               </div>
             </div>

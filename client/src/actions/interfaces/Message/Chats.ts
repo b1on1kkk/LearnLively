@@ -105,3 +105,9 @@ export interface Group {
 export interface TGroups {
   groups: Group;
 }
+
+export interface TChatCard {
+  uuid_code: string;
+  data: TConversations | Group;
+  onClick: (event: React.MouseEvent<HTMLElement>) => void;
+}

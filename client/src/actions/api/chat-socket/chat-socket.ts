@@ -13,6 +13,7 @@ import type { ChosenConv } from "../../interfaces/Message/Chats";
 import type { MessageData } from "../../interfaces/api/messageData";
 import type { TReadMessage } from "../../interfaces/api/readMessage";
 import type { TDeleteMessages } from "../../interfaces/api/deleteMessages";
+import { onlineUsersActions } from "../../store/features/onlineUsers.slice";
 
 export class ChatSocket implements WebSocket {
   private socket: Socket | null;
@@ -115,6 +116,12 @@ export class ChatSocket implements WebSocket {
         messages: readed_messages,
         chosenMessage: null
       });
+    });
+  }
+
+  public getOnlineUsers() {
+    this.socket?.on("onlineUsers", (indexes: Array<number>) => {
+      this.reduxDispatch(onlineUsersActions.onlineUsersInit(indexes));
     });
   }
 }

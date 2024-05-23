@@ -1,28 +1,20 @@
 import { useSelector } from "react-redux";
 
-import { UsersRound, Check, CheckCheck } from "lucide-react";
 import { Image } from "@nextui-org/react";
 import { NavLink } from "react-router-dom";
-
-import { toImageLink } from "../../utils/Students/toImageLink";
+import { UsersRound, Check, CheckCheck } from "lucide-react";
 
 import { RootState } from "../../store/store";
 
-import type { Group, TConversations } from "../../interfaces/Message/Chats";
+import { isOnline } from "../../utils/Message/isOnline";
+import { ChatGuard } from "../../utils/Message/chatGuard";
+import { toImageLink } from "../../utils/Students/toImageLink";
 
-interface TChatCard {
-  uuid_code: string;
-  data: TConversations | Group;
-  onClick: (event: React.MouseEvent<HTMLElement>) => void;
-}
-
-// define private or group chats
-function ChatGuard(data: TConversations | Group): data is Group {
-  return (data as Group).group_name !== undefined;
-}
+import type { TChatCard } from "../../interfaces/Message/Chats";
 
 export const ChatCard = ({ data, onClick, uuid_code }: TChatCard) => {
   const { user } = useSelector((u: RootState) => u.user);
+  const { online_users } = useSelector((u: RootState) => u.onlineUsers);
 
   return (
     <NavLink
@@ -40,13 +32,23 @@ export const ChatCard = ({ data, onClick, uuid_code }: TChatCard) => {
             <span>{data.group_name[0]}</span>
           </div>
         ) : (
-          <div className="w-[50px] h-[50px]">
+          <div className="w-[50px] h-[50px] relative">
             <Image
               src={toImageLink(
                 data.conversations.users_conversations[0].users.img_hash_name
               )}
               className="rounded-full"
             />
+
+            {isOnline(
+              online_users,
+              data.conversations.users_conversations[0].users.id
+            ) && (
+              <span className="flex absolute h-3 w-3 bottom-0 right-0 -mt-1 -mr-1 z-10">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-500 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-primary-400"></span>
+              </span>
+            )}
           </div>
         )}
       </div>

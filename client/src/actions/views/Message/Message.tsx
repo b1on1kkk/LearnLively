@@ -26,8 +26,11 @@ export const Message = () => {
 
   // data handlers
   const { isLoading } = useChats<TChats | Array<TGroups>>(selectedChatType);
-  const { refetch } = useStudents();
 
+  // get all students when modal is open
+  useStudents(isOpen);
+
+  // read about hook inside
   useGroupChangeListener();
 
   return (
@@ -61,10 +64,7 @@ export const Message = () => {
           <SystemButton
             label="create_group"
             icon={<UsersRound width={18} height={18} />}
-            onClick={() => {
-              refetch();
-              onOpen();
-            }}
+            onClick={() => onOpen()}
           />
         </header>
 

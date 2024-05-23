@@ -36,15 +36,13 @@ export const Main = () => {
   const { messages, chosenMessage } = useSelector((m: RootState) => m.messages);
 
   const { setId } = useSelectMessage(messages, chosenMessage);
-  const { data, isLoading } = useMessages(chosenConvId);
+  const { isLoading } = useMessages(chosenConvId);
 
   const dispatchActionsHandler = useMemo(
     () => new DispatchActionsHandler(dispatch),
     []
   );
-  const elemToScrollToButton = useScrollToBottom<Array<TMessage> | undefined>(
-    data
-  );
+  const elemToScrollToButton = useScrollToBottom<Array<TMessage>>(messages);
 
   // not optimize solution, think also about group chat
   useEffect(() => {

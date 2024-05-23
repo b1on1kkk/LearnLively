@@ -7,10 +7,13 @@ import { SystemButton } from "../SystemButton";
 
 import { RootState } from "../../store/store";
 
+import { isOnline } from "../../utils/Message/isOnline";
+
 export const Header = () => {
   const { chosenUser, chosenGroup } = useSelector(
     (cu: RootState) => cu.chosenUserChat
   );
+  const { online_users } = useSelector((i: RootState) => i.onlineUsers);
 
   return (
     <header className="px-5 py-3 flex bg-[#00010d] border-slate-900 border-2 rounded-2xl shadow-2xl items-center gap-3 text-slate-400 mb-2">
@@ -22,7 +25,13 @@ export const Header = () => {
                 {chosenUser.name} {chosenUser.lastname}
               </h1>
             </span>
-            <span className="text-sm opacity-55">offline</span>
+            <div className="text-sm font-semibold">
+              {isOnline(online_users, chosenUser.id) ? (
+                <span className="text-primary-500">online</span>
+              ) : (
+                <span className="opacity-55">offline</span>
+              )}
+            </div>
           </div>
 
           <div>

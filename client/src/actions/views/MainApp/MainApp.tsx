@@ -39,6 +39,11 @@ export const MainApp = () => {
   useConnectChatSocket(SOCKETS_ROOT.chat_socket, user, dispatch);
   useConnectServiceSocket(SOCKETS_ROOT.service_logic_socket, user, dispatch);
 
+  // get indexes of users that online
+  useEffect(() => {
+    if (chat_socket) chat_socket.getOnlineUsers();
+  }, [chat_socket]);
+
   // callback is used if user reconnects and user is in chat - connect new socket id into the room and refetch messages
   const reconnectCB = useCallback(() => {
     chat_socket?.connectUser(user!.id);

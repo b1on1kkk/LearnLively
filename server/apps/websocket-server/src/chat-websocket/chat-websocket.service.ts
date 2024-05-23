@@ -51,6 +51,14 @@ export class ChatWebsocketService implements WebSocket {
     this.ActiveChatUsers.push({ id: dto.id, socket_id: client.id });
     this.ActiveChatUsers = this.ActiveChatUsers.sort((a, b) => a.id - b.id);
 
+    const onlineIndexes: Array<number> = [];
+
+    this.ActiveChatUsers.forEach((user) => {
+      onlineIndexes.push(user.id);
+    });
+
+    this.server.emit('onlineUsers', onlineIndexes);
+
     console.log(this.ActiveChatUsers, 'chat_socket connected');
   }
 
@@ -63,9 +71,18 @@ export class ChatWebsocketService implements WebSocket {
         (user) => user.socket_id !== client.id,
       );
 
+      const onlineIndexes: Array<number> = [];
+
+      this.ActiveChatUsers.forEach((user) => {
+        onlineIndexes.push(user.id);
+      });
+
+      this.server.emit('onlineUsers', onlineIndexes);
+
       console.log(this.ActiveChatUsers, 'chat_socket after disconnection');
     }
   }
+
   //////////////////////////////////////////////MAIN END//////////////////////////////////////////////////
 
   @SubscribeMessage('connectToChatRoom')
@@ -228,7 +245,7 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
-  // will be changed in next generation
+  // will be changed in next upgrade
   @SubscribeMessage('readMessage')
   async readMessage(
     @MessageBody()

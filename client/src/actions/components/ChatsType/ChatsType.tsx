@@ -1,16 +1,18 @@
 import { Key } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../store/store";
+
 import { ChatCard } from "../MessagesComp/ChatCard";
-import { chosenUserChatActions } from "../../store/features/chosenUserChat.slice";
-import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
 import { WarningEmptyChats } from "../MessagesComp/WarningEmptyChats";
+
+import { AppDispatch, RootState } from "../../store/store";
+import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
+import { chosenUserChatActions } from "../../store/features/chosenUserChat.slice";
 
 export const ChatsType = ({ type }: { type: Exclude<Key, bigint> }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const { chats } = useSelector((c: RootState) => c.chats);
-  const { groups } = useSelector((c: RootState) => c.groups);
+  const { groups } = useSelector((g: RootState) => g.groups);
 
   switch (type) {
     case "private":
