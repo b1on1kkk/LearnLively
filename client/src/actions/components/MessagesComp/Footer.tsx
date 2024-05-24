@@ -24,7 +24,6 @@ export const Footer = ({ onOpen }: { onOpen: () => void }) => {
     (c: RootState) => c.chatSocket
   );
   const { user } = useSelector((c: RootState) => c.user);
-  // const { chosenUser } = useSelector((cu: RootState) => cu.chosenUserChat);
   const { messages, chosenMessage } = useSelector((m: RootState) => m.messages);
 
   const dispatchActionsHandler = useMemo(
@@ -129,7 +128,14 @@ export const Footer = ({ onOpen }: { onOpen: () => void }) => {
                 autoComplete="off"
                 spellCheck="true"
                 value={messageText}
-                onChange={(e) => setMessageText(e.target.value)}
+                onChange={(e) => {
+                  setMessageText(e.target.value);
+
+                  chat_socket?.isTyping(chosenConvId!.id, {
+                    id: user!.id,
+                    name: user!.name
+                  });
+                }}
               />
             </div>
             <div>

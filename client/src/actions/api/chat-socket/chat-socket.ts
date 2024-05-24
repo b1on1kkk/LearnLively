@@ -76,6 +76,10 @@ export class ChatSocket implements WebSocket {
     this.socket?.emit("readMessage", readed_user);
   }
 
+  public isTyping(conv_id: number, user: { id: number; name: string }) {
+    this.socket?.emit("isTyping", { conv_id, user });
+  }
+
   ////////////////////////////////////////listeners////////////////////////////////////////////////
   public getMessage(messages: Array<TMessage>) {
     this.socket?.on("getMessage", (data: TMessage) => {
@@ -100,7 +104,6 @@ export class ChatSocket implements WebSocket {
     });
   }
 
-  // this function uses also for seen message, change it name
   public getDeletedMessages() {
     this.socket?.on("getDeletedMessages", (message: Array<TMessage>) => {
       this.actionsHandler.messageInitHandler({
@@ -122,6 +125,12 @@ export class ChatSocket implements WebSocket {
   public getOnlineUsers() {
     this.socket?.on("onlineUsers", (indexes: Array<number>) => {
       this.reduxDispatch(onlineUsersActions.onlineUsersInit(indexes));
+    });
+  }
+
+  public getIsTypingMessage() {
+    this.socket?.on("typing", (data: any) => {
+      console.log(data);
     });
   }
 }

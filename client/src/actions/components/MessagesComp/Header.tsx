@@ -25,12 +25,17 @@ export const Header = () => {
                 {chosenUser.name} {chosenUser.lastname}
               </h1>
             </span>
-            <div className="text-sm font-semibold">
-              {isOnline(online_users, chosenUser.id) ? (
+            <div className="text-sm font-semibold h-[20px] overflow-hidden">
+              <div
+                className={`flex flex-col transition-all ${
+                  isOnline(online_users, chosenUser.id)
+                    ? "translate-y-0"
+                    : "-translate-y-5"
+                }`}
+              >
                 <span className="text-primary-500">online</span>
-              ) : (
                 <span className="opacity-55">offline</span>
-              )}
+              </div>
             </div>
           </div>
 

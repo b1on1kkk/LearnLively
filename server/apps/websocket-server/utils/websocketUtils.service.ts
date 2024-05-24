@@ -5,6 +5,7 @@ import { Server, Socket } from 'socket.io';
 import { StudentDataDTO } from '../dto/studentDataDTO';
 import { SendMessageDTO } from '../dto/sendMessageDTO';
 import { CachedUuidsDTO } from '../dto/cachedUuidsDTO';
+import { isTypingNowCacheDTO } from '../src/chat-websocket/chat-websocket.service';
 
 @Injectable()
 export class WebsocketUtils {
@@ -39,7 +40,11 @@ export class WebsocketUtils {
   }
 
   public binaryUserSearchByUserId<
-    T extends Array<ActiveUsersDTO> | Array<CachedUuidsDTO>,
+    T extends
+      | Array<ActiveUsersDTO>
+      | Array<CachedUuidsDTO>
+      | Array<isTypingNowCacheDTO>
+      | Array<{ id: number; name: string; timeId: NodeJS.Timeout }>,
   >(array: T, id: number): number | null {
     if (array.length === 0) return null;
 
