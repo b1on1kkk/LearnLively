@@ -15,7 +15,7 @@ import { MySocketControllerContext } from "../../context/SocketControllerContext
 import type { Student } from "../../interfaces/Students/Main";
 
 export const Students = () => {
-  const { data, isError, isLoading, refetch } = useStudents();
+  const { data, isError, isLoading } = useStudents();
   const { chosenUser } = useSelector((cu: RootState) => cu.chosenUserChat);
   const { service_socket } = useSelector((s: RootState) => s.serviceSocket);
 
@@ -24,11 +24,6 @@ export const Students = () => {
   const socketController = useMemo(() => {
     return new SocketController(service_socket);
   }, [service_socket]);
-
-  // fetch students inf
-  useEffect(() => {
-    refetch();
-  }, []);
 
   useEffect(() => {
     if (data) if (!tempStudents) setTempStudents(data);

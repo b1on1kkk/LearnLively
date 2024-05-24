@@ -9,12 +9,14 @@ import { RootState } from "../../store/store";
 import { isOnline } from "../../utils/Message/isOnline";
 import { ChatGuard } from "../../utils/Message/chatGuard";
 import { toImageLink } from "../../utils/Students/toImageLink";
+import { detectPrivateChatExist } from "../../utils/Message/detectPrivateChatExist";
 
 import type { TChatCard } from "../../interfaces/Message/Chats";
 
 export const ChatCard = ({ data, onClick, uuid_code }: TChatCard) => {
   const { user } = useSelector((u: RootState) => u.user);
-  const { online_users } = useSelector((u: RootState) => u.onlineUsers);
+  const { typed } = useSelector((t: RootState) => t.typed);
+  const { online_users } = useSelector((o: RootState) => o.onlineUsers);
 
   return (
     <NavLink
@@ -90,12 +92,20 @@ export const ChatCard = ({ data, onClick, uuid_code }: TChatCard) => {
               {data.conversations.last_message ? (
                 <>
                   <p className="font-semibold text-xs overflow-hidden whitespace-nowrap text-ellipsis flex-1">
-                    <span className="mr-1 text-primary-500 font-bold">
-                      {user!.id !== data.conversations.last_message.user_id
-                        ? `${data.conversations.last_message.users.name}:`
-                        : "You:"}
-                    </span>
-                    {data.conversations.last_message.content}
+                    {detectPrivateChatExist(typed, data.conversations.id) ? (
+                      <span className="text-primary-500">
+                        {user?.name} typing...
+                      </span>
+                    ) : (
+                      <>
+                        <span className="mr-1 text-primary-500 font-bold">
+                          {user!.id !== data.conversations.last_message.user_id
+                            ? `${data.conversations.last_message.users.name}:`
+                            : "You:"}
+                        </span>
+                        {data.conversations.last_message.content}
+                      </>
+                    )}
                   </p>
 
                   {user!.id === data.conversations.last_message.user_id && (
@@ -117,9 +127,15 @@ export const ChatCard = ({ data, onClick, uuid_code }: TChatCard) => {
           ) : (
             <>
               <p className="font-semibold text-xs overflow-hidden whitespace-nowrap text-ellipsis flex-1">
-                {data.conversations.last_message
-                  ? data.conversations.last_message.content
-                  : "There are no messages yet"}
+                {detectPrivateChatExist(typed, data.conversations.id) ? (
+                  <span className="text-primary-500">typing...</span>
+                ) : (
+                  <>
+                    {data.conversations.last_message
+                      ? data.conversations.last_message.content
+                      : "There are no messages yet"}
+                  </>
+                )}
               </p>
 
               <div>

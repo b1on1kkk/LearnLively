@@ -8,11 +8,14 @@ import { SystemButton } from "../SystemButton";
 import { RootState } from "../../store/store";
 
 import { isOnline } from "../../utils/Message/isOnline";
+import { detectPrivateChatExist } from "../../utils/Message/detectPrivateChatExist";
 
 export const Header = () => {
   const { chosenUser, chosenGroup } = useSelector(
     (cu: RootState) => cu.chosenUserChat
   );
+  const { typed } = useSelector((t: RootState) => t.typed);
+  const { chosenConvId } = useSelector((c: RootState) => c.chatSocket);
   const { online_users } = useSelector((i: RootState) => i.onlineUsers);
 
   return (
@@ -26,16 +29,21 @@ export const Header = () => {
               </h1>
             </span>
             <div className="text-sm font-semibold h-[20px] overflow-hidden">
-              <div
-                className={`flex flex-col transition-all ${
-                  isOnline(online_users, chosenUser.id)
-                    ? "translate-y-0"
-                    : "-translate-y-5"
-                }`}
-              >
-                <span className="text-primary-500">online</span>
-                <span className="opacity-55">offline</span>
-              </div>
+              {chosenConvId &&
+              detectPrivateChatExist(typed, chosenConvId.id) ? (
+                <span className="text-primary-500">typing...</span>
+              ) : (
+                <div
+                  className={`flex flex-col transition-all ${
+                    isOnline(online_users, chosenUser.id)
+                      ? "translate-y-0"
+                      : "-translate-y-5"
+                  }`}
+                >
+                  <span className="text-primary-500">online</span>
+                  <span className="opacity-55">offline</span>
+                </div>
+              )}
             </div>
           </div>
 

@@ -1,12 +1,10 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
-import { whoIsTyping } from "../../interfaces/Message/Chats";
+import type { whoIsTyping } from "../../interfaces/Message/Chats";
+import type { isTypingConvs } from "../interfaces/isTypingConvs.interface";
 
 const initialState: {
-  typed: Array<{
-    conv_id: number;
-    user: Array<{ id: number; name: string }>;
-  }>;
+  typed: Array<isTypingConvs>;
 } = {
   typed: []
 };

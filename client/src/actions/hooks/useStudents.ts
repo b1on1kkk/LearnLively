@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store/store";
 import { studentsActions } from "../store/features/students.slice";
 
-const useStudents = (openModalStatus: boolean) => {
+const useStudents = (openModalStatus: boolean = true) => {
   const dispatch = useDispatch<AppDispatch>();
   const { students } = useSelector((c: RootState) => c.students);
 
