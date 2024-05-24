@@ -117,7 +117,6 @@ export const Footer = ({ onOpen }: { onOpen: () => void }) => {
                 label="file"
                 onClick={() => inputFileRef.current?.click()}
               />
-              <label htmlFor=""></label>
             </div>
             <div className="flex-1">
               <input
@@ -128,14 +127,20 @@ export const Footer = ({ onOpen }: { onOpen: () => void }) => {
                 autoComplete="off"
                 spellCheck="true"
                 value={messageText}
-                onChange={(e) => {
-                  setMessageText(e.target.value);
-
-                  chat_socket?.isTyping(chosenConvId!.id, {
-                    id: user!.id,
-                    name: user!.name
-                  });
+                onBlur={() => {
+                  if (chosenConvId && chat_socket) {
+                    chat_socket.notTyping(chosenConvId.id);
+                  }
                 }}
+                onFocus={() => {
+                  if (chosenConvId && user && chat_socket) {
+                    chat_socket.isTyping(chosenConvId.id, {
+                      id: user.id,
+                      name: user.name
+                    });
+                  }
+                }}
+                onChange={(e) => setMessageText(e.target.value)}
               />
             </div>
             <div>

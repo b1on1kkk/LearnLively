@@ -9,6 +9,7 @@ import messagesSlice from "./features/messages.slice";
 import chatsSlice from "./features/chats.slice";
 import groupsSlice from "./features/groups.slice";
 import onlineUsersSlice from "./features/onlineUsers.slice";
+import isTypingSlice from "./features/isTyping.slice";
 
 export const store = configureStore({
   reducer: {
@@ -20,7 +21,8 @@ export const store = configureStore({
     messages: messagesSlice,
     chats: chatsSlice,
     groups: groupsSlice,
-    onlineUsers: onlineUsersSlice
+    onlineUsers: onlineUsersSlice,
+    typed: isTypingSlice
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

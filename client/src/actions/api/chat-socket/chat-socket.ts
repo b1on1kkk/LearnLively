@@ -9,11 +9,12 @@ import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
 import { DispatchActionsHandler } from "../../utils/handlers/dispatchActionsHandler";
 
 import type { TMessage } from "../../interfaces/api/newChat";
-import type { ChosenConv } from "../../interfaces/Message/Chats";
+import type { ChosenConv, whoIsTyping } from "../../interfaces/Message/Chats";
 import type { MessageData } from "../../interfaces/api/messageData";
 import type { TReadMessage } from "../../interfaces/api/readMessage";
 import type { TDeleteMessages } from "../../interfaces/api/deleteMessages";
 import { onlineUsersActions } from "../../store/features/onlineUsers.slice";
+import { isTypingActions } from "../../store/features/isTyping.slice";
 
 export class ChatSocket implements WebSocket {
   private socket: Socket | null;
@@ -80,6 +81,10 @@ export class ChatSocket implements WebSocket {
     this.socket?.emit("isTyping", { conv_id, user });
   }
 
+  public notTyping(idx: number) {
+    this.socket?.emit("notTyping", { idx });
+  }
+
   ////////////////////////////////////////listeners////////////////////////////////////////////////
   public getMessage(messages: Array<TMessage>) {
     this.socket?.on("getMessage", (data: TMessage) => {
@@ -129,8 +134,14 @@ export class ChatSocket implements WebSocket {
   }
 
   public getIsTypingMessage() {
-    this.socket?.on("typing", (data: any) => {
-      console.log(data);
+    this.socket?.on("getTyping", (data: whoIsTyping) => {
+      this.reduxDispatch(isTypingActions.initTyping(data));
+    });
+  }
+
+  public getIsNotTypingMessage() {
+    this.socket?.on("getNotTyping", (idx: number) => {
+      this.reduxDispatch(isTypingActions.removeTyping(idx));
     });
   }
 }

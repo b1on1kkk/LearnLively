@@ -30,11 +30,6 @@ interface isTypingDTO {
   user: { id: number; name: string };
 }
 
-export interface isTypingNowCacheDTO {
-  id: number;
-  users: Array<{ id: number; name: string; timeId: NodeJS.Timeout }>;
-}
-
 @Injectable()
 @WebSocketGateway({ cors: { origin: '*' }, namespace: 'chat' })
 export class ChatWebsocketService implements WebSocket {
@@ -42,7 +37,6 @@ export class ChatWebsocketService implements WebSocket {
   private server: Server;
   private ActiveChatUsers: Array<ActiveUsersDTO>;
   private cachedUsersUuids: Array<CachedUuidsDTO>;
-  private isTypingNow: Array<isTypingNowCacheDTO>;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -51,7 +45,6 @@ export class ChatWebsocketService implements WebSocket {
   ) {
     this.ActiveChatUsers = [];
     this.cachedUsersUuids = [];
-    this.isTypingNow = [];
   }
 
   //////////////////////////////////////////////MAIN//////////////////////////////////////////////////////
@@ -110,7 +103,7 @@ export class ChatWebsocketService implements WebSocket {
         Array<CachedUuidsDTO>
       >(this.cachedUsersUuids, dto.id);
 
-      // if it - just connet
+      // if it - just connect
       if (idx !== null) {
         client.join(this.cachedUsersUuids[idx].uuid);
       } else {
@@ -196,110 +189,26 @@ export class ChatWebsocketService implements WebSocket {
   @SubscribeMessage('isTyping')
   isTyping(@MessageBody() dto: isTypingDTO, @ConnectedSocket() client: Socket) {
     try {
-      console.log(dto);
-
-      const idx = this.websocketUtilsService.binaryUserSearchByUserId<
-        Array<isTypingNowCacheDTO>
-      >(this.isTypingNow, dto.conv_id);
-
-      // conv is not exist in cache
-      if (idx === null) {
-        console.log('creating new conv');
-
-        const conv: isTypingNowCacheDTO = {
-          id: dto.conv_id,
-          users: [
-            {
-              id: dto.user.id,
-              name: dto.user.name,
-              timeId: setTimeout(() => {
-                removeUserFromCache(
-                  conv,
-                  this.websocketUtilsService.binaryUserSearchByUserId<
-                    Array<{ id: number; name: string; timeId: NodeJS.Timeout }>
-                  >(conv.users, dto.user.id),
-                );
-                console.log('isTypingNow:', this.isTypingNow, '----213');
-              }, 5000),
-            },
-          ],
-        };
-
-        this.isTypingNow.push(conv);
-
-        this.isTypingNow = this.isTypingNow.sort((a, b) => a.id - b.id);
-      } else {
-        console.log('go to exist conv');
-
-        const usersArray = this.isTypingNow[idx].users;
-
-        const user_id = this.websocketUtilsService.binaryUserSearchByUserId<
-          Array<{ id: number; name: string; timeId: NodeJS.Timeout }>
-        >(usersArray, dto.user.id);
-
-        // user exist
-        if (user_id !== null) {
-          clearTimeout(this.isTypingNow[idx].users[user_id].timeId);
-
-          this.isTypingNow[idx].users[user_id].timeId = setTimeout(() => {
-            const user_id = this.websocketUtilsService.binaryUserSearchByUserId<
-              Array<{ id: number; name: string; timeId: NodeJS.Timeout }>
-            >(this.isTypingNow[idx].users, dto.user.id);
-
-            removeUserFromCache(this.isTypingNow[idx], user_id);
-
-            console.log('isTypingNow:', this.isTypingNow, '----241');
-          }, 5000);
-        } else {
-          this.isTypingNow[idx].users.push({
-            ...dto.user,
-            timeId: setTimeout(() => {
-              removeUserFromCache(this.isTypingNow[idx], null);
-
-              console.log('isTypingNow:', this.isTypingNow, '----248');
-            }, 5000),
-          });
-
-          this.isTypingNow[idx].users = this.isTypingNow[idx].users.sort(
-            (a, b) => a.id - b.id,
-          );
-        }
-      }
-
-      const removeUserFromCache = (
-        conv: isTypingNowCacheDTO,
-        userId: number | null,
-      ) => {
-        if (userId !== null) {
-          console.log(userId);
-          console.log(conv.users[userId].timeId, '------272');
-
-          clearTimeout(conv.users[userId].timeId);
-          conv.users = conv.users.filter((u) => u.id !== conv.users[userId].id);
-        } else {
-          console.log(conv.users[userId].timeId, '------276');
-
-          const user_id = this.websocketUtilsService.binaryUserSearchByUserId<
-            Array<{ id: number; name: string; timeId: NodeJS.Timeout }>
-          >(conv.users, dto.user.id);
-
-          clearTimeout(conv.users[user_id].timeId);
-
-          conv.users = conv.users.filter(
-            (u) => u.id !== conv.users[user_id].id,
-          );
-        }
-
-        if (conv.users.length === 0) {
-          this.isTypingNow = this.isTypingNow.filter((c) => c.id !== conv.id);
-        }
-      };
-
-      console.log('----------------', this.isTypingNow, '----------------');
+      client.broadcast.emit('getTyping', dto);
     } catch (error) {
       console.log(error);
     }
   }
+
+  @SubscribeMessage('notTyping')
+  notTyping(
+    @MessageBody() dto: { idx: number },
+    @ConnectedSocket() client: Socket,
+  ) {
+    try {
+      const { idx } = dto;
+
+      client.broadcast.emit('getNotTyping', idx);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   //
 
   @SubscribeMessage('changeEditedMessage')

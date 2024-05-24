@@ -20,10 +20,7 @@ export const Chat = () => {
   const { chat_socket } = useSelector((c: RootState) => c.chatSocket);
 
   useEffect(() => {
-    if (chat_socket) {
-      chat_socket.getReadMessage();
-      chat_socket.getIsTypingMessage();
-    }
+    if (chat_socket) chat_socket.getReadMessage();
   }, [chat_socket]);
 
   return (

@@ -1,6 +1,7 @@
 import { useState, Key } from "react";
 import useChats from "../../hooks/useChats";
 import useStudents from "../../hooks/useStudents";
+import useDetectTyping from "../../hooks/useDetectTyping";
 import useGroupChangeListener from "../../hooks/useGroupChangeListener";
 
 import { Bot, UsersRound } from "lucide-react";
@@ -32,6 +33,9 @@ export const Message = () => {
 
   // read about hook inside
   useGroupChangeListener();
+
+  // listener that get data if someone is starting to typing
+  useDetectTyping();
 
   return (
     <div className="flex h-full relative p-8 gap-8 w-full">

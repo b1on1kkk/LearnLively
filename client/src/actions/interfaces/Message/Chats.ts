@@ -111,3 +111,8 @@ export interface TChatCard {
   data: TConversations | Group;
   onClick: (event: React.MouseEvent<HTMLElement>) => void;
 }
+
+export interface whoIsTyping {
+  conv_id: number;
+  user: { id: number; name: string };
+}
