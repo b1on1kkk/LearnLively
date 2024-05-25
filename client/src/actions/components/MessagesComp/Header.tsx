@@ -1,6 +1,7 @@
-import { Info, Phone } from "lucide-react";
 import { useSelector } from "react-redux";
+import useConvInTyping from "../../hooks/useConvInTyping";
 
+import { Info, Phone } from "lucide-react";
 import { Tooltip } from "@nextui-org/react";
 import { MembersList } from "./MembersList";
 import { SystemButton } from "../SystemButton";
@@ -8,7 +9,6 @@ import { SystemButton } from "../SystemButton";
 import { RootState } from "../../store/store";
 
 import { isOnline } from "../../utils/Message/isOnline";
-import { detectPrivateChatExist } from "../../utils/Message/detectPrivateChatExist";
 
 export const Header = () => {
   const { chosenUser, chosenGroup } = useSelector(
@@ -17,6 +17,8 @@ export const Header = () => {
   const { typed } = useSelector((t: RootState) => t.typed);
   const { chosenConvId } = useSelector((c: RootState) => c.chatSocket);
   const { online_users } = useSelector((i: RootState) => i.onlineUsers);
+
+  const convsInTyping = useConvInTyping(typed, chosenConvId!.id);
 
   return (
     <header className="px-5 py-3 flex bg-[#00010d] border-slate-900 border-2 rounded-2xl shadow-2xl items-center gap-3 text-slate-400 mb-2">
@@ -29,8 +31,7 @@ export const Header = () => {
               </h1>
             </span>
             <div className="text-sm font-semibold h-[20px] overflow-hidden">
-              {chosenConvId &&
-              detectPrivateChatExist(typed, chosenConvId.id) ? (
+              {convsInTyping ? (
                 <span className="text-primary-500">typing...</span>
               ) : (
                 <div

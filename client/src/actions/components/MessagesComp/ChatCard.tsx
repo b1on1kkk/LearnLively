@@ -1,4 +1,5 @@
 import { useSelector } from "react-redux";
+import useConvInTyping from "../../hooks/useConvInTyping";
 
 import { Image } from "@nextui-org/react";
 import { NavLink } from "react-router-dom";
@@ -9,7 +10,6 @@ import { RootState } from "../../store/store";
 import { isOnline } from "../../utils/Message/isOnline";
 import { ChatGuard } from "../../utils/Message/chatGuard";
 import { toImageLink } from "../../utils/Students/toImageLink";
-import { detectPrivateChatExist } from "../../utils/Message/detectPrivateChatExist";
 
 import type { TChatCard } from "../../interfaces/Message/Chats";
 
@@ -17,6 +17,8 @@ export const ChatCard = ({ data, onClick, uuid_code }: TChatCard) => {
   const { user } = useSelector((u: RootState) => u.user);
   const { typed } = useSelector((t: RootState) => t.typed);
   const { online_users } = useSelector((o: RootState) => o.onlineUsers);
+
+  const convsInTyping = useConvInTyping(typed, data.conversations.id);
 
   return (
     <NavLink
@@ -92,9 +94,16 @@ export const ChatCard = ({ data, onClick, uuid_code }: TChatCard) => {
               {data.conversations.last_message ? (
                 <>
                   <p className="font-semibold text-xs overflow-hidden whitespace-nowrap text-ellipsis flex-1">
-                    {detectPrivateChatExist(typed, data.conversations.id) ? (
+                    {convsInTyping ? (
                       <span className="text-primary-500">
-                        {user?.name} typing...
+                        {convsInTyping.user.length > 1 ? (
+                          <>
+                            {convsInTyping.user[0].name} and +
+                            {convsInTyping.user.length - 1} typing...
+                          </>
+                        ) : (
+                          <>{convsInTyping.user[0].name} typing...</>
+                        )}
                       </span>
                     ) : (
                       <>
@@ -127,7 +136,7 @@ export const ChatCard = ({ data, onClick, uuid_code }: TChatCard) => {
           ) : (
             <>
               <p className="font-semibold text-xs overflow-hidden whitespace-nowrap text-ellipsis flex-1">
-                {detectPrivateChatExist(typed, data.conversations.id) ? (
+                {convsInTyping ? (
                   <span className="text-primary-500">typing...</span>
                 ) : (
                   <>

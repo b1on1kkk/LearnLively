@@ -34,7 +34,7 @@ export const Message = () => {
   // read about hook inside
   useGroupChangeListener();
 
-  // listener that get data if someone is starting to typing
+  // listener that get data if someone is starting typing
   useDetectTyping();
 
   return (
