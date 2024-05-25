@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import useStudentSelection from "../../hooks/useSelectedUser";
 import useGroupDataHandler from "../../hooks/useGroupDataHandler";
+import useReturnBackGroupModal from "../../hooks/useReturnBackGroupModal";
 
 import {
   Modal,
@@ -10,7 +11,6 @@ import {
   ModalFooter,
   ModalHeader
 } from "@nextui-org/react";
-
 import { BodyGroupChatModal } from "./BodyGroupChatModal";
 import { FooterGroupChatModal } from "./FooterGroupChatModal";
 
@@ -22,7 +22,6 @@ import { MODAL_CREATION_GROUPCHAT_STYLES } from "../../constants/GroupModal/styl
 
 import type { GroupModalSteps } from "../../interfaces/Students/Main";
 import type { TGroupChatModal } from "../../interfaces/Message/Chats";
-import useReturnBackGroupModal from "../../hooks/useReturnBackGroupModal";
 
 export const GroupChatModal = ({
   isOpen,
@@ -33,6 +32,7 @@ export const GroupChatModal = ({
 
   const { user } = useSelector((u: RootState) => u.user);
   const { students } = useSelector((u: RootState) => u.students);
+  const { service_socket } = useSelector((s: RootState) => s.serviceSocket);
 
   // extened students array to check user/users with whom create group chat
   const { extendedStudents, createGroupIndexes, selectedUser } =
@@ -45,14 +45,13 @@ export const GroupChatModal = ({
   // trigges to return user to the first page
   useReturnBackGroupModal(isOpen, next, setNext);
 
-  const { service_socket } = useSelector((s: RootState) => s.serviceSocket);
-
   return (
     <Modal
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       size="md"
       classNames={MODAL_CREATION_GROUPCHAT_STYLES}
+      backdrop="opaque"
     >
       <ModalContent>
         {() => (

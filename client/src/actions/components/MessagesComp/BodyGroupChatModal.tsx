@@ -5,13 +5,17 @@ import { Checkbox, Input, Textarea, User, cn } from "@nextui-org/react";
 
 import { toImageLink } from "../../utils/Students/toImageLink";
 
+import {
+  GROUP_MODAL_INPUT_STYLES,
+  GROUP_MODAL_TEXTAREA_STYLES
+} from "../../constants/GroupModal/styles";
+
 import type { TBodyGroupChatModal } from "../../interfaces/Students/Main";
 
 export const BodyGroupChatModal = ({
   next,
   groupHandler,
   extendedStudents,
-
   selectedUser,
   groupDataHandler
 }: TBodyGroupChatModal) => {
@@ -37,9 +41,9 @@ export const BodyGroupChatModal = ({
                   aria-label={student.name}
                   classNames={{
                     base: cn(
-                      "inline-flex w-full max-w-md bg-content1",
-                      "hover:bg-content2 items-center justify-start",
-                      "cursor-pointer rounded-lg gap-2 border-2 border-transparent p-2 m-0",
+                      "inline-flex w-full max-w-md",
+                      "hover:bg-[#00010d] items-center justify-start",
+                      "cursor-pointer rounded-lg gap-2 border-2 border-transparent p-2 m-0 bg-[#050615] border-slate-900",
                       `${
                         student.chosen_status && "border-primary"
                       } transition-colors`
@@ -82,7 +86,9 @@ export const BodyGroupChatModal = ({
                 placeholder="Enter name"
                 labelPlacement="outside"
                 value={groupHandler.title}
-                classNames={{ inputWrapper: "rounded-lg" }}
+                classNames={GROUP_MODAL_INPUT_STYLES}
+                variant="bordered"
+                color="primary"
                 onChange={groupDataHandler}
               />
 
@@ -93,10 +99,9 @@ export const BodyGroupChatModal = ({
                 labelPlacement="outside"
                 value={groupHandler.description}
                 placeholder="Enter your description"
-                classNames={{
-                  base: "flex-1",
-                  inputWrapper: "flex-1"
-                }}
+                classNames={GROUP_MODAL_TEXTAREA_STYLES}
+                variant="bordered"
+                color="primary"
                 onChange={groupDataHandler}
               />
             </div>

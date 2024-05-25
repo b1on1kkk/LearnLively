@@ -45,7 +45,7 @@ export const Header = ({ tempStudents }: THeader) => {
           <Dropdown
             onOpenChange={(e) => setDropdownStatus(e)}
             classNames={{
-              base: "shadow-2xl text text-slate-400",
+              base: "shadow-2xl text text-slate-400 border-slate-900 border-2 rounded-2xl",
               content: "bg-[#050615]"
             }}
           >

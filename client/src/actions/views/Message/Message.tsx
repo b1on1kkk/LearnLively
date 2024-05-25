@@ -39,7 +39,7 @@ export const Message = () => {
 
   return (
     <div className="flex h-full relative p-8 gap-8 w-full">
-      <main className="bg-[#050615] rounded-2xl shadow-2xl border-slate-900 border-2 overflow-auto z-10 flex-[2]">
+      <main className="bg-[#050615] rounded-2xl shadow-2xl border-slate-900 border-2 overflow-auto z-10 flex-[2] min-w-[735px]">
         {outlet ? (
           <Outlet />
         ) : (
