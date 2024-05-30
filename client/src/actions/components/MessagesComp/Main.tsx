@@ -1,8 +1,9 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import useMessages from "../../hooks/useMessages";
 import { useDispatch, useSelector } from "react-redux";
 import useSelectMessage from "../../hooks/useSelectMessage";
 import useScrollToBottom from "../../hooks/useScrollToBottom";
+import useMarkMessagesAsRead from "../../hooks/useMarkMessagesAsRead";
 
 import { Check, CheckCheck } from "lucide-react";
 import { Checkbox, CheckboxGroup, Image } from "@nextui-org/react";
@@ -27,12 +28,13 @@ import type { TMessage } from "../../interfaces/api/newChat";
 import { MessageActionKind } from "../../interfaces/Message/Chats";
 
 export const Main = () => {
+  // hook to make messages readed
+  useMarkMessagesAsRead();
+
   const dispatch = useDispatch<AppDispatch>();
 
   const { user } = useSelector((u: RootState) => u.user);
-  const { chat_socket, chosenConvId } = useSelector(
-    (c: RootState) => c.chatSocket
-  );
+  const { chosenConvId } = useSelector((c: RootState) => c.chatSocket);
   const { messages, chosenMessage } = useSelector((m: RootState) => m.messages);
 
   const { setId } = useSelectMessage(messages, chosenMessage);
@@ -43,32 +45,6 @@ export const Main = () => {
     []
   );
   const elemToScrollToButton = useScrollToBottom<Array<TMessage>>(messages);
-
-  // not optimize solution, think also about group chat
-  useEffect(() => {
-    if (!messages.length || !user || !chosenConvId) return;
-
-    const unreadedMessages = [];
-
-    for (let i = 0; i < messages.length; i++) {
-      if (messages[i].user_id !== user.id && !messages[i].seen) {
-        unreadedMessages.push({
-          ...messages[i],
-          seen: true
-        });
-      }
-    }
-
-    if (unreadedMessages.length > 0) {
-      chat_socket?.readMessage({
-        meta_data: {
-          seen_user_id: user.id,
-          conv_id: chosenConvId.id
-        },
-        message: unreadedMessages
-      });
-    }
-  }, [messages, user, chosenConvId]);
 
   return (
     <main

@@ -156,7 +156,7 @@ export class ApiController {
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(ErrorCatcherInterceptor)
   async getSeenMessages(
-    @Body() body: { message_id: number },
+    @Body() body: { message_id: number; user_id: number },
     @Res() res: Response,
   ) {
     return res
@@ -164,7 +164,7 @@ export class ApiController {
         httpOnly: true,
         maxAge: 259200000,
       })
-      .json(await this.apiService.getSeenMessages(body.message_id));
+      .json(await this.apiService.getSeenMessages(body));
   }
 
   // @HttpCode(200)

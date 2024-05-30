@@ -284,9 +284,9 @@ export class ApiService {
     });
   }
 
-  async getSeenMessages(message_id: number) {
+  async getSeenMessages(body: { message_id: number; user_id: number }) {
     return await this.prisma.seen_messages.findMany({
-      where: { message_id: message_id },
+      where: { message_id: body.message_id, user_id: body.user_id },
       select: {
         seen_at: true,
         messages: {
