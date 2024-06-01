@@ -12,15 +12,22 @@ import { SharedModule } from '@sharedService/shared';
 import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.interceptor';
 import { Helpers } from './helpers/helpers';
 import { PrismaModule } from '@prismaORM/prisma';
+import { AuthResponseController } from 'libs/auth_response_controller/response.controller';
 
 @Module({
   imports: [
-    MulterModule.register({ dest: join(__dirname, '../../', 'avatars') }),
-    MulterModule.register({ dest: join(__dirname, '../../', 'assets') }),
     SharedModule,
     PrismaModule,
+    MulterModule.register({ dest: join(__dirname, '../../', 'assets') }),
+    MulterModule.register({ dest: join(__dirname, '../../', 'avatars') }),
   ],
-  providers: [JwtAuthGuard, ApiService, ErrorCatcherInterceptor, Helpers],
+  providers: [
+    Helpers,
+    ApiService,
+    JwtAuthGuard,
+    AuthResponseController,
+    ErrorCatcherInterceptor,
+  ],
   controllers: [ApiController],
   exports: [],
 })

@@ -13,6 +13,7 @@ export const ProtectedRoute = ({ children }: { children: ReactElement }) => {
 
   if (data && data!.result) return children;
 
-  if (data && !data.result)
+  if (data && !data.result) {
     return <Navigate to="/registration/login" replace />;
+  }
 };

@@ -22,6 +22,7 @@ import { SharedService } from '@sharedService/shared/shared.service';
 import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.interceptor';
 
 import type { EncodedJwt } from './interfaces/encoded_jwt.interface';
+import { AuthResponseController } from 'libs/auth_response_controller/response.controller';
 
 @Controller('api')
 export class ApiController {
@@ -29,39 +30,12 @@ export class ApiController {
     private readonly jwtService: JwtService,
     private readonly sharedService: SharedService,
     private readonly helpers: Helpers,
+    private readonly reponseController: AuthResponseController,
 
     private readonly apiService: ApiService,
   ) {}
 
   /////////////////////////GET/////////////////////////
-
-  @Get('user')
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(ErrorCatcherInterceptor)
-  async getUser(@Req() req: Request, @Res() res: Response) {
-    const data = await this.apiService.getUser(req);
-
-    if (data && data.update) {
-      return res
-        .cookie('access', data.tokens.access, {
-          httpOnly: true,
-          maxAge: 30000, // alive 30s
-          sameSite: 'strict',
-        })
-        .cookie('refresh', data.tokens.refresh, {
-          httpOnly: true,
-          maxAge: 86400000, // alive 1d
-          sameSite: 'strict',
-        })
-        .json({ user: data.user, result: true });
-    } else if (data && !data.update) {
-      console.log(data.user);
-
-      return res.json({ user: data.user, result: true });
-    }
-
-    return res.json({ user: null, result: false });
-  }
 
   @Get('avatars/:image_name')
   async getAvatar(@Param('image_name') filename: string, @Res() res: Response) {
@@ -100,23 +74,42 @@ export class ApiController {
     }
   }
 
+  @Get('user')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(ErrorCatcherInterceptor)
+  async getUser(@Req() req: Request, @Res() res: Response) {
+    const data = await this.apiService.getUser(req);
+
+    if (data && data.update) {
+      return this.reponseController.successfulReponse(
+        res,
+        { tokens: data.tokens },
+        { user: data.user, result: true },
+      );
+    } else if (data && !data.update) {
+      return res.json({ user: data.user, result: true });
+    }
+
+    return res.json({ user: null, result: false });
+  }
+
   @Get('students')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(ErrorCatcherInterceptor)
   async getStudents(@Req() req: Request, @Res() res: Response) {
-    const { access, refresh } = req.cookies;
+    const data = await this.apiService.getStudents(req);
 
-    const encoded_values: EncodedJwt = await this.jwtService.decode(
-      access || refresh,
-    );
-
-    return res
-      .cookie('jwt_lg', this.sharedService.getCookie(), {
-        httpOnly: true,
-        maxAge: 259200000,
-      })
-      .json(await this.apiService.getStudents(encoded_values.user_id));
+    if (data && data.update) {
+      return this.reponseController.successfulReponse(
+        res,
+        { tokens: data.tokens },
+        data.students,
+      );
+    }
+    return res.json(data.students);
   }
+
+  // NEXT DOWN CONTINUE IMPROVING....
 
   @Get('private_chats')
   @UseGuards(JwtAuthGuard)

@@ -1,4 +1,3 @@
-import { Response, Request } from 'express';
 import {
   Body,
   Controller,
@@ -16,13 +15,21 @@ import { AuthService } from './auth.service';
 import { EmptyTokenGuard } from './guards/empty_token.guard';
 
 import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.interceptor';
+import { AuthResponseController } from 'libs/auth_response_controller/response.controller';
+
+import type { Response, Request } from 'express';
 
 import type { SignUpDTO } from './dto/signup_payload.dto';
 import type { LoginPayloadDTO } from './dto/login_payload.dto';
 
+import type { ResponsePayload } from './interfaces/registrationPayload';
+
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly responseController: AuthResponseController,
+  ) {}
 
   @HttpCode(200)
   @Post('login')
@@ -33,24 +40,18 @@ export class AuthController {
     @Res() res: Response,
     @Req() req: Request,
   ) {
-    const payload = await this.authService.login(authPayload, req);
+    const payload: ResponsePayload = await this.authService.login(
+      authPayload,
+      req,
+    );
 
-    return res
-      .cookie('access', payload.tokens.access, {
-        httpOnly: true,
-        maxAge: 30000, // alive 30s
-        sameSite: 'strict',
-      })
-      .cookie('refresh', payload.tokens.refresh, {
-        httpOnly: true,
-        maxAge: 86400000, // alive 1d
-        sameSite: 'strict',
-      })
-      .json({
-        message: 'User created!',
-        payload: { device_id: payload.device_id },
-        status: 200,
-      });
+    const message = {
+      message: 'Logged in!',
+      payload: { device_id: payload.device_id },
+      status: 200,
+    };
+
+    return this.responseController.successfulReponse(res, payload, message);
   }
 
   @HttpCode(200)
@@ -62,35 +63,27 @@ export class AuthController {
     @Res() res: Response,
     @Req() req: Request,
   ) {
-    const payload = await this.authService.signup(authPayload, req);
+    const payload: ResponsePayload = await this.authService.signup(
+      authPayload,
+      req,
+    );
 
-    return res
-      .cookie('access', payload.tokens.access, {
-        httpOnly: true,
-        maxAge: 30000, // alive 30s
-        sameSite: 'strict',
-      })
-      .cookie('refresh', payload.tokens.refresh, {
-        httpOnly: true,
-        maxAge: 86400000, // alive 1d
-        sameSite: 'strict',
-      })
-      .json({
-        message: 'User created!',
-        payload: { device_id: payload.device_id },
-        status: 200,
-      });
+    const message = {
+      message: 'Logged in!',
+      payload: { device_id: payload.device_id },
+      status: 200,
+    };
+
+    return this.responseController.successfulReponse(res, payload, message);
   }
 
   @HttpCode(200)
   @Delete('logout')
   @UseInterceptors(ErrorCatcherInterceptor)
   async logout(@Req() req: Request, @Res() res: Response) {
-    return res
-      .clearCookie('jwt_lg', {
-        httpOnly: true,
-        secure: true,
-      })
-      .json(await this.authService.logout(req.cookies));
+    return this.responseController.successfulLoggedOut(
+      res,
+      await this.authService.logout(req),
+    );
   }
 }

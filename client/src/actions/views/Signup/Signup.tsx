@@ -23,8 +23,8 @@ import {
 } from "../../interfaces/Registration/Validation";
 
 export const Signup = () => {
-  const { errorSetter } = useRegistrationContext();
   const createUser = useCreateUser();
+  const { errorSetter } = useRegistrationContext();
 
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const [policy, setPolicy] = useState<boolean>(false);

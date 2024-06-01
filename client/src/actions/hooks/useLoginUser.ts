@@ -1,31 +1,42 @@
 import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
+import useLocalStorage from "./useLocalStorage";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { QUERY_ROOT } from "../constants/Query/query";
 
 import type { SignState } from "../interfaces/Registration/Validation";
+import type { RegistrationUser } from "../interfaces/Registration/registration";
 
 const useLoginUser = () => {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { setValue, storedValue } = useLocalStorage("device_id", "");
 
   return useMutation<
-    null,
+    RegistrationUser,
     AxiosError,
     Omit<SignState, "name" | "lastname" | "surname">
   >({
     mutationFn: (user: Omit<SignState, "name" | "lastname" | "surname">) =>
       axios
-        .post(
+        .post<RegistrationUser>(
           `${QUERY_ROOT}auth/login`,
           {
             email: user.email,
             password: user.password
           },
-          { withCredentials: true }
+          {
+            withCredentials: true,
+            headers: {
+              "x-header-device_id": storedValue
+            }
+          }
         )
-        .then((res) => res.data),
+        .then((res) => {
+          setValue(res.data.payload.device_id);
+          return res.data;
+        }),
 
     onSuccess: () => {
       navigate("/dashboard");

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@prismaORM/prisma';
 
@@ -96,18 +96,31 @@ export class SharedService {
     });
   }
 
-  public tokenGenerator(
-    token: string,
-    user_id: number,
-    expiration: string,
-  ): string {
-    return this.jwtService.sign(
+  public tokensGenerator(user_id: number) {
+    const access_token = this.jwtService.sign(
       { user_id },
-      { secret: token, expiresIn: expiration },
+      { secret: process.env.JWT_ACCESS_TOKEN, expiresIn: '1h' },
     );
+    const refresh_token = this.jwtService.sign(
+      { user_id },
+      { secret: process.env.JWT_REFRESH_TOKEN, expiresIn: '1d' },
+    );
+
+    return { access_token, refresh_token };
   }
 
   public decodeToken(token: string): DecodedData {
     return this.jwtService.decode(token);
+  }
+
+  public async parceStudentsInf(user_id: number) {
+    try {
+      return await this.getStudentsByPrisma(user_id);
+    } catch (error) {
+      throw new HttpException(
+        'Something goes wrong while getting :(',
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
   }
 }

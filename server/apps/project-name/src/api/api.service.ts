@@ -1,11 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { PrismaService } from '@prismaORM/prisma';
 
 import { SharedService } from '@sharedService/shared';
 
-import { Request } from 'express';
+import type { Request } from 'express';
 
 @Injectable()
 export class ApiService {
@@ -93,24 +93,16 @@ export class ApiService {
           },
         });
 
-        const access_token = this.sharedService.tokenGenerator(
-          process.env.JWT_ACCESS_TOKEN,
-          decoded.user_id,
-          '1h',
-        );
-        const refresh_token = this.sharedService.tokenGenerator(
-          process.env.JWT_REFRESH_TOKEN,
-          decoded.user_id,
-          '1d',
-        );
+        const { access_token, refresh_token } =
+          this.sharedService.tokensGenerator(decoded.user_id);
 
         const device_id = req.headers['x-header-device_id'] as string;
 
-        console.log(device_id);
-
         await this.prisma.refresh_token_metadata.updateMany({
           where: {
-            device_id,
+            user_id: user.id,
+            device_id: device_id,
+            issuedAt: this.sharedService.decodeToken(refresh).iat,
           },
           data: {
             ip: req.ip,
@@ -133,16 +125,91 @@ export class ApiService {
     }
   }
 
-  async getStudents(user_id: number) {
-    try {
-      return await this.sharedService.getStudentsByPrisma(user_id);
-    } catch (error) {
-      throw new HttpException(
-        'Something goes wrong :(',
-        HttpStatus.BAD_GATEWAY,
+  async getStudents(req: Request) {
+    const { access, refresh } = req.cookies;
+
+    if (access) {
+      const decoded: {
+        user_id: number;
+        iat: number;
+        exp: number;
+      } = this.jwtService.decode(access);
+
+      const students = await this.sharedService.parceStudentsInf(
+        decoded.user_id,
       );
+
+      if (
+        refresh &&
+        this.sharedService.cookieExpirationChecker(
+          refresh,
+          process.env.JWT_REFRESH_TOKEN,
+        )
+      ) {
+        return {
+          students: students,
+          update: false,
+          tokens: {
+            access,
+            refresh,
+          },
+        };
+      } else {
+        return {
+          students: students,
+          update: false,
+          tokens: {
+            access,
+            refresh: null,
+          },
+        };
+      }
+    } else {
+      if (
+        this.sharedService.cookieExpirationChecker(
+          refresh,
+          process.env.JWT_REFRESH_TOKEN,
+        )
+      ) {
+        const decoded: {
+          user_id: number;
+          iat: number;
+          exp: number;
+        } = this.jwtService.decode(refresh);
+        const students = await this.sharedService.parceStudentsInf(
+          decoded.user_id,
+        );
+        const { access_token, refresh_token } =
+          this.sharedService.tokensGenerator(decoded.user_id);
+
+        const device_id = req.headers['x-header-device_id'] as string;
+
+        await this.prisma.refresh_token_metadata.updateMany({
+          where: {
+            user_id: decoded.user_id,
+            device_id: device_id,
+            issuedAt: this.sharedService.decodeToken(refresh).iat,
+          },
+          data: {
+            ip: req.ip,
+            device: req.headers['user-agent'],
+            issuedAt: this.sharedService.decodeToken(refresh_token).iat,
+          },
+        });
+
+        return {
+          students: students,
+          update: true,
+          tokens: {
+            access: access_token,
+            refresh: refresh_token,
+          },
+        };
+      }
     }
   }
+
+  // NEXT DOWN CONTINUE IMPROVING....
 
   async getChats(user_id: number) {
     return await this.prisma.users.findUnique({
