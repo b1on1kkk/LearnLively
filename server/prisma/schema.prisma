@@ -18,34 +18,26 @@ model friends {
 }
 
 model users {
-  id                               Int                   @id @default(autoincrement())
-  name                             String                @db.VarChar(255)
-  lastname                         String                @db.VarChar(255)
-  surname                          String                @db.VarChar(255)
+  id                               Int                      @id @default(autoincrement())
+  name                             String                   @db.VarChar(255)
+  lastname                         String                   @db.VarChar(255)
+  surname                          String                   @db.VarChar(255)
   role                             roles
-  email                            String                @unique @db.VarChar(255)
+  email                            String                   @unique @db.VarChar(255)
   end_semester                     Int
   now_semester                     Int
-  department                       String                @db.VarChar(255)
-  password                         String                @db.VarChar(255)
-  img_hash_name                    String                @db.VarChar(255)
-  created_at                       DateTime              @db.Timestamp(6)
-  friends_friends_friend_idTousers friends[]             @relation("friends_friend_idTousers")
-  friends_friends_user_idTousers   friends[]             @relation("friends_user_idTousers")
+  department                       String                   @db.VarChar(255)
+  password                         String                   @db.VarChar(255)
+  img_hash_name                    String                   @db.VarChar(255)
+  created_at                       DateTime                 @db.Timestamp(6)
+  friends_friends_friend_idTousers friends[]                @relation("friends_friend_idTousers")
+  friends_friends_user_idTousers   friends[]                @relation("friends_user_idTousers")
   group_users                      group_users[]
   groups                           groups[]
   messages                         messages[]
-  refresh_token                    refresh_token[]
+  refresh_token_metadata           refresh_token_metadata[]
   seen_messages                    seen_messages[]
   users_conversations              users_conversations[]
-}
-
-model refresh_token {
-  id            Int      @id @default(autoincrement())
-  user_id       Int
-  refresh_token String   @db.VarChar(255)
-  created_at    DateTime @db.Timestamp(6)
-  users         users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model conversations {
@@ -112,6 +104,16 @@ model groups {
   group_users     group_users[]
   conversations   conversations? @relation(fields: [conversation_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users           users?         @relation(fields: [owner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model refresh_token_metadata {
+  id        Int    @id @default(autoincrement())
+  user_id   Int
+  issuedAt  Int
+  ip        String @db.VarChar(255)
+  device    String @db.VarChar(255)
+  device_id String @db.VarChar(255)
+  users     users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "refresh_token_user_id_fkey")
 }
 
 enum roles {

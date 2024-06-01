@@ -1,5 +1,5 @@
 export class EncodedJwt {
-  id: number;
+  user_id: number;
   iat: number;
   exp: number;
 }

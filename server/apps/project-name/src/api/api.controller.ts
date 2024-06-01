@@ -22,7 +22,6 @@ import { SharedService } from '@sharedService/shared/shared.service';
 import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.interceptor';
 
 import type { EncodedJwt } from './interfaces/encoded_jwt.interface';
-// import type { Message } from './interfaces/message.interface';
 
 @Controller('api')
 export class ApiController {
@@ -37,17 +36,28 @@ export class ApiController {
   /////////////////////////GET/////////////////////////
 
   @Get('user')
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(ErrorCatcherInterceptor)
   async getUser(@Req() req: Request, @Res() res: Response) {
-    const data = await this.apiService.getUser(req.cookies);
+    const data = await this.apiService.getUser(req);
 
-    if (data) {
+    if (data && data.update) {
       return res
-        .cookie('jwt_lg', data.token, {
+        .cookie('access', data.tokens.access, {
           httpOnly: true,
-          maxAge: 259200000,
+          maxAge: 30000, // alive 30s
+          sameSite: 'strict',
+        })
+        .cookie('refresh', data.tokens.refresh, {
+          httpOnly: true,
+          maxAge: 86400000, // alive 1d
+          sameSite: 'strict',
         })
         .json({ user: data.user, result: true });
+    } else if (data && !data.update) {
+      console.log(data.user);
+
+      return res.json({ user: data.user, result: true });
     }
 
     return res.json({ user: null, result: false });
@@ -94,8 +104,10 @@ export class ApiController {
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(ErrorCatcherInterceptor)
   async getStudents(@Req() req: Request, @Res() res: Response) {
+    const { access, refresh } = req.cookies;
+
     const encoded_values: EncodedJwt = await this.jwtService.decode(
-      req.cookies.jwt_lg,
+      access || refresh,
     );
 
     return res
@@ -103,15 +115,17 @@ export class ApiController {
         httpOnly: true,
         maxAge: 259200000,
       })
-      .json(await this.apiService.getStudents(encoded_values.id));
+      .json(await this.apiService.getStudents(encoded_values.user_id));
   }
 
   @Get('private_chats')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(ErrorCatcherInterceptor)
   async getChats(@Req() req: Request, @Res() res: Response) {
+    const { access, refresh } = req.cookies;
+
     const encoded_values: EncodedJwt = await this.jwtService.decode(
-      req.cookies.jwt_lg,
+      access || refresh,
     );
 
     return res
@@ -119,15 +133,17 @@ export class ApiController {
         httpOnly: true,
         maxAge: 259200000,
       })
-      .json(await this.apiService.getChats(encoded_values.id));
+      .json(await this.apiService.getChats(encoded_values.user_id));
   }
 
   @Get('group_chats')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(ErrorCatcherInterceptor)
   async getGroupChats(@Req() req: Request, @Res() res: Response) {
+    const { access, refresh } = req.cookies;
+
     const encoded_values: EncodedJwt = await this.jwtService.decode(
-      req.cookies.jwt_lg,
+      access || refresh,
     );
 
     return res
@@ -135,7 +151,7 @@ export class ApiController {
         httpOnly: true,
         maxAge: 259200000,
       })
-      .json(await this.apiService.getGroupChats(encoded_values.id));
+      .json(await this.apiService.getGroupChats(encoded_values.user_id));
   }
 
   @HttpCode(200)
@@ -166,22 +182,4 @@ export class ApiController {
       })
       .json(await this.apiService.getSeenMessages(body));
   }
-
-  // @HttpCode(200)
-  // @Post('user_seen_message')
-  // @UseGuards(JwtAuthGuard)
-  // @UseInterceptors(ErrorCatcherInterceptor)
-  // async addUserSeenMessage(
-  //   @Body() body: { messages: Array<Message>; user_id: number },
-  //   @Res() res: Response,
-  // ) {
-  //   return res
-  //     .cookie('jwt_lg', this.sharedService.getCookie(), {
-  //       httpOnly: true,
-  //       maxAge: 259200000,
-  //     })
-  //     .json(
-  //       await this.apiService.addUserSeenMessage(body.messages, body.user_id),
-  //     );
-  // }
 }

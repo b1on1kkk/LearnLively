@@ -2,6 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@prismaORM/prisma';
 
+interface DecodedData {
+  user_id: number;
+  iat: number;
+  exp: number;
+}
+
 @Injectable()
 export class SharedService {
   private new_cookie: string;
@@ -13,24 +19,24 @@ export class SharedService {
     this.new_cookie = '';
   }
 
-  setCookie(cookie: string) {
+  public setCookie(cookie: string) {
     this.new_cookie = cookie;
   }
 
-  getCookie() {
+  public getCookie() {
     return this.new_cookie;
   }
 
-  cookieExpirationChecker(cookie: string) {
+  public cookieExpirationChecker(cookie: string, secret: string) {
     try {
-      this.jwtService.verify(cookie, { secret: process.env.JWT_SECRET_KEY });
+      this.jwtService.verify(cookie, { secret });
       return true;
     } catch (error) {
       return false;
     }
   }
 
-  async getStudentsByPrisma(id: number) {
+  public async getStudentsByPrisma(id: number) {
     return await this.prisma.users.findMany({
       where: {
         id: {
@@ -88,5 +94,20 @@ export class SharedService {
         },
       },
     });
+  }
+
+  public tokenGenerator(
+    token: string,
+    user_id: number,
+    expiration: string,
+  ): string {
+    return this.jwtService.sign(
+      { user_id },
+      { secret: token, expiresIn: expiration },
+    );
+  }
+
+  public decodeToken(token: string): DecodedData {
+    return this.jwtService.decode(token);
   }
 }

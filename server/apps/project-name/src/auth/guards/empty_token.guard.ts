@@ -5,37 +5,30 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { Observable } from 'rxjs';
-import { Request } from 'express';
+import type { Observable } from 'rxjs';
+import type { Request } from 'express';
 
 @Injectable()
 export class EmptyTokenGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService) {}
-
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const request: Request = context.switchToHttp().getRequest();
+    const request: Request = context.switchToHttp().getRequest<Request>();
 
-    if (Object.keys(request.cookies).includes('jwt_lg')) {
-      try {
-        this.jwtService.verify(request.cookies['jwt_lg'], {
-          secret: process.env.JWT_SECRET_KEY,
-        });
-      } catch (error) {
-        throw new HttpException(
-          'Your jwt token is invalid or forged. Delete this token!',
-          HttpStatus.FORBIDDEN,
-        );
-      }
-
+    if (this.authTokensExistance(request)) {
       throw new HttpException(
-        'You are already logged in!',
+        'Manipulations with tokens are illegal!',
         HttpStatus.FORBIDDEN,
       );
     }
 
     return true;
+  }
+
+  private authTokensExistance(req: Request) {
+    return (
+      Object.keys(req.cookies).includes('access') ||
+      Object.keys(req.cookies).includes('refresh')
+    );
   }
 }

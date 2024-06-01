@@ -17,6 +17,8 @@ export class ErrorCatcherInterceptor implements NestInterceptor {
   ): Observable<any> | Promise<Observable<any>> {
     return next.handle().pipe(
       catchError((err: HttpException | PrismaClientKnownRequestError) => {
+        console.log(err);
+
         if (this.isHttpExceptionError(err)) {
           return throwError(
             () => new HttpException(err.message, err.getStatus()),

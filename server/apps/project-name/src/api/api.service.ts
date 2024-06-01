@@ -5,6 +5,8 @@ import { PrismaService } from '@prismaORM/prisma';
 
 import { SharedService } from '@sharedService/shared';
 
+import { Request } from 'express';
+
 @Injectable()
 export class ApiService {
   constructor(
@@ -13,58 +15,120 @@ export class ApiService {
     private readonly sharedService: SharedService,
   ) {}
 
-  async getUser(cookies: { [key: string]: string } | undefined) {
-    const keys = Object.keys(cookies);
+  async getUser(req: Request) {
+    const { access, refresh } = req.cookies;
 
-    try {
-      if (keys.length > 0 && keys.includes('jwt_lg')) {
+    if (access) {
+      const decoded: {
+        user_id: number;
+        iat: number;
+        exp: number;
+      } = this.jwtService.decode(access);
+
+      const user = await this.prisma.users.findUnique({
+        where: {
+          id: decoded.user_id,
+        },
+        select: {
+          id: true,
+          name: true,
+          lastname: true,
+          email: true,
+          surname: true,
+          role: true,
+          img_hash_name: true,
+        },
+      });
+
+      if (
+        refresh &&
+        this.sharedService.cookieExpirationChecker(
+          refresh,
+          process.env.JWT_REFRESH_TOKEN,
+        )
+      ) {
+        return {
+          user: user,
+          update: false,
+          tokens: {
+            access,
+            refresh,
+          },
+        };
+      } else {
+        return {
+          user: user,
+          update: false,
+          tokens: {
+            access,
+            refresh: null,
+          },
+        };
+      }
+    } else {
+      if (
+        this.sharedService.cookieExpirationChecker(
+          refresh,
+          process.env.JWT_REFRESH_TOKEN,
+        )
+      ) {
         const decoded: {
-          id: number;
+          user_id: number;
           iat: number;
           exp: number;
-        } = this.jwtService.decode(cookies['jwt_lg']);
+        } = this.jwtService.decode(refresh);
 
-        const refresh_token = await this.prisma.refresh_token.findFirst({
-          where: { user_id: decoded.id },
+        const user = await this.prisma.users.findUnique({
+          where: {
+            id: decoded.user_id,
+          },
+          select: {
+            id: true,
+            name: true,
+            lastname: true,
+            email: true,
+            surname: true,
+            role: true,
+            img_hash_name: true,
+          },
         });
 
-        if (refresh_token) {
-          const user = await this.prisma.users.findUnique({
-            where: {
-              id: decoded.id,
-            },
-            select: {
-              id: true,
-              name: true,
-              lastname: true,
-              email: true,
-              surname: true,
-              role: true,
-              img_hash_name: true,
-            },
-          });
+        const access_token = this.sharedService.tokenGenerator(
+          process.env.JWT_ACCESS_TOKEN,
+          decoded.user_id,
+          '1h',
+        );
+        const refresh_token = this.sharedService.tokenGenerator(
+          process.env.JWT_REFRESH_TOKEN,
+          decoded.user_id,
+          '1d',
+        );
 
-          // if cookie is still alive - do not generate new, just return old alive one
-          if (this.sharedService.cookieExpirationChecker(cookies['jwt_lg'])) {
-            return {
-              user: user,
-              token: cookies['jwt_lg'],
-            };
-          }
+        const device_id = req.headers['x-header-device_id'] as string;
 
-          // in other cases - generate new and return new one
-          return {
-            user: user,
-            token: this.jwtService.sign(
-              { id: user.id },
-              { secret: process.env.JWT_SECRET_KEY, expiresIn: '5m' },
-            ),
-          };
-        }
+        console.log(device_id);
+
+        await this.prisma.refresh_token_metadata.updateMany({
+          where: {
+            device_id,
+          },
+          data: {
+            ip: req.ip,
+            device: req.headers['user-agent'],
+            issuedAt: this.sharedService.decodeToken(refresh_token).iat,
+          },
+        });
+
+        return {
+          user: user,
+          update: true,
+          tokens: {
+            access: access_token,
+            refresh: refresh_token,
+          },
+        };
       }
 
-      return false;
-    } catch (error) {
       return false;
     }
   }

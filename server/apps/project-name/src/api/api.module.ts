@@ -5,7 +5,6 @@ import { ApiService } from './api.service';
 import { join } from 'path';
 
 import { JwtAuthGuard } from 'apps/project-name/src/api/guard/jwt.guard';
-import { JwtStrategy } from 'apps/project-name/src/api/strategies/jwt.strategy';
 
 import { MulterModule } from '@nestjs/platform-express';
 
@@ -21,13 +20,7 @@ import { PrismaModule } from '@prismaORM/prisma';
     SharedModule,
     PrismaModule,
   ],
-  providers: [
-    JwtAuthGuard,
-    JwtStrategy,
-    ApiService,
-    ErrorCatcherInterceptor,
-    Helpers,
-  ],
+  providers: [JwtAuthGuard, ApiService, ErrorCatcherInterceptor, Helpers],
   controllers: [ApiController],
   exports: [],
 })
