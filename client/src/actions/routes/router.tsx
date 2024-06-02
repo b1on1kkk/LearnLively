@@ -30,59 +30,31 @@ const router = createBrowserRouter([
     children: [
       {
         path: "dashboard",
-        element: (
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        )
+        element: <Dashboard />
       },
       {
         path: "courses",
-        element: (
-          <ProtectedRoute>
-            <Courses />
-          </ProtectedRoute>
-        )
+        element: <Courses />
       },
       {
         path: "routine",
-        element: (
-          <ProtectedRoute>
-            <Routine />
-          </ProtectedRoute>
-        )
+        element: <Routine />
       },
       {
         path: "exam",
-        element: (
-          <ProtectedRoute>
-            <Exam />
-          </ProtectedRoute>
-        )
+        element: <Exam />
       },
       {
         path: "results",
-        element: (
-          <ProtectedRoute>
-            <Results />
-          </ProtectedRoute>
-        )
+        element: <Results />
       },
       {
         path: "students",
-        element: (
-          <ProtectedRoute>
-            <Students />
-          </ProtectedRoute>
-        )
+        element: <Students />
       },
       {
         path: "message",
-        element: (
-          <ProtectedRoute>
-            <Message />
-          </ProtectedRoute>
-        ),
+        element: <Message />,
         children: [
           {
             path: ":id",
@@ -96,19 +68,11 @@ const router = createBrowserRouter([
       },
       {
         path: "notice_board",
-        element: (
-          <ProtectedRoute>
-            <NoticeBoard />
-          </ProtectedRoute>
-        )
+        element: <NoticeBoard />
       },
       {
         path: "live_class",
-        element: (
-          <ProtectedRoute>
-            <LiveClass />
-          </ProtectedRoute>
-        )
+        element: <LiveClass />
       }
     ]
   },

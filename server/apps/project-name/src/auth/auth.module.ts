@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { PassportModule } from '@nestjs/passport';
-import { EmptyTokenGuard } from './guards/empty_token.guard';
+import { EmptyTokenGuard } from './guard/empty_token.guard';
 import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.interceptor';
 import { SharedModule } from '@sharedService/shared';
 import { PrismaModule } from '@prismaORM/prisma';

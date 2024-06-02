@@ -12,7 +12,7 @@ import {
 
 import { AuthService } from './auth.service';
 
-import { EmptyTokenGuard } from './guards/empty_token.guard';
+import { EmptyTokenGuard } from './guard/empty_token.guard';
 
 import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.interceptor';
 import { AuthResponseController } from 'libs/auth_response_controller/response.controller';

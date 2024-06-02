@@ -20,11 +20,18 @@ export class ServiceSocket implements WebSocket {
   constructor(
     url: string,
     user_id: number,
-    dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>
+    dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>,
+    device_id: string
   ) {
-    this.socket = io(url);
-    this.reduxDispatch = dispatch;
+    this.socket = io(url, {
+      withCredentials: true,
+      auth: { device_id: device_id, user_id: user_id }
+    });
+
     this.connectUser(user_id);
+    this.reduxDispatch = dispatch;
+
+    this.connectionErrorHandler();
   }
 
   ////////////////////////////////////////emitters////////////////////////////////////////////////
@@ -73,6 +80,7 @@ export class ServiceSocket implements WebSocket {
   }
 
   ////////////////////////////////////////listeners////////////////////////////////////////////////
+
   public getNewStudents(
     chosenUser: Student | null,
     setTempStudents: (c: Array<Student> | null) => void
@@ -99,6 +107,13 @@ export class ServiceSocket implements WebSocket {
       console.log(data);
 
       this.reduxDispatch(groupsActions.initGroups([...data]));
+    });
+  }
+
+  // service listeners
+  private connectionErrorHandler() {
+    this.socket?.on("error", (err) => {
+      console.error("Socket.IO general error:", err);
     });
   }
 }

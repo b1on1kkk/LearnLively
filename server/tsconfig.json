@@ -18,36 +18,16 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@jwtAuthGuard/jwt-auth-guard": [
-        "libs/jwt-auth-guard/src"
-      ],
-      "@jwtAuthGuard/jwt-auth-guard/*": [
-        "libs/jwt-auth-guard/src/*"
-      ],
-      "@errorCatcher/error-catcher": [
-        "libs/error-catcher/src"
-      ],
-      "@errorCatcher/error-catcher/*": [
-        "libs/error-catcher/src/*"
-      ],
-      "@sharedService/shared-service": [
-        "libs/shared-service/src"
-      ],
-      "@sharedService/shared-service/*": [
-        "libs/shared-service/src/*"
-      ],
-      "@sharedService/shared": [
-        "libs/shared/src"
-      ],
-      "@sharedService/shared/*": [
-        "libs/shared/src/*"
-      ],
-      "@prismaORM/prisma": [
-        "libs/prisma/src"
-      ],
-      "@prismaORM/prisma/*": [
-        "libs/prisma/src/*"
-      ]
+      "@jwtAuthGuard/jwt-auth-guard": ["libs/jwt-auth-guard/src"],
+      "@jwtAuthGuard/jwt-auth-guard/*": ["libs/jwt-auth-guard/src/*"],
+      "@errorCatcher/error-catcher": ["libs/error-catcher/src"],
+      "@errorCatcher/error-catcher/*": ["libs/error-catcher/src/*"],
+      "@sharedService/shared-service": ["libs/shared-service/src"],
+      "@sharedService/shared-service/*": ["libs/shared-service/src/*"],
+      "@sharedService/shared": ["libs/shared/src"],
+      "@sharedService/shared/*": ["libs/shared/src/*"],
+      "@prismaORM/prisma": ["libs/prisma/src"],
+      "@prismaORM/prisma/*": ["libs/prisma/src/*"]
     }
   }
 }

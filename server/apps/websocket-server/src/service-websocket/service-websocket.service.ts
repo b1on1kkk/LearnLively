@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { Server, Socket } from 'socket.io';
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, UseFilters, UseGuards } from '@nestjs/common';
 import { PrismaService } from '@prismaORM/prisma';
 
 import { ApiService } from 'apps/project-name/src/api/api.service';
@@ -23,6 +23,8 @@ import type { ActiveUsersDTO } from 'apps/websocket-server/dto/activeUsersDTO';
 import type { StudentDataDTO } from 'apps/websocket-server/dto/studentDataDTO';
 import type { CreateGroupDTO } from 'apps/websocket-server/dto/createGroupDTO';
 import type { ConnectedUserDTO } from 'apps/websocket-server/dto/connectedUserDTO';
+import { JwtGuardGuard } from 'apps/websocket-server/guard/jwt_guard.guard';
+import { BadRequestExceptionsFilter } from 'apps/websocket-server/filter/filter';
 
 @Injectable()
 @WebSocketGateway({ cors: { origin: '*' }, namespace: 'service_logic' })
@@ -39,6 +41,8 @@ export class ServiceWebsocketService implements WebSocket {
     this.ActiveUsers = [];
   }
 
+  @UseGuards(JwtGuardGuard)
+  @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('userConnected')
   connectionMessage(
     @MessageBody() dto: ConnectedUserDTO,
@@ -71,6 +75,7 @@ export class ServiceWebsocketService implements WebSocket {
     }
   }
 
+  @UseGuards(JwtGuardGuard)
   @SubscribeMessage('sendFriendRequest')
   async sendFriendRequest(
     @MessageBody() dto: StudentDataDTO,

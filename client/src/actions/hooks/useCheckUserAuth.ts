@@ -10,31 +10,29 @@ import { userActions } from "../store/features/user.slice";
 import type { TUserCheck } from "../interfaces/Registration/Validation";
 import useLocalStorage from "./useLocalStorage";
 
-const useCheckUserAuth = () => {
+const useCheckUserAuth = (path: string) => {
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((u: RootState) => u.user);
   const { storedValue } = useLocalStorage("device_id", "");
 
   return useQuery<TUserCheck, AxiosError>({
-    queryKey: ["auth", "user_check"],
+    queryKey: ["auth", "user_check", path],
     queryFn: async () => {
-      if (!user) {
-        return await axios
-          .get<TUserCheck>(`${QUERY_ROOT}api/user`, {
-            withCredentials: true,
-            headers: {
-              "x-header-device_id": storedValue
-            }
-          })
-          .then((res) => {
-            dispatch(userActions.createUser({ user: res.data.user }));
-            return res.data;
-          })
-          .catch((err) => err);
-      }
+      return await axios
+        .get<TUserCheck>(`${QUERY_ROOT}api/user`, {
+          withCredentials: true,
+          headers: {
+            "x-header-device_id": storedValue
+          }
+        })
+        .then((res) => {
+          if (!user) dispatch(userActions.createUser({ user: res.data.user }));
 
-      return { user: user, result: true };
-    }
+          return res.data;
+        })
+        .catch((err) => err);
+    },
+    staleTime: 0
   });
 };
 

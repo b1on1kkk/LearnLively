@@ -8,6 +8,7 @@ import { socketAcitons } from "../store/features/serviceSocket.slice";
 import { ThunkDispatch, UnknownAction } from "@reduxjs/toolkit";
 
 import { User } from "../interfaces/Registration/Validation";
+import useLocalStorage from "./useLocalStorage";
 
 const useConnectServiceSocket = (
   url: string,
@@ -15,11 +16,12 @@ const useConnectServiceSocket = (
   dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>
 ) => {
   const { service_socket } = useSelector((s: RootState) => s.serviceSocket);
+  const { storedValue } = useLocalStorage("device_id", "");
 
   const connectSocket = () => {
     dispatch(
       socketAcitons.serviceSocketInit(
-        new ServiceSocket(url, user!.id, dispatch)
+        new ServiceSocket(url, user!.id, dispatch, storedValue)
       )
     );
   };
