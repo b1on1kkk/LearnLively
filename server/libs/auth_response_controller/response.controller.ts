@@ -5,7 +5,7 @@ import type { ResponsePayload } from 'apps/project-name/src/auth/interfaces/regi
 
 @Injectable()
 export class AuthResponseController {
-  public successfulReponse(
+  public successfulResponse(
     res: Response,
     payload: Omit<ResponsePayload, 'device_id'>,
     message: any,

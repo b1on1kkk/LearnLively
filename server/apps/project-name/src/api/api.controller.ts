@@ -21,8 +21,9 @@ import { Helpers } from './helpers/helpers';
 import { SharedService } from '@sharedService/shared/shared.service';
 import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.interceptor';
 
-import type { EncodedJwt } from './interfaces/encoded_jwt.interface';
 import { AuthResponseController } from 'libs/auth_response_controller/response.controller';
+import { RegistrationAuthGuard } from './guard/registration_auth.guard';
+import { EncodedJwt } from './interfaces/encoded_jwt.interface';
 
 @Controller('api')
 export class ApiController {
@@ -37,6 +38,7 @@ export class ApiController {
 
   /////////////////////////GET/////////////////////////
 
+  @HttpCode(200)
   @Get('avatars/:image_name')
   async getAvatar(@Param('image_name') filename: string, @Res() res: Response) {
     try {
@@ -54,6 +56,7 @@ export class ApiController {
     }
   }
 
+  @HttpCode(200)
   @Get('pictures/:image_name')
   async getPictures(
     @Param('image_name') filename: string,
@@ -74,6 +77,7 @@ export class ApiController {
     }
   }
 
+  @HttpCode(200)
   @Get('user')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(ErrorCatcherInterceptor)
@@ -81,7 +85,7 @@ export class ApiController {
     const data = await this.apiService.getUser(req);
 
     if (data && data.update) {
-      return this.reponseController.successfulReponse(
+      return this.reponseController.successfulResponse(
         res,
         { tokens: data.tokens },
         { user: data.user, result: true },
@@ -93,86 +97,49 @@ export class ApiController {
     return res.json({ user: null, result: false });
   }
 
+  @HttpCode(200)
   @Get('students')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RegistrationAuthGuard)
   @UseInterceptors(ErrorCatcherInterceptor)
   async getStudents(@Req() req: Request, @Res() res: Response) {
-    const data = await this.apiService.getStudents(req);
-
-    if (data && data.update) {
-      return this.reponseController.successfulReponse(
-        res,
-        { tokens: data.tokens },
-        data.students,
-      );
-    }
-    return res.json(data.students);
+    return res.json(await this.apiService.getStudents(req));
   }
 
-  // NEXT DOWN CONTINUE IMPROVING....
-
+  @HttpCode(200)
   @Get('private_chats')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RegistrationAuthGuard)
   @UseInterceptors(ErrorCatcherInterceptor)
   async getChats(@Req() req: Request, @Res() res: Response) {
-    const { access, refresh } = req.cookies;
-
-    const encoded_values: EncodedJwt = await this.jwtService.decode(
-      access || refresh,
-    );
-
-    return res
-      .cookie('jwt_lg', this.sharedService.getCookie(), {
-        httpOnly: true,
-        maxAge: 259200000,
-      })
-      .json(await this.apiService.getChats(encoded_values.user_id));
+    return res.json(await this.apiService.getChats(req));
   }
 
+  @HttpCode(200)
   @Get('group_chats')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RegistrationAuthGuard)
   @UseInterceptors(ErrorCatcherInterceptor)
   async getGroupChats(@Req() req: Request, @Res() res: Response) {
-    const { access, refresh } = req.cookies;
+    const { access } = req.cookies;
+    const decoded: EncodedJwt = this.jwtService.decode(access);
 
-    const encoded_values: EncodedJwt = await this.jwtService.decode(
-      access || refresh,
-    );
-
-    return res
-      .cookie('jwt_lg', this.sharedService.getCookie(), {
-        httpOnly: true,
-        maxAge: 259200000,
-      })
-      .json(await this.apiService.getGroupChats(encoded_values.user_id));
+    return res.json(await this.apiService.getGroupChats(decoded.user_id));
   }
 
   @HttpCode(200)
   @Post('messages')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RegistrationAuthGuard)
   @UseInterceptors(ErrorCatcherInterceptor)
   async getMessages(@Body() body: { conv_id: number }, @Res() res: Response) {
-    return res
-      .cookie('jwt_lg', this.sharedService.getCookie(), {
-        httpOnly: true,
-        maxAge: 259200000,
-      })
-      .json(await this.apiService.getMessages(body.conv_id));
+    return res.json(await this.apiService.getMessages(body.conv_id));
   }
 
   @HttpCode(200)
   @Post('seen_message')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RegistrationAuthGuard)
   @UseInterceptors(ErrorCatcherInterceptor)
   async getSeenMessages(
     @Body() body: { message_id: number; user_id: number },
     @Res() res: Response,
   ) {
-    return res
-      .cookie('jwt_lg', this.sharedService.getCookie(), {
-        httpOnly: true,
-        maxAge: 259200000,
-      })
-      .json(await this.apiService.getSeenMessages(body));
+    return res.json(await this.apiService.getSeenMessages(body));
   }
 }

@@ -51,7 +51,7 @@ export class AuthController {
       status: 200,
     };
 
-    return this.responseController.successfulReponse(res, payload, message);
+    return this.responseController.successfulResponse(res, payload, message);
   }
 
   @HttpCode(200)
@@ -74,7 +74,7 @@ export class AuthController {
       status: 200,
     };
 
-    return this.responseController.successfulReponse(res, payload, message);
+    return this.responseController.successfulResponse(res, payload, message);
   }
 
   @HttpCode(200)

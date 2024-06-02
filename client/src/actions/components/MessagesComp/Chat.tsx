@@ -14,10 +14,10 @@ import { RootState } from "../../store/store";
 export const Chat = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
+  const { chat_socket } = useSelector((c: RootState) => c.chatSocket);
+
   useChatListeners();
   useRoomConnection();
-
-  const { chat_socket } = useSelector((c: RootState) => c.chatSocket);
 
   useEffect(() => {
     if (chat_socket) chat_socket.getReadMessage();

@@ -6,6 +6,7 @@ import { PrismaService } from '@prismaORM/prisma';
 import { SharedService } from '@sharedService/shared';
 
 import type { Request } from 'express';
+import type { EncodedJwt } from './interfaces/encoded_jwt.interface';
 
 @Injectable()
 export class ApiService {
@@ -126,92 +127,19 @@ export class ApiService {
   }
 
   async getStudents(req: Request) {
-    const { access, refresh } = req.cookies;
+    const { access } = req.cookies;
 
-    if (access) {
-      const decoded: {
-        user_id: number;
-        iat: number;
-        exp: number;
-      } = this.jwtService.decode(access);
+    const decoded: EncodedJwt = this.jwtService.decode(access);
 
-      const students = await this.sharedService.parceStudentsInf(
-        decoded.user_id,
-      );
-
-      if (
-        refresh &&
-        this.sharedService.cookieExpirationChecker(
-          refresh,
-          process.env.JWT_REFRESH_TOKEN,
-        )
-      ) {
-        return {
-          students: students,
-          update: false,
-          tokens: {
-            access,
-            refresh,
-          },
-        };
-      } else {
-        return {
-          students: students,
-          update: false,
-          tokens: {
-            access,
-            refresh: null,
-          },
-        };
-      }
-    } else {
-      if (
-        this.sharedService.cookieExpirationChecker(
-          refresh,
-          process.env.JWT_REFRESH_TOKEN,
-        )
-      ) {
-        const decoded: {
-          user_id: number;
-          iat: number;
-          exp: number;
-        } = this.jwtService.decode(refresh);
-        const students = await this.sharedService.parceStudentsInf(
-          decoded.user_id,
-        );
-        const { access_token, refresh_token } =
-          this.sharedService.tokensGenerator(decoded.user_id);
-
-        const device_id = req.headers['x-header-device_id'] as string;
-
-        await this.prisma.refresh_token_metadata.updateMany({
-          where: {
-            user_id: decoded.user_id,
-            device_id: device_id,
-            issuedAt: this.sharedService.decodeToken(refresh).iat,
-          },
-          data: {
-            ip: req.ip,
-            device: req.headers['user-agent'],
-            issuedAt: this.sharedService.decodeToken(refresh_token).iat,
-          },
-        });
-
-        return {
-          students: students,
-          update: true,
-          tokens: {
-            access: access_token,
-            refresh: refresh_token,
-          },
-        };
-      }
-    }
+    return await this.sharedService.parceStudentsInf(decoded.user_id);
   }
 
   // NEXT DOWN CONTINUE IMPROVING....
 
-  async getChats(user_id: number) {
+  async getChats(req: Request) {
+    const { access } = req.cookies;
+    const { user_id }: EncodedJwt = this.jwtService.decode(access);
+
     return await this.prisma.users.findUnique({
       where: {
         id: user_id,

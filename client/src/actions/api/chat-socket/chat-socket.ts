@@ -1,20 +1,21 @@
 import { Socket, io } from "socket.io-client";
 
 import WebSocket from "../abstract/webSocket";
-import { AppDispatch } from "../../store/store";
+
 import { ThunkDispatch, UnknownAction } from "@reduxjs/toolkit";
 
+import { AppDispatch } from "../../store/store";
+import { isTypingActions } from "../../store/features/isTyping.slice";
 import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
+import { onlineUsersActions } from "../../store/features/onlineUsers.slice";
 
 import { DispatchActionsHandler } from "../../utils/handlers/dispatchActionsHandler";
 
 import type { TMessage } from "../../interfaces/api/newChat";
-import type { ChosenConv, whoIsTyping } from "../../interfaces/Message/Chats";
 import type { MessageData } from "../../interfaces/api/messageData";
 import type { TReadMessage } from "../../interfaces/api/readMessage";
 import type { TDeleteMessages } from "../../interfaces/api/deleteMessages";
-import { onlineUsersActions } from "../../store/features/onlineUsers.slice";
-import { isTypingActions } from "../../store/features/isTyping.slice";
+import type { ChosenConv, whoIsTyping } from "../../interfaces/Message/Chats";
 
 export class ChatSocket implements WebSocket {
   private socket: Socket | null;
@@ -24,12 +25,18 @@ export class ChatSocket implements WebSocket {
   constructor(
     url: string,
     user_id: number,
-    dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>
+    dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>,
+    device_id: string
   ) {
-    this.socket = io(url);
+    // create first handshake with credentials to make it secure
+    this.socket = io(url, {
+      withCredentials: true,
+      auth: { device_id: device_id, user_id: user_id }
+    });
+
+    this.connectUser(user_id);
     this.reduxDispatch = dispatch;
     this.actionsHandler = new DispatchActionsHandler(dispatch);
-    this.connectUser(user_id);
   }
 
   ////////////////////////////////////////emitters////////////////////////////////////////////////
@@ -135,6 +142,8 @@ export class ChatSocket implements WebSocket {
 
   public getIsTypingMessage() {
     this.socket?.on("getTyping", (data: whoIsTyping) => {
+      console.log(data);
+
       this.reduxDispatch(isTypingActions.initTyping(data));
     });
   }
@@ -142,6 +151,13 @@ export class ChatSocket implements WebSocket {
   public getIsNotTypingMessage() {
     this.socket?.on("getNotTyping", (idx: number) => {
       this.reduxDispatch(isTypingActions.removeTyping(idx));
+    });
+  }
+
+  // service listeners
+  public connectionErrorHandler() {
+    this.socket?.on("error", (err) => {
+      console.error("Socket.IO general error:", err);
     });
   }
 }

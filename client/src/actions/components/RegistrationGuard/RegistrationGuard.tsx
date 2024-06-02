@@ -1,12 +1,13 @@
 import { ReactElement } from "react";
 import useCheckUserAuth from "../../hooks/useCheckUserAuth";
 
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
 import { Loading } from "../Loading/Loading";
 
 export const RegistrationGuard = ({ children }: { children: ReactElement }) => {
-  const { data, isError, isLoading } = useCheckUserAuth();
+  const location = useLocation();
+  const { data, isError, isLoading } = useCheckUserAuth(location.pathname);
 
   if (isLoading) return <Loading></Loading>;
 

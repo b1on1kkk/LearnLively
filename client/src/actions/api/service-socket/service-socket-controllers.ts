@@ -1,4 +1,5 @@
 import type { ServiceSocket } from "./service-socket";
+
 import type { Student } from "../../interfaces/Students/Main";
 
 export class SocketController {

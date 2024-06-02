@@ -4,8 +4,15 @@ import useCheckUserAuth from "../../hooks/useCheckUserAuth";
 
 import { Loading } from "../Loading/Loading";
 
+// THIS ALL WILL BE FIXED!!! WORKS NOT PROPERLY!
 export const ProtectedRoute = ({ children }: { children: ReactElement }) => {
-  const location = useLocation();
+  const { pathname } = useLocation();
+
+  // if message and length of the path is equal to 3 therefore user is verified and can access to this page
+  if (pathname.includes("message") && pathname.split("/").length === 3) {
+    return children;
+  }
+
   const { data, isError, isLoading } = useCheckUserAuth(location.pathname);
 
   if (isLoading) return <Loading></Loading>;

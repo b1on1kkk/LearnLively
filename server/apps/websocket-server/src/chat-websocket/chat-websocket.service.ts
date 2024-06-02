@@ -2,7 +2,7 @@
 
 import { Server, Socket } from 'socket.io';
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, UseFilters, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -24,6 +24,8 @@ import type { ReadMessageDTO } from 'apps/websocket-server/dto/readMessageDTO';
 import type { CachedUuidsDTO } from 'apps/websocket-server/dto/cachedUuidsDTO';
 import type { ConnectedUserDTO } from 'apps/websocket-server/dto/connectedUserDTO';
 import type { DeleteMessagesDTO } from 'apps/websocket-server/dto/deleteMessagesDTO';
+import { JwtGuardGuard } from 'apps/websocket-server/guard/jwt_guard.guard';
+import { BadRequestExceptionsFilter } from 'apps/websocket-server/filter/filter';
 
 interface isTypingDTO {
   conv_id: number;
@@ -31,7 +33,10 @@ interface isTypingDTO {
 }
 
 @Injectable()
-@WebSocketGateway({ cors: { origin: '*' }, namespace: 'chat' })
+@WebSocketGateway({
+  cors: { origin: process.env.CLIENT_ORIGIN, credentials: true },
+  namespace: 'chat',
+})
 export class ChatWebsocketService implements WebSocket {
   @WebSocketServer()
   private server: Server;
@@ -48,6 +53,8 @@ export class ChatWebsocketService implements WebSocket {
   }
 
   //////////////////////////////////////////////MAIN//////////////////////////////////////////////////////
+  @UseGuards(JwtGuardGuard)
+  @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('userChatConnected')
   connectionMessage(
     @MessageBody() dto: ConnectedUserDTO,
@@ -90,6 +97,8 @@ export class ChatWebsocketService implements WebSocket {
 
   //////////////////////////////////////////////MAIN END//////////////////////////////////////////////////
 
+  @UseGuards(JwtGuardGuard)
+  @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('connectToChatRoom')
   async connectToChatRoom(
     @MessageBody() dto: ChosenConvDTO | null,
@@ -124,6 +133,8 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
+  @UseGuards(JwtGuardGuard)
+  @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('leaveChatRoom')
   async leaveChatRoom(
     @MessageBody() dto: ChosenConvDTO | null,
@@ -142,6 +153,8 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
+  @UseGuards(JwtGuardGuard)
+  @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('sendMessage')
   async sendMessage(@MessageBody() dto: SendMessageDTO) {
     try {
@@ -185,7 +198,8 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
-  // in development
+  @UseGuards(JwtGuardGuard)
+  @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('isTyping')
   isTyping(@MessageBody() dto: isTypingDTO, @ConnectedSocket() client: Socket) {
     try {
@@ -195,6 +209,8 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
+  @UseGuards(JwtGuardGuard)
+  @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('notTyping')
   notTyping(
     @MessageBody() dto: { idx: number },
@@ -209,8 +225,8 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
-  //
-
+  @UseGuards(JwtGuardGuard)
+  @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('changeEditedMessage')
   async changeEditedMessage(@MessageBody() dto: SendMessageDTO) {
     try {
@@ -236,6 +252,8 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
+  @UseGuards(JwtGuardGuard)
+  @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('deleteMessages')
   async deleteMessages(@MessageBody() dto: DeleteMessagesDTO) {
     try {
@@ -277,6 +295,8 @@ export class ChatWebsocketService implements WebSocket {
   }
 
   // will be changed in next upgrade
+  @UseGuards(JwtGuardGuard)
+  @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('readMessage')
   async readMessage(
     @MessageBody()

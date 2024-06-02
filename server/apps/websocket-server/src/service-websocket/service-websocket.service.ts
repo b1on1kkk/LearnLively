@@ -27,7 +27,10 @@ import { JwtGuardGuard } from 'apps/websocket-server/guard/jwt_guard.guard';
 import { BadRequestExceptionsFilter } from 'apps/websocket-server/filter/filter';
 
 @Injectable()
-@WebSocketGateway({ cors: { origin: '*' }, namespace: 'service_logic' })
+@WebSocketGateway({
+  cors: { origin: process.env.CLIENT_ORIGIN, credentials: true },
+  namespace: 'service_logic',
+})
 export class ServiceWebsocketService implements WebSocket {
   @WebSocketServer()
   private server: Server;
@@ -76,6 +79,7 @@ export class ServiceWebsocketService implements WebSocket {
   }
 
   @UseGuards(JwtGuardGuard)
+  @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('sendFriendRequest')
   async sendFriendRequest(
     @MessageBody() dto: StudentDataDTO,
@@ -98,6 +102,8 @@ export class ServiceWebsocketService implements WebSocket {
     );
   }
 
+  @UseGuards(JwtGuardGuard)
+  @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('acceptFriendRequest')
   async acceptFriendRequest(
     @MessageBody() dto: StudentDataDTO,
@@ -147,6 +153,8 @@ export class ServiceWebsocketService implements WebSocket {
     );
   }
 
+  @UseGuards(JwtGuardGuard)
+  @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('rejectFriendRequest')
   async rejectFriendRequest(
     @MessageBody() dto: StudentDataDTO,
@@ -162,7 +170,8 @@ export class ServiceWebsocketService implements WebSocket {
     );
   }
 
-  // in development
+  @UseGuards(JwtGuardGuard)
+  @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('startGroupChat')
   async startGroupChat(
     @MessageBody() dto: CreateGroupDTO,

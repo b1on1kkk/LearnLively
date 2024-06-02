@@ -16,7 +16,7 @@ export class JwtGuardGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    console.log('service_socket guard worked!');
+    console.log('socket guard worked!');
 
     const { device_id, user_id } = context.switchToWs().getClient<Socket>()
       .handshake.auth;

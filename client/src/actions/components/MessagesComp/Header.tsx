@@ -18,7 +18,7 @@ export const Header = () => {
   const { chosenConvId } = useSelector((c: RootState) => c.chatSocket);
   const { online_users } = useSelector((i: RootState) => i.onlineUsers);
 
-  const convsInTyping = useConvInTyping(typed, chosenConvId!.id);
+  const convsInTyping = useConvInTyping(typed, chosenConvId?.id);
 
   return (
     <header className="px-5 py-3 flex bg-[#00010d] border-slate-900 border-2 rounded-2xl shadow-2xl items-center gap-3 text-slate-400 mb-2">

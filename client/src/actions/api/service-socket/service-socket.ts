@@ -1,17 +1,20 @@
 import { Socket, io } from "socket.io-client";
 
 import WebSocket from "../abstract/webSocket";
-import { AppDispatch } from "../../store/store";
-import { ThunkDispatch, UnknownAction } from "@reduxjs/toolkit";
-import { studentsActions } from "../../store/features/students.slice";
 
-import type { Student } from "../../interfaces/Students/Main";
-import type { TSendFriendRequest } from "../../interfaces/api/sendFriendRequest";
-import type { TFriendRequest } from "../../interfaces/api/acceptFriendRequest";
-import { chosenUserChatActions } from "../../store/features/chosenUserChat.slice";
-import { TGroups } from "../../interfaces/Message/Chats";
+import { ThunkDispatch, UnknownAction } from "@reduxjs/toolkit";
+
+import { AppDispatch } from "../../store/store";
+
 import { groupsActions } from "../../store/features/groups.slice";
-import { ChatType } from "../../interfaces/api/chatType";
+import { studentsActions } from "../../store/features/students.slice";
+import { chosenUserChatActions } from "../../store/features/chosenUserChat.slice";
+
+import type { TGroups } from "../../interfaces/Message/Chats";
+import type { ChatType } from "../../interfaces/api/chatType";
+import type { Student } from "../../interfaces/Students/Main";
+import type { TFriendRequest } from "../../interfaces/api/acceptFriendRequest";
+import type { TSendFriendRequest } from "../../interfaces/api/sendFriendRequest";
 
 export class ServiceSocket implements WebSocket {
   private socket: Socket | null;
@@ -23,6 +26,7 @@ export class ServiceSocket implements WebSocket {
     dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>,
     device_id: string
   ) {
+    // create first handshake with credentials to make it secure
     this.socket = io(url, {
       withCredentials: true,
       auth: { device_id: device_id, user_id: user_id }
@@ -30,8 +34,6 @@ export class ServiceSocket implements WebSocket {
 
     this.connectUser(user_id);
     this.reduxDispatch = dispatch;
-
-    this.connectionErrorHandler();
   }
 
   ////////////////////////////////////////emitters////////////////////////////////////////////////
@@ -111,7 +113,7 @@ export class ServiceSocket implements WebSocket {
   }
 
   // service listeners
-  private connectionErrorHandler() {
+  public connectionErrorHandler() {
     this.socket?.on("error", (err) => {
       console.error("Socket.IO general error:", err);
     });

@@ -13,6 +13,7 @@ import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.intercep
 import { Helpers } from './helpers/helpers';
 import { PrismaModule } from '@prismaORM/prisma';
 import { AuthResponseController } from 'libs/auth_response_controller/response.controller';
+import { RegistrationAuthGuard } from './guard/registration_auth.guard';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AuthResponseController } from 'libs/auth_response_controller/response.c
     Helpers,
     ApiService,
     JwtAuthGuard,
+    RegistrationAuthGuard,
     AuthResponseController,
     ErrorCatcherInterceptor,
   ],
