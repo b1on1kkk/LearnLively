@@ -28,7 +28,7 @@ const useConnectServiceSocket = (
 
   useEffect(() => {
     if (!service_socket && user) connectSocket();
-  }, []);
+  }, [user]);
 
   return { service_socket };
 };

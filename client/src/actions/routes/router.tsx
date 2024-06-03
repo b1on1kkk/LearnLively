@@ -15,18 +15,13 @@ import { NoticeBoard } from "../views/NoticeBoard/NoticeBoard";
 import { Registration } from "../views/Registration/Registration";
 
 import { Chat } from "../components/MessagesComp/Chat";
-import { ProtectedRoute } from "../components/ProtectedRoute/ProtectedRoute";
 import { MessageDefender } from "../components/MessageDefender/MessageDefender";
 import { RegistrationGuard } from "../components/RegistrationGuard/RegistrationGuard";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: (
-      <ProtectedRoute>
-        <MainApp />
-      </ProtectedRoute>
-    ),
+    element: <MainApp />,
     children: [
       {
         path: "dashboard",

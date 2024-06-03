@@ -13,7 +13,7 @@ export const RegistrationGuard = ({ children }: { children: ReactElement }) => {
 
   if (isError) return <Navigate to="/registration/login" replace />;
 
-  if (data && data.result) return <Navigate to="/students" replace />;
+  if (data && data.result) return <Navigate to="/dashboard" replace />;
 
   return children;
 };

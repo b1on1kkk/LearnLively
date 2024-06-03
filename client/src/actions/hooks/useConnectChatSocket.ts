@@ -28,7 +28,7 @@ const useConnectChatSocket = (
 
   useEffect(() => {
     if (!chat_socket && user) connectChatSocket();
-  }, []);
+  }, [user]);
 
   return { chat_socket };
 };

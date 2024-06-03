@@ -18,9 +18,16 @@ import { AppDispatch, RootState } from "../../store/store";
 import { SOCKETS_ROOT } from "../../constants/Sockets/sockets";
 
 import type { ChosenConv } from "../../interfaces/Message/Chats";
+import { Navigate, useLocation } from "react-router-dom";
+import useCheckUserAuth from "../../hooks/useCheckUserAuth";
+import { Loading } from "../../components/Loading/Loading";
 
 export const MainApp = () => {
+  const { pathname } = useLocation();
   const dispatch = useDispatch<AppDispatch>();
+
+  // check user authentication
+  const { data, isError, isLoading } = useCheckUserAuth(pathname);
 
   const { user } = useSelector((u: RootState) => u.user);
   const { chat_socket, chosenConvId } = useSelector(
@@ -71,6 +78,11 @@ export const MainApp = () => {
     disconnectCB
   );
 
+  // if user is not logged in redirect to log in page
+  if ((data && !data.result) || isError) {
+    return <Navigate to="/registration/login" replace />;
+  }
+
   return (
     <main className="flex h-screen">
       {/* aside navigation tab */}
@@ -92,7 +104,7 @@ export const MainApp = () => {
         {/* just header background */}
         <div className="absolute h-40 w-screen right-0 top-0 bg-gradient-to-r from-10% via-sky-500 via-30% to-90% from-pink-500 to-red-500 rounded-tr-3xl mr-3 mt-3"></div>
 
-        <Outlet />
+        {isLoading ? <Loading /> : <Outlet />}
       </div>
     </main>
   );
