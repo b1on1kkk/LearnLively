@@ -1,14 +1,20 @@
 import { Outlet } from "react-router";
+import { Navigate } from "react-router-dom";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import useMessages from "../../hooks/useMessages";
 import useChatActivity from "../../hooks/useChatActivity";
+import useCheckUserAuth from "../../hooks/useCheckUserAuth";
+import useGetOnlineUsers from "../../hooks/useGetOnlineUsers";
 import useConnectChatSocket from "../../hooks/useConnectChatSocket";
+import useCacheChosenConvId from "../../hooks/useCacheChosenConvId";
 import useConnectServiceSocket from "../../hooks/useConnectServiceSocket";
 import usePageHideMainListener from "../../hooks/usePageHideMainListener";
 
+import { Loading } from "../../components/Loading/Loading";
 import { Main } from "../../components/NavigationComp/Main";
 import { Header } from "../../components/NavigationComp/Header";
 import { Navigation } from "../../components/NavigationComp/Navigation";
@@ -17,39 +23,29 @@ import { AppDispatch, RootState } from "../../store/store";
 
 import { SOCKETS_ROOT } from "../../constants/Sockets/sockets";
 
-import type { ChosenConv } from "../../interfaces/Message/Chats";
-import { Navigate, useLocation } from "react-router-dom";
-import useCheckUserAuth from "../../hooks/useCheckUserAuth";
-import { Loading } from "../../components/Loading/Loading";
-
 export const MainApp = () => {
   const { pathname } = useLocation();
   const dispatch = useDispatch<AppDispatch>();
+
+  // cached chosen chat id for connecting and disconnecting if user choose another chat
+  const { chosenConvIdRef } = useCacheChosenConvId();
 
   // check user authentication
   const { data, isError, isLoading } = useCheckUserAuth(pathname);
 
   const { user } = useSelector((u: RootState) => u.user);
-  const { chat_socket, chosenConvId } = useSelector(
-    (s: RootState) => s.chatSocket
-  );
+  const { chat_socket } = useSelector((s: RootState) => s.chatSocket);
+  const { chosenConvId } = useSelector((s: RootState) => s.chatSocket);
   const { service_socket } = useSelector((s: RootState) => s.serviceSocket);
 
-  const chosenConvIdRef = useRef<ChosenConv | null>(chosenConvId);
-  useEffect(() => {
-    if (chosenConvId) chosenConvIdRef.current = chosenConvId;
-  }, [chosenConvId]);
-
-  const { refetch } = useMessages(chosenConvId);
+  // get indexes of users that online
+  useGetOnlineUsers();
 
   // connections
   useConnectChatSocket(SOCKETS_ROOT.chat_socket, user, dispatch);
   useConnectServiceSocket(SOCKETS_ROOT.service_logic_socket, user, dispatch);
 
-  // get indexes of users that online
-  useEffect(() => {
-    if (chat_socket) chat_socket.getOnlineUsers();
-  }, [chat_socket]);
+  const { refetch } = useMessages(chosenConvId);
 
   // callback is used if user reconnects and user is in chat - connect new socket id into the room and refetch messages
   const reconnectCB = useCallback(() => {
