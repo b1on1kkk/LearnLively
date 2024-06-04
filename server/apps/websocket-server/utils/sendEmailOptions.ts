@@ -1,4 +1,4 @@
-export function sendEmailOptions(to: string) {
+export function sendEmailOptions(to: string, token: string) {
   return {
     to: to,
     from: process.env.USER_EMAIL,
