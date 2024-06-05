@@ -1,6 +1,5 @@
 import axios, { AxiosError } from "axios";
 
-import useLocalStorage from "./useLocalStorage";
 import { useQuery } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -16,18 +15,12 @@ import type { TUserCheck } from "../interfaces/Registration/Validation";
 const useCheckUserAuth = (path: string) => {
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((u: RootState) => u.user);
-  const { storedValue } = useLocalStorage("device_id", "");
 
   return useQuery<TUserCheck, AxiosError>({
     queryKey: ["auth", "user_check", identifyInnerRouting(path)],
     queryFn: async () => {
       return await axios
-        .get<TUserCheck>(`${QUERY_ROOT}api/user`, {
-          withCredentials: true,
-          headers: {
-            "x-header-device_id": storedValue
-          }
-        })
+        .get<TUserCheck>(`${QUERY_ROOT}api/user`, { withCredentials: true })
         .then((res) => {
           if (!user) dispatch(userActions.createUser({ user: res.data.user }));
 

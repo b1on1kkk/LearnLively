@@ -1,23 +1,22 @@
 import { Injectable } from '@nestjs/common';
 
 import type { Response } from 'express';
-import type { ResponsePayload } from 'apps/project-name/src/auth/interfaces/registrationPayload';
 
 @Injectable()
 export class AuthResponseController {
   public successfulResponse(
     res: Response,
-    payload: Omit<ResponsePayload, 'device_id'>,
+    payload: { access: string; refresh: string },
     message: any,
   ) {
     return res
-      .cookie('access', payload.tokens.access, {
+      .cookie('access', payload.access, {
         httpOnly: true,
         maxAge: 3600000, // alive 1h
         sameSite: 'strict',
         secure: true,
       })
-      .cookie('refresh', payload.tokens.refresh, {
+      .cookie('refresh', payload.refresh, {
         httpOnly: true,
         maxAge: 86400000, // alive 1d
         sameSite: 'strict',

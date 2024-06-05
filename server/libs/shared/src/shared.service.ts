@@ -1,31 +1,15 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@prismaORM/prisma';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
-interface DecodedData {
-  user_id: number;
-  iat: number;
-  exp: number;
-}
+import type { DecodedData } from 'apps/interfaces/decodedJwtData';
 
 @Injectable()
 export class SharedService {
-  private new_cookie: string;
-
   constructor(
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
-  ) {
-    this.new_cookie = '';
-  }
-
-  public setCookie(cookie: string) {
-    this.new_cookie = cookie;
-  }
-
-  public getCookie() {
-    return this.new_cookie;
-  }
+  ) {}
 
   public cookieExpirationChecker(cookie: string, secret: string) {
     try {

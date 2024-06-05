@@ -18,7 +18,6 @@ import { JwtAuthGuard } from './guard/jwt.guard';
 import { ApiService } from './api.service';
 
 import { Helpers } from './helpers/helpers';
-import { SharedService } from '@sharedService/shared/shared.service';
 import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.interceptor';
 
 import { AuthResponseController } from 'libs/auth_response_controller/response.controller';
@@ -29,7 +28,6 @@ import { EncodedJwt } from './interfaces/encoded_jwt.interface';
 export class ApiController {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly sharedService: SharedService,
     private readonly helpers: Helpers,
     private readonly reponseController: AuthResponseController,
 
@@ -85,11 +83,10 @@ export class ApiController {
     const data = await this.apiService.getUser(req);
 
     if (data && data.update) {
-      return this.reponseController.successfulResponse(
-        res,
-        { tokens: data.tokens },
-        { user: data.user, result: true },
-      );
+      return this.reponseController.successfulResponse(res, data.tokens, {
+        user: data.user,
+        result: true,
+      });
     } else if (data && !data.update) {
       return res.json({ user: data.user, result: true });
     }

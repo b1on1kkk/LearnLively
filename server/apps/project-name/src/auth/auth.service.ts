@@ -1,22 +1,30 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { LoginPayloadDTO } from './dto/login_payload.dto';
-
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 
-import { SignUpDTO } from './dto/signup_payload.dto';
+import { JwtService } from '@nestjs/jwt';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+
 import { PrismaService } from '@prismaORM/prisma';
 
-import AVATAR_NAMES from './constants/avatarNames';
-import { randomIntFromInterval } from './utils/randomIntFromInterval';
 import { SharedService } from '@sharedService/shared';
+import { randomIntFromInterval } from './utils/randomIntFromInterval';
 
-import { Request } from 'express';
+import { AuthMailer } from 'libs/auth_mailer/mailer';
+
+import AVATAR_NAMES from './constants/avatarNames';
+
+import type { Request } from 'express';
+
+import type { SignUpDTO } from './dto/signup_payload.dto';
+import type { LoginPayloadDTO } from './dto/login_payload.dto';
+
+import type { verifyDecodedData } from './interfaces/verifyDecodedData';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
     private readonly sharedService: SharedService,
   ) {}
 
@@ -26,16 +34,25 @@ export class AuthService {
       select: {
         id: true,
         password: true,
+        auth_status: true,
       },
     });
+
+    if (!user.auth_status) {
+      throw new HttpException(
+        'Verify your account by link that was send to your email!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
     // check if this user is exist
     if (!user) throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
 
     const passwordMatch = await bcrypt.compare(payload.password, user.password);
 
-    if (!passwordMatch)
+    if (!passwordMatch) {
       throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
+    }
 
     // if user exist, generate tokens
     const { access_token, refresh_token } = this.sharedService.tokensGenerator(
@@ -43,9 +60,7 @@ export class AuthService {
     );
 
     try {
-      const device_id: string | undefined = req.headers[
-        'x-header-device_id'
-      ] as string;
+      const device_id: string = req.headers['x-header-device_id'] as string;
 
       if (device_id) {
         // update token data
@@ -94,7 +109,7 @@ export class AuthService {
     }
   }
 
-  async signup(authPayload: SignUpDTO, req: Request) {
+  async signup(authPayload: SignUpDTO) {
     try {
       // if this email is already exist - prisma will throw error
       const { id: user_id } = await this.prisma.users.create({
@@ -111,6 +126,7 @@ export class AuthService {
           img_hash_name:
             AVATAR_NAMES[randomIntFromInterval(0, AVATAR_NAMES.length - 1)],
           created_at: new Date(),
+          auth_status: false,
         },
         select: {
           id: true,
@@ -118,29 +134,21 @@ export class AuthService {
       });
 
       // generate unique device id
-      const device_id = uuidv4();
+      const device_id: string = uuidv4();
 
-      // generate tokens
-      const { access_token, refresh_token } =
-        this.sharedService.tokensGenerator(user_id);
+      // values that will stored in verify jwt
+      const credentials = {
+        user_id: user_id,
+        device_id: device_id,
+        to: authPayload.email,
+      };
 
-      // insert data about refresh token
-      await this.prisma.refresh_token_metadata.create({
-        data: {
-          ip: req.ip,
-          user_id: user_id,
-          device_id: device_id,
-          device: req.headers['user-agent'],
-          issuedAt: this.sharedService.decodeToken(refresh_token).iat,
-        },
-      });
+      // send email with token and data in it
+      const mailer = new AuthMailer(this.jwtService, credentials);
+      mailer.sendAuthMail();
 
       return {
         device_id: device_id,
-        tokens: {
-          access: access_token,
-          refresh: refresh_token,
-        },
       };
     } catch (error) {
       throw new HttpException(
@@ -178,5 +186,63 @@ export class AuthService {
       'There is nothing to delete!',
       HttpStatus.BAD_REQUEST,
     );
+  }
+
+  async verify(token: string | undefined, req: Request) {
+    try {
+      this.jwtService.verify(token, {
+        secret: process.env.JWT_AUTH_MAIL_TOKEN,
+      });
+
+      const decoded: verifyDecodedData = this.jwtService.decode(token);
+
+      const user = await this.prisma.users.findUnique({
+        where: { id: decoded.user_id },
+      });
+
+      if (!user || user.auth_status) {
+        throw new HttpException(
+          'User is not found or already authenticated!',
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
+      await this.prisma.users.update({
+        where: { id: user.id },
+        data: { auth_status: true },
+      });
+
+      // generate tokens
+      const { access_token, refresh_token } =
+        this.sharedService.tokensGenerator(user.id);
+
+      // insert data about refresh token
+      await this.prisma.refresh_token_metadata.create({
+        data: {
+          ip: req.ip,
+          user_id: user.id,
+          device_id: decoded.device_id,
+          device: req.headers['user-agent'],
+          issuedAt: this.sharedService.decodeToken(refresh_token).iat,
+        },
+      });
+
+      return {
+        message: 'Account verified! Return back to the page and refresh it.',
+        status: true,
+        tokes: {
+          access: access_token,
+          refresh: refresh_token,
+        },
+      };
+    } catch (error) {
+      console.log(error);
+
+      return {
+        message: 'Authentication error occured',
+        status: false,
+        tokes: null,
+      };
+    }
   }
 }

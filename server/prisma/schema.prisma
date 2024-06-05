@@ -30,6 +30,7 @@ model users {
   password                         String                   @db.VarChar(255)
   img_hash_name                    String                   @db.VarChar(255)
   created_at                       DateTime                 @db.Timestamp(6)
+  auth_status                      Boolean
   friends_friends_friend_idTousers friends[]                @relation("friends_friend_idTousers")
   friends_friends_user_idTousers   friends[]                @relation("friends_user_idTousers")
   group_users                      group_users[]
@@ -109,10 +110,10 @@ model groups {
 model refresh_token_metadata {
   id        Int    @id @default(autoincrement())
   user_id   Int
+  device_id String @db.VarChar(255)
   issuedAt  Int
   ip        String @db.VarChar(255)
   device    String @db.VarChar(255)
-  device_id String @db.VarChar(255)
   users     users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "refresh_token_user_id_fkey")
 }
 

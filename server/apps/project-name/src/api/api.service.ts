@@ -7,6 +7,8 @@ import { SharedService } from '@sharedService/shared';
 
 import type { Request } from 'express';
 import type { EncodedJwt } from './interfaces/encoded_jwt.interface';
+import { DecodedData } from 'apps/interfaces/decodedJwtData';
+import { CookieValues } from './interfaces/cookieValues';
 
 @Injectable()
 export class ApiService {
@@ -17,14 +19,10 @@ export class ApiService {
   ) {}
 
   async getUser(req: Request) {
-    const { access, refresh } = req.cookies;
+    const { access, refresh } = (req.cookies as CookieValues) || {};
 
     if (access) {
-      const decoded: {
-        user_id: number;
-        iat: number;
-        exp: number;
-      } = this.jwtService.decode(access);
+      const decoded: DecodedData = this.jwtService.decode(access);
 
       const user = await this.prisma.users.findUnique({
         where: {
@@ -52,8 +50,8 @@ export class ApiService {
           user: user,
           update: false,
           tokens: {
-            access,
-            refresh,
+            access: access,
+            refresh: refresh,
           },
         };
       } else {
@@ -61,7 +59,7 @@ export class ApiService {
           user: user,
           update: false,
           tokens: {
-            access,
+            access: access,
             refresh: null,
           },
         };
@@ -73,11 +71,7 @@ export class ApiService {
           process.env.JWT_REFRESH_TOKEN,
         )
       ) {
-        const decoded: {
-          user_id: number;
-          iat: number;
-          exp: number;
-        } = this.jwtService.decode(refresh);
+        const decoded: DecodedData = this.jwtService.decode(refresh);
 
         const user = await this.prisma.users.findUnique({
           where: {
@@ -94,32 +88,31 @@ export class ApiService {
           },
         });
 
-        const { access_token, refresh_token } =
-          this.sharedService.tokensGenerator(decoded.user_id);
+        if (user) {
+          const { access_token, refresh_token } =
+            this.sharedService.tokensGenerator(decoded.user_id);
 
-        const device_id = req.headers['x-header-device_id'] as string;
+          await this.prisma.refresh_token_metadata.updateMany({
+            where: {
+              user_id: user.id,
+              issuedAt: this.sharedService.decodeToken(refresh).iat,
+            },
+            data: {
+              ip: req.ip,
+              device: req.headers['user-agent'],
+              issuedAt: this.sharedService.decodeToken(refresh_token).iat,
+            },
+          });
 
-        await this.prisma.refresh_token_metadata.updateMany({
-          where: {
-            user_id: user.id,
-            device_id: device_id,
-            issuedAt: this.sharedService.decodeToken(refresh).iat,
-          },
-          data: {
-            ip: req.ip,
-            device: req.headers['user-agent'],
-            issuedAt: this.sharedService.decodeToken(refresh_token).iat,
-          },
-        });
-
-        return {
-          user: user,
-          update: true,
-          tokens: {
-            access: access_token,
-            refresh: refresh_token,
-          },
-        };
+          return {
+            user: user,
+            update: true,
+            tokens: {
+              access: access_token,
+              refresh: refresh_token,
+            },
+          };
+        }
       }
 
       return false;
