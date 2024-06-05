@@ -1,16 +1,13 @@
 import * as nodemailer from 'nodemailer';
 
+import { JwtService } from '@nestjs/jwt';
 import { Injectable } from '@nestjs/common';
 
-import { JwtService } from '@nestjs/jwt';
-import { TRANSPORTER_CONFIG } from 'apps/websocket-server/config/transport.config';
 import { sendEmailOptions } from 'apps/project-name/src/auth/utils/sendEmailOptions';
 
-interface AuthMailerDTO {
-  to: string;
-  user_id: number;
-  device_id: string;
-}
+import type { AuthMailerDTO } from 'apps/project-name/src/auth/dto/authMailer.dto';
+
+import { TRANSPORTER_CONFIG } from 'apps/websocket-server/config/transport.config';
 
 @Injectable()
 export class AuthMailer {
@@ -27,7 +24,10 @@ export class AuthMailer {
         user_id: this.credentials.user_id,
         device_id: this.credentials.device_id,
       },
-      { secret: process.env.JWT_AUTH_MAIL_TOKEN, expiresIn: '2h' },
+      {
+        secret: process.env.JWT_AUTH_MAIL_TOKEN,
+        expiresIn: process.env.JWT_MAIL_VERIFICATION_TOKEN_EXP,
+      },
     );
 
     try {
@@ -36,6 +36,7 @@ export class AuthMailer {
       );
     } catch (error) {
       console.log(error);
+      return error;
     }
   }
 }
