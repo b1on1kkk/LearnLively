@@ -38,6 +38,7 @@ export class AuthService {
       },
     });
 
+    // check if authentication status is not true to send user error
     if (!user.auth_status) {
       throw new HttpException(
         'Verify your account by link that was send to your email!',
@@ -105,7 +106,7 @@ export class AuthService {
         };
       }
     } catch (error) {
-      throw new HttpException('Updated error occured', HttpStatus.BAD_GATEWAY);
+      throw new HttpException('Login error occured', HttpStatus.BAD_GATEWAY);
     }
   }
 
@@ -230,7 +231,7 @@ export class AuthService {
       return {
         message: 'Account verified! Return back to the page and refresh it.',
         status: true,
-        tokes: {
+        tokens: {
           access: access_token,
           refresh: refresh_token,
         },
@@ -241,7 +242,7 @@ export class AuthService {
       return {
         message: 'Authentication error occured',
         status: false,
-        tokes: null,
+        tokens: null,
       };
     }
   }

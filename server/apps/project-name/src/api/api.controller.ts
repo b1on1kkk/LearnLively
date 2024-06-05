@@ -27,8 +27,8 @@ import { EncodedJwt } from './interfaces/encoded_jwt.interface';
 @Controller('api')
 export class ApiController {
   constructor(
-    private readonly jwtService: JwtService,
     private readonly helpers: Helpers,
+    private readonly jwtService: JwtService,
     private readonly reponseController: AuthResponseController,
 
     private readonly apiService: ApiService,

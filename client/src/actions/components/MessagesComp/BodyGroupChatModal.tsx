@@ -12,6 +12,9 @@ import {
 
 import type { TBodyGroupChatModal } from "../../interfaces/Students/Main";
 
+import { Notification } from "../Notification";
+import { UsersRound } from "lucide-react";
+
 export const BodyGroupChatModal = ({
   next,
   groupHandler,
@@ -34,36 +37,45 @@ export const BodyGroupChatModal = ({
         >
           {/* slide 1 */}
           <div className="flex gap-1.5 flex-col flex-1 px-5 py-2">
-            {extendedStudents.map((student) => {
-              return (
-                <Checkbox
-                  key={student.id}
-                  aria-label={student.name}
-                  classNames={{
-                    base: cn(
-                      "inline-flex w-full max-w-md",
-                      "hover:bg-[#00010d] items-center justify-start",
-                      "cursor-pointer rounded-lg gap-2 border-2 border-transparent p-2 m-0 bg-[#050615] border-slate-900",
-                      `${
-                        student.chosen_status && "border-primary"
-                      } transition-colors`
-                    ),
-                    label: "w-full flex"
-                  }}
-                  isSelected={student.chosen_status}
-                  onChange={() => selectedUser(student.id)}
-                >
-                  <User
-                    className="justify-start items-center"
-                    name={`${student.name} ${student.lastname}`}
-                    description={student.role}
-                    avatarProps={{
-                      src: toImageLink(student.img_hash_name)
-                    }}
-                  />
-                </Checkbox>
-              );
-            })}
+            {extendedStudents.length > 0 ? (
+              <>
+                {extendedStudents.map((student) => {
+                  return (
+                    <Checkbox
+                      key={student.id}
+                      aria-label={student.name}
+                      classNames={{
+                        base: cn(
+                          "inline-flex w-full max-w-md",
+                          "hover:bg-[#00010d] items-center justify-start",
+                          "cursor-pointer rounded-lg gap-2 border-2 border-transparent p-2 m-0 bg-[#050615] border-slate-900",
+                          `${
+                            student.chosen_status && "border-primary"
+                          } transition-colors`
+                        ),
+                        label: "w-full flex"
+                      }}
+                      isSelected={student.chosen_status}
+                      onChange={() => selectedUser(student.id)}
+                    >
+                      <User
+                        className="justify-start items-center"
+                        name={`${student.name} ${student.lastname}`}
+                        description={student.role}
+                        avatarProps={{
+                          src: toImageLink(student.img_hash_name)
+                        }}
+                      />
+                    </Checkbox>
+                  );
+                })}
+              </>
+            ) : (
+              <Notification
+                icon={<UsersRound width={80} height={80} />}
+                message="Students are not found!"
+              />
+            )}
           </div>
 
           {/* slide 2 */}

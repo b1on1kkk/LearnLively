@@ -1,6 +1,7 @@
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '@prismaORM/prisma';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+
+import { PrismaService } from '@prismaORM/prisma';
 
 import type { DecodedData } from 'apps/interfaces/decodedJwtData';
 
@@ -11,7 +12,7 @@ export class SharedService {
     private readonly prisma: PrismaService,
   ) {}
 
-  public cookieExpirationChecker(cookie: string, secret: string) {
+  public cookieExp(cookie: string, secret: string) {
     try {
       this.jwtService.verify(cookie, { secret });
       return true;
@@ -83,11 +84,17 @@ export class SharedService {
   public tokensGenerator(user_id: number) {
     const access_token = this.jwtService.sign(
       { user_id },
-      { secret: process.env.JWT_ACCESS_TOKEN, expiresIn: '1h' },
+      {
+        secret: process.env.JWT_ACCESS_TOKEN,
+        expiresIn: process.env.JWT_ACCESS_TOKEN_EXP,
+      },
     );
     const refresh_token = this.jwtService.sign(
       { user_id },
-      { secret: process.env.JWT_REFRESH_TOKEN, expiresIn: '1d' },
+      {
+        secret: process.env.JWT_REFRESH_TOKEN,
+        expiresIn: process.env.JWT_REFRESH_TOKEN_EXP,
+      },
     );
 
     return { access_token, refresh_token };

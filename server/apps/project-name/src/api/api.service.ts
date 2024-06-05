@@ -1,14 +1,18 @@
-import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '@prismaORM/prisma';
 
 import { SharedService } from '@sharedService/shared';
 
+import { userAuth } from './lib/user_auth';
+import { findUserById } from './lib/find_user_id';
+
 import type { Request } from 'express';
+
+import type { CookieValues } from './interfaces/cookieValues';
+import type { DecodedData } from 'apps/interfaces/decodedJwtData';
 import type { EncodedJwt } from './interfaces/encoded_jwt.interface';
-import { DecodedData } from 'apps/interfaces/decodedJwtData';
-import { CookieValues } from './interfaces/cookieValues';
 
 @Injectable()
 export class ApiService {
@@ -23,70 +27,22 @@ export class ApiService {
 
     if (access) {
       const decoded: DecodedData = this.jwtService.decode(access);
-
-      const user = await this.prisma.users.findUnique({
-        where: {
-          id: decoded.user_id,
-        },
-        select: {
-          id: true,
-          name: true,
-          lastname: true,
-          email: true,
-          surname: true,
-          role: true,
-          img_hash_name: true,
-        },
-      });
+      const user = await findUserById(this.prisma, decoded.user_id);
 
       if (
         refresh &&
-        this.sharedService.cookieExpirationChecker(
-          refresh,
-          process.env.JWT_REFRESH_TOKEN,
-        )
+        this.sharedService.cookieExp(refresh, process.env.JWT_REFRESH_TOKEN)
       ) {
-        return {
-          user: user,
-          update: false,
-          tokens: {
-            access: access,
-            refresh: refresh,
-          },
-        };
+        return userAuth(user, false, access, refresh);
       } else {
-        return {
-          user: user,
-          update: false,
-          tokens: {
-            access: access,
-            refresh: null,
-          },
-        };
+        return userAuth(user, false, access, null);
       }
     } else {
       if (
-        this.sharedService.cookieExpirationChecker(
-          refresh,
-          process.env.JWT_REFRESH_TOKEN,
-        )
+        this.sharedService.cookieExp(refresh, process.env.JWT_REFRESH_TOKEN)
       ) {
         const decoded: DecodedData = this.jwtService.decode(refresh);
-
-        const user = await this.prisma.users.findUnique({
-          where: {
-            id: decoded.user_id,
-          },
-          select: {
-            id: true,
-            name: true,
-            lastname: true,
-            email: true,
-            surname: true,
-            role: true,
-            img_hash_name: true,
-          },
-        });
+        const user = await findUserById(this.prisma, decoded.user_id);
 
         if (user) {
           const { access_token, refresh_token } =
@@ -104,14 +60,7 @@ export class ApiService {
             },
           });
 
-          return {
-            user: user,
-            update: true,
-            tokens: {
-              access: access_token,
-              refresh: refresh_token,
-            },
-          };
+          return userAuth(user, true, access_token, refresh_token);
         }
       }
 
@@ -126,8 +75,6 @@ export class ApiService {
 
     return await this.sharedService.parceStudentsInf(decoded.user_id);
   }
-
-  // NEXT DOWN CONTINUE IMPROVING....
 
   async getChats(req: Request) {
     const { access } = req.cookies;

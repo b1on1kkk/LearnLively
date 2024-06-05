@@ -73,7 +73,6 @@ export const Message = () => {
         </header>
 
         <main className="flex flex-col flex-1 gap-2">
-          {/* in development */}
           {isLoading ? <Loading /> : <ChatsType type={selectedChatType} />}
         </main>
       </aside>

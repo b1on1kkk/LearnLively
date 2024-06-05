@@ -1,4 +1,4 @@
-import { UserSearch } from "lucide-react";
+import { UserRoundSearch } from "lucide-react";
 
 import { useSelector } from "react-redux";
 
@@ -32,7 +32,7 @@ export const AsideStudentInf = () => {
         </>
       ) : (
         <Notification
-          icon={<UserSearch width={80} height={80} />}
+          icon={<UserRoundSearch width={80} height={80} />}
           message="Select a student!"
         />
       )}

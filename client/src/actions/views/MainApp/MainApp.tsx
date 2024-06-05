@@ -31,7 +31,7 @@ export const MainApp = () => {
   const { chosenConvIdRef } = useCacheChosenConvId();
 
   // check user authentication
-  const { data, isError, isLoading } = useCheckUserAuth(pathname);
+  const { isError, isLoading } = useCheckUserAuth(pathname);
 
   const { user } = useSelector((u: RootState) => u.user);
   const { chat_socket } = useSelector((s: RootState) => s.chatSocket);
@@ -74,13 +74,8 @@ export const MainApp = () => {
     disconnectCB
   );
 
-  console.log(data);
-  console.log(data?.result);
-
   // if user is not logged in redirect to log in page
-  if ((data && !data.result) || isError) {
-    return <Navigate to="/registration/login" replace />;
-  }
+  if (isError) return <Navigate to="/registration/login" replace />;
 
   return (
     <main className="flex h-screen">

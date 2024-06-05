@@ -23,6 +23,7 @@ import type { Response, Request } from 'express';
 
 import type { SignUpDTO } from './dto/signup_payload.dto';
 import type { LoginPayloadDTO } from './dto/login_payload.dto';
+import type { VerificationQueryDTO } from './dto/verification_query.dto';
 
 import type { ResponsePayload } from './interfaces/registrationPayload';
 
@@ -39,29 +40,16 @@ export class AuthController {
   async verify(
     @Req() req: Request,
     @Res() res: Response,
-    @Query() search: { token: string },
+    @Query() search: VerificationQueryDTO,
   ) {
     const payload = await this.authService.verify(search.token, req);
 
-    console.log(payload);
-
+    // if user was verificated
     if (payload.status) {
-      return res
-        .cookie('access', payload.tokes.access, {
-          httpOnly: true,
-          maxAge: 3600000, // alive 1h
-          sameSite: 'strict',
-          secure: true,
-        })
-        .cookie('refresh', payload.tokes.refresh, {
-          httpOnly: true,
-          maxAge: 86400000, // alive 1d
-          sameSite: 'strict',
-          secure: true,
-        })
-        .send(payload.message);
+      return this.responseController.successfulVerification(res, payload);
     }
 
+    // otherwise send message
     return res.send(payload.message);
   }
 
@@ -70,9 +58,9 @@ export class AuthController {
   @UseGuards(EmptyTokenGuard)
   @UseInterceptors(ErrorCatcherInterceptor)
   async login(
-    @Body() authPayload: LoginPayloadDTO,
     @Res() res: Response,
     @Req() req: Request,
+    @Body() authPayload: LoginPayloadDTO,
   ) {
     const payload: ResponsePayload = await this.authService.login(
       authPayload,
