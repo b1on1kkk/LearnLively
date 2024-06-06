@@ -2,7 +2,9 @@ import { useState } from "react";
 import { Button, Chip, Image } from "@nextui-org/react";
 import { Outlet, useLocation, Link } from "react-router-dom";
 
-import { ShieldAlert } from "lucide-react";
+import { Notification } from "../../components/Notification";
+
+import { Send, ShieldAlert } from "lucide-react";
 
 import { RegistrationContext } from "../../context/RegistrationContext/registrationContext";
 
@@ -11,6 +13,7 @@ import { QUERY_ROOT } from "../../constants/Query/query";
 import type { TRegistrationError } from "../../interfaces/Registration/Validation";
 
 export const Registration = () => {
+  const [verifMail, setVerifMail] = useState<boolean>(false);
   const [error, setError] = useState<TRegistrationError | null>(null);
 
   const location = useLocation();
@@ -29,9 +32,11 @@ export const Registration = () => {
         />
       </div>
 
-      <RegistrationContext.Provider value={{ errorSetter: setError }}>
-        <div className="flex-1 flex justify-center flex-col">
-          <div className="px-52">
+      <RegistrationContext.Provider
+        value={{ setVerifMail, errorSetter: setError }}
+      >
+        <div className="flex-1 flex justify-center flex-col items-center">
+          <div className="w-[400px]">
             {error && (
               <Chip
                 startContent={<ShieldAlert width={20} height={20} />}
@@ -66,7 +71,14 @@ export const Registration = () => {
               </div>
             )}
 
-            <Outlet />
+            {verifMail ? (
+              <Notification
+                icon={<Send width={80} height={80} />}
+                message="Check your email. Verification mail was sent!"
+              />
+            ) : (
+              <Outlet />
+            )}
           </div>
         </div>
       </RegistrationContext.Provider>

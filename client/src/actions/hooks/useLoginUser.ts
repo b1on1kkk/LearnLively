@@ -24,7 +24,8 @@ const useLoginUser = () => {
           `${QUERY_ROOT}auth/login`,
           {
             email: user.email,
-            password: user.password
+            password: user.password,
+            remember_me: user.remember_me
           },
           {
             withCredentials: true,

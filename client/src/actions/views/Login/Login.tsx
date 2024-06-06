@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useReducer, useState } from "react";
 
 import { Mail, KeyRound, Eye, EyeOff } from "lucide-react";
-import { Button, Input, Progress, Spinner } from "@nextui-org/react";
+import { Button, Checkbox, Input, Progress, Spinner } from "@nextui-org/react";
 
 import useLoginUser from "../../hooks/useLoginUser";
 import useFillPercentage from "../../hooks/useFillPercentage";
@@ -58,9 +58,11 @@ export const Login = () => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
+
           loginUser.mutate({
             email: state.email,
-            password: state.password
+            password: state.password,
+            remember_me: state.remember_me
           });
         }}
         className="flex flex-col gap-5"
@@ -127,7 +129,20 @@ export const Login = () => {
           }}
         />
 
-        <div className="mt-5 mb-5">
+        <Checkbox
+          size="md"
+          radius="sm"
+          color="primary"
+          classNames={{ label: "text-small" }}
+          isSelected={JSON.parse(state.remember_me)}
+          onValueChange={(e) =>
+            dispatch({ type: SignActionKind.REMEMBER_ME, payload: `${e}` })
+          }
+        >
+          Remember me
+        </Checkbox>
+
+        <>
           {fillPercentage === 100 && validityCorrectness ? (
             <Button type="submit" color="secondary" className="min-w-[130px]">
               {loginUser.isPending ? (
@@ -153,7 +168,7 @@ export const Login = () => {
               size="sm"
             />
           )}
-        </div>
+        </>
       </form>
       <div className="mt-12">
         <p className="text-center text-gray-600 text-sm font-semibold">

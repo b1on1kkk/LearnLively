@@ -32,6 +32,12 @@ export function signReducer(state: SignState, action: SignAction) {
         ...state,
         password: payload
       };
+    case SignActionKind.REMEMBER_ME:
+      return {
+        ...state,
+        remember_me: payload
+      };
+
     default:
       return state;
   }

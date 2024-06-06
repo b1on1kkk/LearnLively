@@ -1,16 +1,14 @@
 import axios, { AxiosError } from "axios";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+import useLocalStorage from "./useLocalStorage";
+import { useMutation } from "@tanstack/react-query";
 
 import { QUERY_ROOT } from "../constants/Query/query";
 
 import type { SignState } from "../interfaces/Registration/Validation";
-import { useNavigate } from "react-router-dom";
 import type { RegistrationUser } from "../interfaces/Registration/registration";
-import useLocalStorage from "./useLocalStorage";
 
-const useCreateUser = () => {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
+const useCreateUser = (setVerifMail: (e: boolean) => void) => {
   const { setValue } = useLocalStorage("device_id", "");
 
   return useMutation<RegistrationUser, AxiosError, SignState>({
@@ -25,13 +23,7 @@ const useCreateUser = () => {
         });
     },
 
-    onSuccess: () => {
-      navigate("/dashboard");
-
-      queryClient.invalidateQueries({
-        queryKey: ["user"]
-      });
-    }
+    onSuccess: () => setVerifMail(true)
   });
 };
 

@@ -13,7 +13,7 @@ import { store } from "./store/store.ts";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 3,
+      retry: 1,
       refetchOnWindowFocus: false
     }
   }

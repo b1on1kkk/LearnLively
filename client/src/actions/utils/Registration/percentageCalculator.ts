@@ -1,4 +1,6 @@
-import { SignState } from "../../interfaces/Registration/Validation";
+import { isBooleanString } from "../../type_guards/isBooleanString";
+
+import type { SignState } from "../../interfaces/Registration/Validation";
 
 export function percentageCalculator(
   state: SignState,
@@ -8,7 +10,8 @@ export function percentageCalculator(
   let percentage = 0;
   const values: string[] = Object.values(state);
   values.forEach((value) => {
-    if (value.trim().replace(/\s+/g, "") !== "") {
+    // if string is not empty and it is not "false" or "true" - add custom percentage
+    if (value.trim().replace(/\s+/g, "") !== "" && !isBooleanString(value)) {
       percentage += to_add;
     }
   });

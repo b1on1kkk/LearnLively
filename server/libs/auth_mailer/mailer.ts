@@ -19,10 +19,12 @@ export class AuthMailer {
   public async sendAuthMail() {
     const transport = nodemailer.createTransport(TRANSPORTER_CONFIG);
 
+    // generate token with specific information
     const token = this.jwtService.sign(
       {
         user_id: this.credentials.user_id,
         device_id: this.credentials.device_id,
+        remember_me: this.credentials.remember_me,
       },
       {
         secret: process.env.JWT_AUTH_MAIL_TOKEN,

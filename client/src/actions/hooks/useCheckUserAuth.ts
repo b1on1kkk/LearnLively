@@ -26,7 +26,9 @@ const useCheckUserAuth = (path: string) => {
 
           return res.data;
         })
-        .catch((err) => err);
+        .catch((err) => {
+          throw err;
+        });
     },
     staleTime: 0
   });

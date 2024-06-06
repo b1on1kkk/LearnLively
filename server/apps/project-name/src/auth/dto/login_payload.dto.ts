@@ -6,4 +6,7 @@ export class LoginPayloadDTO {
 
   @IsString()
   password: string;
+
+  @IsString()
+  remember_me: string;
 }

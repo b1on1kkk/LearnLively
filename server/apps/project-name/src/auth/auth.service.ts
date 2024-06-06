@@ -19,6 +19,7 @@ import type { SignUpDTO } from './dto/signup_payload.dto';
 import type { LoginPayloadDTO } from './dto/login_payload.dto';
 
 import type { verifyDecodedData } from './interfaces/verifyDecodedData';
+import { AuthMailerDTO } from './dto/authMailer.dto';
 
 @Injectable()
 export class AuthService {
@@ -60,9 +61,11 @@ export class AuthService {
       user.id,
     );
 
-    try {
-      const device_id: string = req.headers['x-header-device_id'] as string;
+    // generate new device_id if old is not saved
+    const header_device_id = req.headers['x-header-device_id'] as string;
+    const device_id: string = header_device_id ? header_device_id : uuidv4();
 
+    try {
       if (device_id) {
         // update token data
         await this.prisma.refresh_token_metadata.updateMany({
@@ -76,17 +79,7 @@ export class AuthService {
             issuedAt: this.sharedService.decodeToken(refresh_token).iat,
           },
         });
-
-        return {
-          device_id: device_id,
-          tokens: {
-            access: access_token,
-            refresh: refresh_token,
-          },
-        };
       } else {
-        const device_id = uuidv4();
-
         await this.prisma.refresh_token_metadata.create({
           data: {
             user_id: user.id,
@@ -96,18 +89,28 @@ export class AuthService {
             device_id: device_id,
           },
         });
-
-        return {
-          device_id: device_id,
-          tokens: {
-            access: access_token,
-            refresh: refresh_token,
-          },
-        };
       }
     } catch (error) {
       throw new HttpException('Login error occured', HttpStatus.BAD_GATEWAY);
     }
+
+    if (JSON.parse(payload.remember_me) === true) {
+      return {
+        device_id: device_id,
+        tokens: {
+          access: access_token,
+          refresh: refresh_token,
+        },
+      };
+    }
+
+    return {
+      device_id: device_id,
+      tokens: {
+        access: access_token,
+        refresh: null,
+      },
+    };
   }
 
   async signup(authPayload: SignUpDTO) {
@@ -138,10 +141,11 @@ export class AuthService {
       const device_id: string = uuidv4();
 
       // values that will stored in verify jwt
-      const credentials = {
+      const credentials: AuthMailerDTO = {
         user_id: user_id,
         device_id: device_id,
         to: authPayload.email,
+        remember_me: authPayload.remember_me,
       };
 
       // send email with token and data in it
@@ -233,7 +237,7 @@ export class AuthService {
         status: true,
         tokens: {
           access: access_token,
-          refresh: refresh_token,
+          refresh: JSON.parse(decoded.remember_me) ? refresh_token : null,
         },
       };
     } catch (error) {

@@ -3,7 +3,8 @@ export const INITIAL_SIGN = {
   lastname: "",
   surname: "",
   email: "",
-  password: ""
+  password: "",
+  remember_me: "false"
 };
 
 export const FORM_VALIDITY_INITIAL = {

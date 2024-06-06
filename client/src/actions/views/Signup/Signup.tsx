@@ -1,7 +1,14 @@
 import { Link } from "react-router-dom";
 import { useEffect, useReducer, useState } from "react";
 
-import { Button, Input, Progress, Spinner, Switch } from "@nextui-org/react";
+import {
+  Button,
+  Checkbox,
+  Input,
+  Progress,
+  Spinner,
+  Switch
+} from "@nextui-org/react";
 import { UserRound, Mail, KeyRound, Eye, EyeOff } from "lucide-react";
 
 import useCreateUser from "../../hooks/useCreateUser";
@@ -23,7 +30,9 @@ import {
 } from "../../interfaces/Registration/Validation";
 
 export const Signup = () => {
-  const createUser = useCreateUser();
+  const { setVerifMail } = useRegistrationContext();
+
+  const createUser = useCreateUser(setVerifMail);
   const { errorSetter } = useRegistrationContext();
 
   const [isVisible, setIsVisible] = useState<boolean>(true);
@@ -59,6 +68,7 @@ export const Signup = () => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
+
           createUser.mutate(state);
         }}
         className="flex flex-col gap-5"
@@ -226,7 +236,20 @@ export const Signup = () => {
           </p>
         </div>
 
-        <div className="mt-5 mb-5">
+        <Checkbox
+          size="md"
+          radius="sm"
+          color="primary"
+          classNames={{ label: "text-small" }}
+          isSelected={JSON.parse(state.remember_me)}
+          onValueChange={(e) =>
+            dispatch({ type: SignActionKind.REMEMBER_ME, payload: `${e}` })
+          }
+        >
+          Remember me
+        </Checkbox>
+
+        <>
           {fillPercentage === 100 && validityCorrectness ? (
             <Button type="submit" color="secondary" className="min-w-[130px]">
               {createUser.isPending ? (
@@ -253,7 +276,7 @@ export const Signup = () => {
               color="secondary"
             />
           )}
-        </div>
+        </>
       </form>
       <div className="mt-12">
         <p className="text-center text-gray-600 text-sm font-semibold">

@@ -26,6 +26,7 @@ import type { LoginPayloadDTO } from './dto/login_payload.dto';
 import type { VerificationQueryDTO } from './dto/verification_query.dto';
 
 import type { ResponsePayload } from './interfaces/registrationPayload';
+import { successfulVerifyPayload } from './interfaces/successfulVerifyPayload.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -42,7 +43,10 @@ export class AuthController {
     @Res() res: Response,
     @Query() search: VerificationQueryDTO,
   ) {
-    const payload = await this.authService.verify(search.token, req);
+    const payload: successfulVerifyPayload = await this.authService.verify(
+      search.token,
+      req,
+    );
 
     // if user was verificated
     if (payload.status) {

@@ -3,7 +3,8 @@ export enum SignActionKind {
   LASTNAME = "LASTNAME",
   SURNAME = "SURNAME",
   EMAIL = "EMAIL",
-  PASSWORD = "PASSWORD"
+  PASSWORD = "PASSWORD",
+  REMEMBER_ME = "REMEMBER_ME"
 }
 
 export interface SignAction {
@@ -17,6 +18,7 @@ export interface SignState {
   surname: string;
   email: string;
   password: string;
+  remember_me: string;
 }
 
 export enum WhatToValidity {
@@ -47,6 +49,7 @@ export interface TRegistrationError {
 }
 
 export interface TRegistrationContext {
+  setVerifMail: (e: boolean) => void;
   errorSetter: (e: TRegistrationError | null) => void;
 }
 
