@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom";
-import { useEffect, useReducer, useState } from "react";
+import { useReducer, useState } from "react";
 
 import { Mail, KeyRound, Eye, EyeOff } from "lucide-react";
 import { Button, Checkbox, Input, Progress, Spinner } from "@nextui-org/react";
 
 import useLoginUser from "../../hooks/useLoginUser";
 import useFillPercentage from "../../hooks/useFillPercentage";
-import useRegistrationContext from "../../hooks/useRegistrationContext";
 import useValidityCorrectness from "../../hooks/useValidityCorrectness";
+import useErrorHandling from "../../hooks/useRegistrationErrorHandling";
 
 import { signReducer } from "../../reducers/Registration/registrationReducer";
 import { formValidityReducer } from "../../reducers/Registration/formValidityReducer";
@@ -23,8 +23,10 @@ import {
 } from "../../interfaces/Registration/Validation";
 
 export const Login = () => {
-  const { errorSetter } = useRegistrationContext();
   const loginUser = useLoginUser();
+
+  // hook that tracks if error was occured
+  useErrorHandling(loginUser.error);
 
   const [isVisible, setIsVisible] = useState<boolean>(true);
 
@@ -38,16 +40,6 @@ export const Login = () => {
   // utils
   const fillPercentage = useFillPercentage(state, true, 50);
   const validityCorrectness = useValidityCorrectness(formValidity);
-
-  useEffect(() => {
-    if (loginUser.error) {
-      errorSetter({
-        error_code: loginUser.error.code!
-      });
-      return;
-    }
-    errorSetter(null);
-  }, [loginUser.error, errorSetter]);
 
   return (
     <>

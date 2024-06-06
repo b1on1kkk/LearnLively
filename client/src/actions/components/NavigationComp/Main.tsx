@@ -8,7 +8,7 @@ export const Main = () => {
 
   return (
     <div className="flex justify-center flex-col items-center py-6 border-b-1 border-slate-800 h-[280px]">
-      {user && (
+      {user ? (
         <>
           <Image
             isBlurred
@@ -25,6 +25,14 @@ export const Main = () => {
               {user.role}
             </span>
           </div>
+        </>
+      ) : (
+        <>
+          <div className="w-[160px] h-[160px] bg-gray-600 rounded-lg animate-pulse" />
+
+          <div className="w-[130px] h-[20px] bg-gray-600 rounded-lg mt-4 animate-pulse" />
+
+          <div className="w-[70px] h-[13px] bg-gray-600 rounded-lg mt-1 animate-pulse" />
         </>
       )}
     </div>

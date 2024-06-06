@@ -39,16 +39,16 @@ export class AuthService {
       },
     });
 
+    // check if this user is exist
+    if (!user) throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
+
     // check if authentication status is not true to send user error
     if (!user.auth_status) {
       throw new HttpException(
-        'Verify your account by link that was send to your email!',
+        'This account is not verified!',
         HttpStatus.BAD_REQUEST,
       );
     }
-
-    // check if this user is exist
-    if (!user) throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
 
     const passwordMatch = await bcrypt.compare(payload.password, user.password);
 

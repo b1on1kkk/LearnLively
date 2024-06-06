@@ -6,12 +6,13 @@ import { useMutation } from "@tanstack/react-query";
 import { QUERY_ROOT } from "../constants/Query/query";
 
 import type { SignState } from "../interfaces/Registration/Validation";
+import type { errorPayload } from "../interfaces/Registration/errorPayload";
 import type { RegistrationUser } from "../interfaces/Registration/registration";
 
 const useCreateUser = (setVerifMail: (e: boolean) => void) => {
   const { setValue } = useLocalStorage("device_id", "");
 
-  return useMutation<RegistrationUser, AxiosError, SignState>({
+  return useMutation<RegistrationUser, AxiosError<errorPayload>, SignState>({
     mutationFn: (user: SignState) => {
       return axios
         .post<RegistrationUser>(`${QUERY_ROOT}auth/signup`, user, {

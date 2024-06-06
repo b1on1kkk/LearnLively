@@ -43,10 +43,8 @@ export const Registration = () => {
                 color="danger"
                 classNames={{ base: "mb-5" }}
               >
-                Sorry, but error occured:{" "}
-                <span className="uppercase font-semibold">
-                  {error.error_code}
-                </span>
+                Error was occured:{" "}
+                <span className="font-semibold">{error.error_code}</span>
               </Chip>
             )}
 

@@ -74,10 +74,6 @@ export const MainApp = () => {
     disconnectCB
   );
 
-  console.log(data);
-
-  console.log(isError);
-
   // if user is not logged in redirect to log in page
   if ((!data || isError) && !isLoading) {
     return <Navigate to="/registration/login" replace />;

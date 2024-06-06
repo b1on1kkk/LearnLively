@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useEffect, useReducer, useState } from "react";
+import { useReducer, useState } from "react";
 
 import {
   Button,
@@ -15,6 +15,7 @@ import useCreateUser from "../../hooks/useCreateUser";
 import useFillPercentage from "../../hooks/useFillPercentage";
 import useValidityCorrectness from "../../hooks/useValidityCorrectness";
 import useRegistrationContext from "../../hooks/useRegistrationContext";
+import useErrorHandling from "../../hooks/useRegistrationErrorHandling";
 
 import { signReducer } from "../../reducers/Registration/registrationReducer";
 import { formValidityReducer } from "../../reducers/Registration/formValidityReducer";
@@ -33,7 +34,9 @@ export const Signup = () => {
   const { setVerifMail } = useRegistrationContext();
 
   const createUser = useCreateUser(setVerifMail);
-  const { errorSetter } = useRegistrationContext();
+
+  // hook that tracks if error was occured
+  useErrorHandling(createUser.error);
 
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const [policy, setPolicy] = useState<boolean>(false);
@@ -48,16 +51,6 @@ export const Signup = () => {
   // utils
   const fillPercentage = useFillPercentage(state, policy, 17);
   const validityCorrectness = useValidityCorrectness(formValidity);
-
-  useEffect(() => {
-    if (createUser.error) {
-      errorSetter({
-        error_code: createUser.error.code!
-      });
-      return;
-    }
-    errorSetter(null);
-  }, [createUser.error, errorSetter]);
 
   return (
     <>

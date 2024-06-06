@@ -7,6 +7,7 @@ import { QUERY_ROOT } from "../constants/Query/query";
 
 import type { SignState } from "../interfaces/Registration/Validation";
 import type { RegistrationUser } from "../interfaces/Registration/registration";
+import type { errorPayload } from "../interfaces/Registration/errorPayload";
 
 const useLoginUser = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const useLoginUser = () => {
 
   return useMutation<
     RegistrationUser,
-    AxiosError,
+    AxiosError<errorPayload>,
     Omit<SignState, "name" | "lastname" | "surname">
   >({
     mutationFn: (user: Omit<SignState, "name" | "lastname" | "surname">) =>
