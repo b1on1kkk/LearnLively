@@ -11,6 +11,8 @@ import {
 } from "@nextui-org/react";
 import { UserRound, Mail, KeyRound, Eye, EyeOff } from "lucide-react";
 
+import { RegistrationGoogleButton } from "../../components/RegistrationGoogleButton/RegistrationGoogleButton";
+
 import useCreateUser from "../../hooks/useCreateUser";
 import useFillPercentage from "../../hooks/useFillPercentage";
 import useValidityCorrectness from "../../hooks/useValidityCorrectness";
@@ -271,6 +273,10 @@ export const Signup = () => {
           )}
         </>
       </form>
+
+      {/* google button sign up */}
+      <RegistrationGoogleButton type="signup" />
+
       <div className="mt-12">
         <p className="text-center text-gray-600 text-sm font-semibold">
           Already have an account?{" "}

@@ -4,6 +4,8 @@ import { useReducer, useState } from "react";
 import { Mail, KeyRound, Eye, EyeOff } from "lucide-react";
 import { Button, Checkbox, Input, Progress, Spinner } from "@nextui-org/react";
 
+import { RegistrationGoogleButton } from "../../components/RegistrationGoogleButton/RegistrationGoogleButton";
+
 import useLoginUser from "../../hooks/useLoginUser";
 import useFillPercentage from "../../hooks/useFillPercentage";
 import useValidityCorrectness from "../../hooks/useValidityCorrectness";
@@ -160,13 +162,8 @@ export const Login = () => {
         </>
       </form>
 
-      <button
-        onClick={() => {
-          window.open("http://localhost:3000/auth/google", "_self");
-        }}
-      >
-        random button
-      </button>
+      {/* google button log in */}
+      <RegistrationGoogleButton type="login" />
 
       <div className="mt-12">
         <p className="text-center text-gray-600 text-sm font-semibold">
