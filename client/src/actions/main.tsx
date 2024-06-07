@@ -12,6 +12,8 @@ import { store } from "./store/store.ts";
 
 import { BugReport } from "./components/BugReport/BugReport.tsx";
 
+import { GoogleOAuthProvider } from "@react-oauth/google";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -26,7 +28,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <NextUIProvider>
       <NextThemesProvider attribute="class" defaultTheme="dark">
         <Provider store={store}>
-          <App />
+          <GoogleOAuthProvider
+            clientId={import.meta.env.VITE_REACT_APP_GOOGLE_API_TOKEN}
+          >
+            <App />
+          </GoogleOAuthProvider>
           <BugReport />
         </Provider>
       </NextThemesProvider>

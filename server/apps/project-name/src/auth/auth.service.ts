@@ -29,6 +29,17 @@ export class AuthService {
     private readonly sharedService: SharedService,
   ) {}
 
+  async loginGoogleUser(req: Request) {
+    if (!req.user) {
+      return 'No user from google';
+    }
+
+    return {
+      message: 'User information from google',
+      user: req.user,
+    };
+  }
+
   async login(payload: LoginPayloadDTO, req: Request) {
     const user = await this.prisma.users.findFirst({
       where: { email: payload.email },

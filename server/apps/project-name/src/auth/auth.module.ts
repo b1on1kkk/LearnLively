@@ -7,6 +7,7 @@ import { SharedModule } from '@sharedService/shared';
 import { PrismaModule } from '@prismaORM/prisma';
 import { AuthResponseController } from 'libs/auth_response_controller/response.controller';
 import { JwtService } from '@nestjs/jwt';
+import { GoogleStrategy } from './strategy/google-oauth.strategy';
 
 @Module({
   imports: [SharedModule, PrismaModule],
@@ -17,6 +18,7 @@ import { JwtService } from '@nestjs/jwt';
     EmptyTokenGuard,
     ErrorCatcherInterceptor,
     AuthResponseController,
+    GoogleStrategy,
   ],
   exports: [],
 })

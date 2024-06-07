@@ -11,6 +11,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 import { AuthService } from './auth.service';
 
@@ -26,7 +27,7 @@ import type { LoginPayloadDTO } from './dto/login_payload.dto';
 import type { VerificationQueryDTO } from './dto/verification_query.dto';
 
 import type { ResponsePayload } from './interfaces/registrationPayload';
-import { successfulVerifyPayload } from './interfaces/successfulVerifyPayload.interface';
+import type { successfulVerifyPayload } from './interfaces/successfulVerifyPayload.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -34,6 +35,25 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly responseController: AuthResponseController,
   ) {}
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth() {}
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
+    console.log(req.user);
+
+    res.redirect('http://localhost:3000/auth/test');
+  }
+
+  @Get('test')
+  async test(@Req() req: Request, @Res() res: Response) {
+    return res.redirect('http://localhost:5173');
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
 
   @HttpCode(200)
   @Get('verify')

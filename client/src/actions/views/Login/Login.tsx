@@ -82,7 +82,6 @@ export const Login = () => {
             });
           }}
         />
-
         <Input
           startContent={
             <KeyRound className="opacity-50" width={20} height={20} />
@@ -120,7 +119,6 @@ export const Login = () => {
             });
           }}
         />
-
         <Checkbox
           size="md"
           radius="sm"
@@ -133,7 +131,6 @@ export const Login = () => {
         >
           Remember me
         </Checkbox>
-
         <>
           {fillPercentage === 100 && validityCorrectness ? (
             <Button type="submit" color="secondary" className="min-w-[130px]">
@@ -162,6 +159,15 @@ export const Login = () => {
           )}
         </>
       </form>
+
+      <button
+        onClick={() => {
+          window.open("http://localhost:3000/auth/google", "_self");
+        }}
+      >
+        random button
+      </button>
+
       <div className="mt-12">
         <p className="text-center text-gray-600 text-sm font-semibold">
           New to this web-app?{" "}
