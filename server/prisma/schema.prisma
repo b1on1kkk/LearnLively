@@ -27,10 +27,11 @@ model users {
   end_semester                     Int
   now_semester                     Int
   department                       String                   @db.VarChar(255)
-  password                         String                   @db.VarChar(255)
+  password                         String?                  @db.VarChar(255)
   img_hash_name                    String                   @db.VarChar(255)
   created_at                       DateTime                 @db.Timestamp(6)
   auth_status                      Boolean
+  external_status                  account_external
   friends_friends_friend_idTousers friends[]                @relation("friends_friend_idTousers")
   friends_friends_user_idTousers   friends[]                @relation("friends_user_idTousers")
   group_users                      group_users[]
@@ -137,4 +138,9 @@ enum device_type {
   phone
   laptop
   tablet
+}
+
+enum account_external {
+  GOOGLE
+  OPEN_ID
 }

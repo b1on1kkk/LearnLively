@@ -17,6 +17,8 @@ import { AuthService } from './auth.service';
 
 import { EmptyTokenGuard } from './guard/empty_token.guard';
 
+import { GetGoogleAuthType } from './lib/getGoogleAuthType.lib';
+
 import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.interceptor';
 import { AuthResponseController } from 'libs/auth_response_controller/response.controller';
 
@@ -36,24 +38,48 @@ export class AuthController {
     private readonly responseController: AuthResponseController,
   ) {}
 
+  /////////////////////////////////////GOOGLE AUTH/////////////////////////////////////////
+
   @Get('google')
-  @UseGuards(AuthGuard('google'))
-  async googleAuth() {}
+  googleAuth(@Query('auth_type') query: string, @Res() res: Response) {
+    const { type }: { type: 'signup' | 'login' } = JSON.parse(query);
+    GetGoogleAuthType.setType(type);
+
+    return res.redirect('/auth/google/callback');
+  }
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
-    console.log(req.user);
-
-    res.redirect('http://localhost:3000/auth/test');
+  googleAuthRedirect(@Res() res: Response) {
+    switch (GetGoogleAuthType.getType()) {
+      case 'login':
+        return res.redirect('/auth/google/login');
+      case 'signup':
+        return res.redirect('/auth/google/signup');
+      default:
+        return res.redirect(
+          `${process.env.CLIENT_ROOT_DOMAIN}registration/login`,
+        );
+    }
   }
 
-  @Get('test')
-  async test(@Req() req: Request, @Res() res: Response) {
-    return res.redirect('http://localhost:5173');
+  @Get('google/login')
+  async googleLogin(@Res() res: Response) {
+    console.log('login');
+
+    return res.redirect(process.env.CLIENT_ROOT_DOMAIN);
   }
 
-  //////////////////////////////////////////////////////////////////////////////
+  @Get('google/signup')
+  async googleSignup(@Res() res: Response) {
+    console.log('signup');
+
+    return res.redirect(process.env.CLIENT_ROOT_DOMAIN);
+  }
+
+  /////////////////////////////////////GOOGLE AUTH/////////////////////////////////////////
+
+  /////////////////////////////////////BASIC AUTH//////////////////////////////////////////
 
   @HttpCode(200)
   @Get('verify')
@@ -129,4 +155,6 @@ export class AuthController {
       await this.authService.logout(req),
     );
   }
+
+  /////////////////////////////////////BASIC AUTH//////////////////////////////////////////
 }

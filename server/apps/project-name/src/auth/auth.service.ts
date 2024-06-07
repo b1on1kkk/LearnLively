@@ -142,6 +142,7 @@ export class AuthService {
             AVATAR_NAMES[randomIntFromInterval(0, AVATAR_NAMES.length - 1)],
           created_at: new Date(),
           auth_status: false,
+          external_status: 'OPEN_ID',
         },
         select: {
           id: true,

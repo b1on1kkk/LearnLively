@@ -9,7 +9,14 @@ export const RegistrationGoogleButton = ({
 }) => {
   return (
     <button
-      onClick={() => window.open(`${QUERY_ROOT}auth/google`, "_self")}
+      onClick={() =>
+        window.open(
+          `${QUERY_ROOT}auth/google?auth_type=${encodeURIComponent(
+            JSON.stringify({ type })
+          )}`,
+          "_self"
+        )
+      }
       className="flex text-small p-2 items-center gap-3 bg-indigo-700 rounded-lg w-full mt-5 justify-center"
     >
       <span>
