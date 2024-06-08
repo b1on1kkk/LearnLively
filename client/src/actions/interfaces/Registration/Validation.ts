@@ -56,11 +56,12 @@ export interface TRegistrationContext {
 export interface User {
   id: number;
   name: string;
-  lastname: string;
-  surname: string;
-  role: "student" | "teacher";
   email: string;
+  surname: string;
+  lastname: string;
   img_hash_name: string;
+  role: "student" | "teacher";
+  external_status: "GOOGLE" | "OPEN_ID";
 }
 
 export interface UserSlice {

@@ -25,14 +25,10 @@ export class ChatSocket implements WebSocket {
   constructor(
     url: string,
     user_id: number,
-    dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>,
-    device_id: string
+    dispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>
   ) {
     // create first handshake with credentials to make it secure
-    this.socket = io(url, {
-      withCredentials: true,
-      auth: { device_id: device_id, user_id: user_id }
-    });
+    this.socket = io(url, { withCredentials: true });
 
     this.connectUser(user_id);
     this.reduxDispatch = dispatch;

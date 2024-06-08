@@ -3,6 +3,8 @@ import { useSelector } from "react-redux";
 
 import { RootState } from "../../store/store";
 
+import { ImageBasedOnType } from "../../utils/Image/ImageBasedOnType";
+
 export const Main = () => {
   const { user } = useSelector((u: RootState) => u.user);
 
@@ -14,7 +16,7 @@ export const Main = () => {
             isBlurred
             alt="user avatar"
             width={160}
-            src={`http://localhost:3000/api/avatars/${user.img_hash_name}.jpg`}
+            src={ImageBasedOnType(user.external_status, user.img_hash_name)}
           />
 
           <div className="flex flex-col items-center mt-4">

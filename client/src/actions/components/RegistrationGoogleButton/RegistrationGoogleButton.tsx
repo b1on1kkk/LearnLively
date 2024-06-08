@@ -8,23 +8,33 @@ export const RegistrationGoogleButton = ({
   type: "signup" | "login";
 }) => {
   return (
-    <button
-      onClick={() =>
-        window.open(
-          `${QUERY_ROOT}auth/google?auth_type=${encodeURIComponent(
-            JSON.stringify({ type })
-          )}`,
-          "_self"
-        )
-      }
-      className="flex text-small p-2 items-center gap-3 bg-indigo-700 rounded-lg w-full mt-5 justify-center"
-    >
-      <span>
-        <img src={google_icon} alt="google_icon" />
-      </span>
-      <span className="font-semibold">
-        {type === "login" ? <>Log in with Google</> : <>Sign up with Google</>}
-      </span>
-    </button>
+    <div>
+      <div className="my-3 text-center">
+        <span className="text-small">or</span>
+      </div>
+
+      <button
+        onClick={() =>
+          window.open(
+            `${QUERY_ROOT}auth/google?auth_type=${encodeURIComponent(
+              JSON.stringify({ type })
+            )}`,
+            "_self"
+          )
+        }
+        className="flex text-small p-2 items-center gap-3 bg-primary-400 rounded-medium w-full justify-center hover:bg-primary-300 transition-colors"
+      >
+        <span>
+          <img src={google_icon} alt="google_icon" />
+        </span>
+        <span className="font-semibold">
+          {type === "login" ? (
+            <>Log in with Google</>
+          ) : (
+            <>Sign up with Google</>
+          )}
+        </span>
+      </button>
+    </div>
   );
 };

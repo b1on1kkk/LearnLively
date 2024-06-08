@@ -92,8 +92,7 @@ export class AuthService {
           now_semester: 1,
           department: 'Test D.',
           password: null,
-          img_hash_name:
-            AVATAR_NAMES[randomIntFromInterval(0, AVATAR_NAMES.length - 1)],
+          img_hash_name: signup_user.picture,
           created_at: new Date(),
           auth_status: true,
           external_status: 'GOOGLE',
@@ -130,42 +129,51 @@ export class AuthService {
   /////////////////////////////////////BASIC AUTH//////////////////////////////////////////
 
   async login(payload: LoginPayloadDTO, req: Request) {
-    const user = await this.prisma.users.findFirst({
-      where: { email: payload.email },
-      select: {
-        id: true,
-        password: true,
-        auth_status: true,
-      },
-    });
-
-    // check if this user is exist
-    if (!user) throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
-
-    // check if authentication status is not true to send user error
-    if (!user.auth_status) {
-      throw new HttpException(
-        'This account is not verified!',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    const passwordMatch = await bcrypt.compare(payload.password, user.password);
-
-    if (!passwordMatch) {
-      throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
-    }
-
-    // if user exist, generate tokens
-    const { access_token, refresh_token } = this.sharedService.tokensGenerator(
-      user.id,
-    );
-
-    // generate new device_id if old is not saved
-    const header_device_id = req.headers['x-header-device_id'] as string;
-    const device_id: string = header_device_id ? header_device_id : uuidv4();
-
     try {
+      const user = await this.prisma.users.findFirst({
+        where: { email: payload.email },
+        select: {
+          id: true,
+          password: true,
+          auth_status: true,
+        },
+      });
+
+      // check if this user is exist
+      if (!user)
+        throw new HttpException(
+          'User not found or exist!',
+          HttpStatus.NOT_FOUND,
+        );
+
+      // check if authentication status is not true to send user error
+      if (!user.auth_status) {
+        throw new HttpException(
+          'This account is not verified!',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const passwordMatch = await bcrypt.compare(
+        payload.password,
+        user.password,
+      );
+
+      if (!passwordMatch) {
+        throw new HttpException(
+          'User not found or exist!',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      // if user exist, generate tokens
+      const { access_token, refresh_token } =
+        this.sharedService.tokensGenerator(user.id);
+
+      // generate new device_id if old is not saved
+      const header_device_id = req.headers['x-header-device_id'] as string;
+      const device_id: string = header_device_id ? header_device_id : uuidv4();
+
       if (device_id) {
         // update token data
         await this.prisma.refresh_token_metadata.updateMany({
@@ -190,27 +198,31 @@ export class AuthService {
           },
         });
       }
-    } catch (error) {
-      throw new HttpException('Login error occured', HttpStatus.BAD_GATEWAY);
-    }
 
-    if (JSON.parse(payload.remember_me) === true) {
+      if (JSON.parse(payload.remember_me) === true) {
+        return {
+          device_id: device_id,
+          tokens: {
+            access: access_token,
+            refresh: refresh_token,
+          },
+        };
+      }
+
       return {
         device_id: device_id,
         tokens: {
           access: access_token,
-          refresh: refresh_token,
+          refresh: null,
         },
       };
-    }
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw new HttpException(error.message, error.getStatus());
+      }
 
-    return {
-      device_id: device_id,
-      tokens: {
-        access: access_token,
-        refresh: null,
-      },
-    };
+      throw new HttpException('Login error occured', HttpStatus.BAD_GATEWAY);
+    }
   }
 
   async signup(authPayload: SignUpDTO) {
@@ -252,10 +264,6 @@ export class AuthService {
       // send email with token and data in it
       const mailer = new AuthMailer(this.jwtService, credentials);
       mailer.sendAuthMail();
-
-      return {
-        device_id: device_id,
-      };
     } catch (error) {
       throw new HttpException(
         'User with this credentials is exist',

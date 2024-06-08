@@ -1,22 +1,28 @@
 import {
   CallHandler,
-  ExecutionContext,
   HttpException,
   HttpStatus,
   Injectable,
+  ExecutionContext,
   NestInterceptor,
 } from '@nestjs/common';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+
+import { Response } from 'express';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { Observable, catchError, throwError } from 'rxjs';
 
 @Injectable()
-export class ErrorCatcherInterceptor implements NestInterceptor {
-  intercept(
-    context: ExecutionContext,
-    next: CallHandler<any>,
-  ): Observable<any> | Promise<Observable<any>> {
+export class ExternalAuthCatcherInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       catchError((err: HttpException | PrismaClientKnownRequestError) => {
+        const response = context.switchToHttp().getResponse<Response>();
+
+        // redirect user back to registration page if error occured
+        response.redirect(process.env.CLIENT_REGISTRATION_ROUTE);
+
+        // throw some errors
         if (this.isHttpExceptionError(err)) {
           return throwError(
             () => new HttpException(err.message, err.getStatus()),

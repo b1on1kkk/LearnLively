@@ -85,4 +85,24 @@ export class AuthResponseController {
       })
       .send(payload.message);
   }
+
+  public successfulExternalResponse(
+    res: Response,
+    tokens: { access: string; refresh: string },
+  ) {
+    return res
+      .cookie('access', tokens.access, {
+        httpOnly: true,
+        maxAge: 3600000, // alive 1h
+        sameSite: 'strict',
+        secure: true,
+      })
+      .cookie('refresh', tokens.refresh, {
+        httpOnly: true,
+        maxAge: 86400000, // alive 1d
+        sameSite: 'strict',
+        secure: true,
+      })
+      .redirect(process.env.CLIENT_ROOT_DOMAIN);
+  }
 }

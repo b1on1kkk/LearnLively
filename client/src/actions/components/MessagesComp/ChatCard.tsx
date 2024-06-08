@@ -9,7 +9,7 @@ import { RootState } from "../../store/store";
 
 import { isOnline } from "../../utils/Message/isOnline";
 import { ChatGuard } from "../../utils/Message/chatGuard";
-import { toImageLink } from "../../utils/Students/toImageLink";
+import { ImageBasedOnType } from "../../utils/Image/ImageBasedOnType";
 
 import type { TChatCard } from "../../interfaces/Message/Chats";
 
@@ -38,7 +38,8 @@ export const ChatCard = ({ data, onClick, uuid_code }: TChatCard) => {
         ) : (
           <div className="w-[50px] h-[50px] relative">
             <Image
-              src={toImageLink(
+              src={ImageBasedOnType(
+                data.conversations.users_conversations[0].users.external_status,
                 data.conversations.users_conversations[0].users.img_hash_name
               )}
               className="rounded-full"

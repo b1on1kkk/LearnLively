@@ -77,6 +77,7 @@ export class SharedService {
             },
           },
         },
+        external_status: true,
       },
     });
   }

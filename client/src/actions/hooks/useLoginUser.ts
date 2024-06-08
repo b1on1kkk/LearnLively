@@ -1,18 +1,16 @@
 import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
-import useLocalStorage from "./useLocalStorage";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { QUERY_ROOT } from "../constants/Query/query";
 
 import type { SignState } from "../interfaces/Registration/Validation";
-import type { RegistrationUser } from "../interfaces/Registration/registration";
 import type { errorPayload } from "../interfaces/Registration/errorPayload";
+import type { RegistrationUser } from "../interfaces/Registration/registration";
 
 const useLoginUser = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { setValue, storedValue } = useLocalStorage("device_id", "");
 
   return useMutation<
     RegistrationUser,
@@ -29,16 +27,10 @@ const useLoginUser = () => {
             remember_me: user.remember_me
           },
           {
-            withCredentials: true,
-            headers: {
-              "x-header-device_id": storedValue
-            }
+            withCredentials: true
           }
         )
-        .then((res) => {
-          setValue(res.data.payload.device_id);
-          return res.data;
-        }),
+        .then((res) => res.data),
 
     onSuccess: () => {
       navigate("/dashboard");

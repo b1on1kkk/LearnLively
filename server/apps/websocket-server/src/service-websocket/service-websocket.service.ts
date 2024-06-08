@@ -44,7 +44,7 @@ export class ServiceWebsocketService implements WebSocket {
     this.ActiveUsers = [];
   }
 
-  @UseGuards(JwtGuardGuard)
+  // @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('userConnected')
   connectionMessage(
@@ -78,7 +78,7 @@ export class ServiceWebsocketService implements WebSocket {
     }
   }
 
-  @UseGuards(JwtGuardGuard)
+  // @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('sendFriendRequest')
   async sendFriendRequest(
@@ -102,7 +102,7 @@ export class ServiceWebsocketService implements WebSocket {
     );
   }
 
-  @UseGuards(JwtGuardGuard)
+  // @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('acceptFriendRequest')
   async acceptFriendRequest(
@@ -153,7 +153,7 @@ export class ServiceWebsocketService implements WebSocket {
     );
   }
 
-  @UseGuards(JwtGuardGuard)
+  // @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('rejectFriendRequest')
   async rejectFriendRequest(
@@ -170,7 +170,7 @@ export class ServiceWebsocketService implements WebSocket {
     );
   }
 
-  @UseGuards(JwtGuardGuard)
+  // @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('startGroupChat')
   async startGroupChat(

@@ -125,6 +125,7 @@ export class ApiService {
                         department: true,
                         img_hash_name: true,
                         created_at: true,
+                        external_status: true,
                         friends_friends_friend_idTousers: {
                           where: {
                             user_id: user_id,

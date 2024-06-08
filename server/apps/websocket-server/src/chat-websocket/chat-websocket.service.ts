@@ -53,7 +53,7 @@ export class ChatWebsocketService implements WebSocket {
   }
 
   //////////////////////////////////////////////MAIN//////////////////////////////////////////////////////
-  @UseGuards(JwtGuardGuard)
+  // @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('userChatConnected')
   connectionMessage(
@@ -97,7 +97,7 @@ export class ChatWebsocketService implements WebSocket {
 
   //////////////////////////////////////////////MAIN END//////////////////////////////////////////////////
 
-  @UseGuards(JwtGuardGuard)
+  // @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('connectToChatRoom')
   async connectToChatRoom(
@@ -133,7 +133,7 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
-  @UseGuards(JwtGuardGuard)
+  // @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('leaveChatRoom')
   async leaveChatRoom(
@@ -153,7 +153,7 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
-  @UseGuards(JwtGuardGuard)
+  // @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('sendMessage')
   async sendMessage(@MessageBody() dto: SendMessageDTO) {
@@ -198,7 +198,7 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
-  @UseGuards(JwtGuardGuard)
+  // @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('isTyping')
   isTyping(@MessageBody() dto: isTypingDTO, @ConnectedSocket() client: Socket) {
@@ -209,7 +209,7 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
-  @UseGuards(JwtGuardGuard)
+  // @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('notTyping')
   notTyping(
@@ -225,7 +225,7 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
-  @UseGuards(JwtGuardGuard)
+  // @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('changeEditedMessage')
   async changeEditedMessage(@MessageBody() dto: SendMessageDTO) {
@@ -252,7 +252,7 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
-  @UseGuards(JwtGuardGuard)
+  // @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('deleteMessages')
   async deleteMessages(@MessageBody() dto: DeleteMessagesDTO) {
@@ -295,7 +295,7 @@ export class ChatWebsocketService implements WebSocket {
   }
 
   // will be changed in next upgrade
-  @UseGuards(JwtGuardGuard)
+  // @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('readMessage')
   async readMessage(

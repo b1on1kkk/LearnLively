@@ -28,6 +28,7 @@ export interface Student {
       conversation_hash: string;
     };
   }>;
+  external_status: "GOOGLE" | "OPEN_ID";
 }
 
 export interface TMainStudents {

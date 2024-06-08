@@ -75,7 +75,7 @@ export const MainApp = () => {
   );
 
   // if user is not logged in redirect to log in page
-  if ((!data || isError) && !isLoading) {
+  if ((!data || isError || !data.result) && !isLoading) {
     return <Navigate to="/registration/login" replace />;
   }
 

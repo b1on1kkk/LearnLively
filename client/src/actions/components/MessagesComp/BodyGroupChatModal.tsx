@@ -3,7 +3,10 @@ import useFirstChatLetter from "../../hooks/useFirstChatLetter";
 
 import { Checkbox, Input, Textarea, User, cn } from "@nextui-org/react";
 
-import { toImageLink } from "../../utils/Students/toImageLink";
+import { UsersRound } from "lucide-react";
+import { Notification } from "../Notification";
+
+import { ImageBasedOnType } from "../../utils/Image/ImageBasedOnType";
 
 import {
   GROUP_MODAL_INPUT_STYLES,
@@ -11,9 +14,6 @@ import {
 } from "../../constants/GroupModal/styles";
 
 import type { TBodyGroupChatModal } from "../../interfaces/Students/Main";
-
-import { Notification } from "../Notification";
-import { UsersRound } from "lucide-react";
 
 export const BodyGroupChatModal = ({
   next,
@@ -63,7 +63,10 @@ export const BodyGroupChatModal = ({
                         name={`${student.name} ${student.lastname}`}
                         description={student.role}
                         avatarProps={{
-                          src: toImageLink(student.img_hash_name)
+                          src: ImageBasedOnType(
+                            student.external_status,
+                            student.img_hash_name
+                          )
                         }}
                       />
                     </Checkbox>

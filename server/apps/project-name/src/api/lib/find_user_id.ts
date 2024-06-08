@@ -16,6 +16,7 @@ export async function findUserById(
       surname: true,
       role: true,
       img_hash_name: true,
+      external_status: true,
     },
   });
 }

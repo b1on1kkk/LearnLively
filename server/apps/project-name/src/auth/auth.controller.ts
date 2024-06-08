@@ -20,6 +20,8 @@ import { EmptyTokenGuard } from './guard/empty_token.guard';
 import { GetGoogleAuth } from './lib/getGoogleAuthType.lib';
 
 import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.interceptor';
+import { ExternalAuthCatcherInterceptor } from 'libs/interceptor/external-auth-catcher.interceptor';
+
 import { AuthResponseController } from 'libs/auth_response_controller/response.controller';
 
 import type { Response, Request } from 'express';
@@ -69,49 +71,29 @@ export class AuthController {
   }
 
   @Get('google/login')
+  @UseInterceptors(ExternalAuthCatcherInterceptor)
   async googleLogin(@Req() req: Request, @Res() res: Response) {
     const payload = await this.authService.googleLogin(
       req,
       GetGoogleAuth.getUser(),
     );
 
-    return res
-      .cookie('access', payload.tokens.access, {
-        httpOnly: true,
-        maxAge: 3600000, // alive 1h
-        sameSite: 'strict',
-        secure: true,
-      })
-      .cookie('refresh', payload.tokens.refresh, {
-        httpOnly: true,
-        maxAge: 86400000, // alive 1d
-        sameSite: 'strict',
-        secure: true,
-      })
-      .redirect(process.env.CLIENT_ROOT_DOMAIN);
+    return this.responseController.successfulExternalResponse(res, {
+      ...payload.tokens,
+    });
   }
 
   @Get('google/signup')
+  @UseInterceptors(ExternalAuthCatcherInterceptor)
   async googleSignup(@Req() req: Request, @Res() res: Response) {
     const payload = await this.authService.googleSignup(
       req,
       GetGoogleAuth.getUser(),
     );
 
-    return res
-      .cookie('access', payload.tokens.access, {
-        httpOnly: true,
-        maxAge: 3600000, // alive 1h
-        sameSite: 'strict',
-        secure: true,
-      })
-      .cookie('refresh', payload.tokens.refresh, {
-        httpOnly: true,
-        maxAge: 86400000, // alive 1d
-        sameSite: 'strict',
-        secure: true,
-      })
-      .redirect(process.env.CLIENT_ROOT_DOMAIN);
+    return this.responseController.successfulExternalResponse(res, {
+      ...payload.tokens,
+    });
   }
 
   /////////////////////////////////////GOOGLE AUTH/////////////////////////////////////////
@@ -172,11 +154,10 @@ export class AuthController {
   @UseGuards(EmptyTokenGuard)
   @UseInterceptors(ErrorCatcherInterceptor)
   async signup(@Res() res: Response, @Body() authPayload: SignUpDTO) {
-    const payload = await this.authService.signup(authPayload);
+    await this.authService.signup(authPayload);
 
     const message = {
       message: 'Account created!',
-      payload: { device_id: payload.device_id },
       status: 200,
     };
 
