@@ -70,20 +70,48 @@ export class AuthController {
 
   @Get('google/login')
   async googleLogin(@Req() req: Request, @Res() res: Response) {
-    console.log(GetGoogleAuth.getUser());
+    const payload = await this.authService.googleLogin(
+      req,
+      GetGoogleAuth.getUser(),
+    );
 
-    await this.authService.googleLogin();
-
-    return res.redirect(process.env.CLIENT_ROOT_DOMAIN);
+    return res
+      .cookie('access', payload.tokens.access, {
+        httpOnly: true,
+        maxAge: 3600000, // alive 1h
+        sameSite: 'strict',
+        secure: true,
+      })
+      .cookie('refresh', payload.tokens.refresh, {
+        httpOnly: true,
+        maxAge: 86400000, // alive 1d
+        sameSite: 'strict',
+        secure: true,
+      })
+      .redirect(process.env.CLIENT_ROOT_DOMAIN);
   }
 
   @Get('google/signup')
   async googleSignup(@Req() req: Request, @Res() res: Response) {
-    console.log(GetGoogleAuth.getUser());
+    const payload = await this.authService.googleSignup(
+      req,
+      GetGoogleAuth.getUser(),
+    );
 
-    await this.authService.googleSignup();
-
-    return res.redirect(process.env.CLIENT_ROOT_DOMAIN);
+    return res
+      .cookie('access', payload.tokens.access, {
+        httpOnly: true,
+        maxAge: 3600000, // alive 1h
+        sameSite: 'strict',
+        secure: true,
+      })
+      .cookie('refresh', payload.tokens.refresh, {
+        httpOnly: true,
+        maxAge: 86400000, // alive 1d
+        sameSite: 'strict',
+        secure: true,
+      })
+      .redirect(process.env.CLIENT_ROOT_DOMAIN);
   }
 
   /////////////////////////////////////GOOGLE AUTH/////////////////////////////////////////

@@ -16,10 +16,11 @@ import AVATAR_NAMES from './constants/avatarNames';
 import type { Request } from 'express';
 
 import type { SignUpDTO } from './dto/signup_payload.dto';
+import type { AuthMailerDTO } from './dto/authMailer.dto';
 import type { LoginPayloadDTO } from './dto/login_payload.dto';
 
 import type { verifyDecodedData } from './interfaces/verifyDecodedData';
-import { AuthMailerDTO } from './dto/authMailer.dto';
+import type { GoogleAuthUserPayload } from './interfaces/googleAuthUserPayload.interface';
 
 @Injectable()
 export class AuthService {
@@ -31,13 +32,98 @@ export class AuthService {
 
   /////////////////////////////////////GOOGLE AUTH/////////////////////////////////////////
 
-  async googleLogin() {
-    // const user = await this.prisma.users.findFirst({
-    //   where:{email:}
-    // })
+  async googleLogin(req: Request, login_user: GoogleAuthUserPayload) {
+    // get user data
+    const user = await this.prisma.users.findFirst({
+      where: { email: login_user.email },
+      select: { id: true, external_status: true },
+    });
+
+    if (user && user.external_status === 'OPEN_ID') {
+      throw new HttpException(
+        'Credentials are not correct!',
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
+
+    // check if this user is exist
+    if (!user) throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
+
+    // if user exist, generate tokens
+    const { access_token, refresh_token } = this.sharedService.tokensGenerator(
+      user.id,
+    );
+
+    const device_id: string = uuidv4();
+
+    try {
+      await this.prisma.refresh_token_metadata.create({
+        data: {
+          user_id: user.id,
+          ip: req.ip,
+          device: req.headers['user-agent'],
+          issuedAt: this.sharedService.decodeToken(refresh_token).iat,
+          device_id: device_id,
+        },
+      });
+    } catch (error) {
+      throw new HttpException('Login error occured', HttpStatus.BAD_GATEWAY);
+    }
+
+    return {
+      device_id: device_id,
+      tokens: {
+        access: access_token,
+        refresh: refresh_token,
+      },
+    };
   }
 
-  async googleSignup() {}
+  async googleSignup(req: Request, signup_user: GoogleAuthUserPayload) {
+    try {
+      const { id: user_id } = await this.prisma.users.create({
+        data: {
+          name: signup_user.firstName,
+          lastname: signup_user.lastName,
+          surname: '',
+          role: 'student',
+          email: signup_user.email,
+          end_semester: 4,
+          now_semester: 1,
+          department: 'Test D.',
+          password: null,
+          img_hash_name:
+            AVATAR_NAMES[randomIntFromInterval(0, AVATAR_NAMES.length - 1)],
+          created_at: new Date(),
+          auth_status: true,
+          external_status: 'GOOGLE',
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      // generate unique device id
+      const device_id: string = uuidv4();
+
+      // generate tokens
+      const { access_token, refresh_token } =
+        this.sharedService.tokensGenerator(user_id);
+
+      return {
+        device_id: device_id,
+        tokens: {
+          access: access_token,
+          refresh: refresh_token,
+        },
+      };
+    } catch (error) {
+      throw new HttpException(
+        'Error happened while signing up',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
 
   /////////////////////////////////////GOOGLE AUTH/////////////////////////////////////////
 
