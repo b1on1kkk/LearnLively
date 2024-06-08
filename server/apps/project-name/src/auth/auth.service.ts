@@ -29,16 +29,19 @@ export class AuthService {
     private readonly sharedService: SharedService,
   ) {}
 
-  async loginGoogleUser(req: Request) {
-    if (!req.user) {
-      return 'No user from google';
-    }
+  /////////////////////////////////////GOOGLE AUTH/////////////////////////////////////////
 
-    return {
-      message: 'User information from google',
-      user: req.user,
-    };
+  async googleLogin() {
+    // const user = await this.prisma.users.findFirst({
+    //   where:{email:}
+    // })
   }
+
+  async googleSignup() {}
+
+  /////////////////////////////////////GOOGLE AUTH/////////////////////////////////////////
+
+  /////////////////////////////////////BASIC AUTH//////////////////////////////////////////
 
   async login(payload: LoginPayloadDTO, req: Request) {
     const user = await this.prisma.users.findFirst({
@@ -174,6 +177,8 @@ export class AuthService {
       );
     }
   }
+
+  /////////////////////////////////////BASIC AUTH//////////////////////////////////////////
 
   async logout(req: Request) {
     const device_id = req.headers['x-header-device_id'] as string;

@@ -17,7 +17,7 @@ import { AuthService } from './auth.service';
 
 import { EmptyTokenGuard } from './guard/empty_token.guard';
 
-import { GetGoogleAuthType } from './lib/getGoogleAuthType.lib';
+import { GetGoogleAuth } from './lib/getGoogleAuthType.lib';
 
 import { ErrorCatcherInterceptor } from 'libs/interceptor/error-catcher.interceptor';
 import { AuthResponseController } from 'libs/auth_response_controller/response.controller';
@@ -29,6 +29,7 @@ import type { LoginPayloadDTO } from './dto/login_payload.dto';
 import type { VerificationQueryDTO } from './dto/verification_query.dto';
 
 import type { ResponsePayload } from './interfaces/registrationPayload';
+import type { GoogleAuthUserPayload } from './interfaces/googleAuthUserPayload.interface';
 import type { successfulVerifyPayload } from './interfaces/successfulVerifyPayload.interface';
 
 @Controller('auth')
@@ -43,15 +44,19 @@ export class AuthController {
   @Get('google')
   googleAuth(@Query('auth_type') query: string, @Res() res: Response) {
     const { type }: { type: 'signup' | 'login' } = JSON.parse(query);
-    GetGoogleAuthType.setType(type);
+    GetGoogleAuth.setType(type);
 
     return res.redirect('/auth/google/callback');
   }
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  googleAuthRedirect(@Res() res: Response) {
-    switch (GetGoogleAuthType.getType()) {
+  googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
+    const user = req.user as GoogleAuthUserPayload;
+
+    if (user) GetGoogleAuth.setUser(user);
+
+    switch (GetGoogleAuth.getType()) {
       case 'login':
         return res.redirect('/auth/google/login');
       case 'signup':
@@ -64,15 +69,19 @@ export class AuthController {
   }
 
   @Get('google/login')
-  async googleLogin(@Res() res: Response) {
-    console.log('login');
+  async googleLogin(@Req() req: Request, @Res() res: Response) {
+    console.log(GetGoogleAuth.getUser());
+
+    await this.authService.googleLogin();
 
     return res.redirect(process.env.CLIENT_ROOT_DOMAIN);
   }
 
   @Get('google/signup')
-  async googleSignup(@Res() res: Response) {
-    console.log('signup');
+  async googleSignup(@Req() req: Request, @Res() res: Response) {
+    console.log(GetGoogleAuth.getUser());
+
+    await this.authService.googleSignup();
 
     return res.redirect(process.env.CLIENT_ROOT_DOMAIN);
   }
