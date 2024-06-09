@@ -4,12 +4,7 @@ export function ImageBasedOnType(
   status: "GOOGLE" | "OPEN_ID",
   img_link: string
 ) {
-  console.log(status);
-
-  if (status === "GOOGLE") {
-    const new_link_size = img_link.replace(/=.*$/, "=s1024-c");
-    return new_link_size;
-  }
+  if (status === "GOOGLE") return img_link.replace(/=.*$/, "=s1024-c");
 
   return toImageLink(img_link);
 }

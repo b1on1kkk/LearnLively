@@ -1,8 +1,7 @@
-// import { v4 as uuidv4 } from 'uuid';
-
 import { Server, Socket } from 'socket.io';
 
 import { Injectable, UseFilters, UseGuards } from '@nestjs/common';
+
 import {
   ConnectedSocket,
   MessageBody,
@@ -10,13 +9,20 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { PrismaService } from '@prismaORM/prisma';
 
-import { ApiService } from 'apps/project-name/src/api/api.service';
-import { WebsocketUtils } from 'apps/websocket-server/utils/websocketUtils.service';
+import { PrismaService } from '@prismaORM/prisma';
 
 import WebSocket from '../abstract/webSocket';
 
+import { ApiService } from 'apps/project-name/src/api/api.service';
+
+import { WebsocketUtils } from 'apps/websocket-server/utils/websocketUtils.service';
+
+import { JwtGuardGuard } from 'apps/websocket-server/guard/jwt_guard.guard';
+
+import { BadRequestExceptionsFilter } from 'apps/websocket-server/filter/filter';
+
+import type { isTypingDTO } from 'apps/websocket-server/dto/isTypingDTO';
 import type { ChosenConvDTO } from 'apps/websocket-server/dto/chosenConvDTO';
 import type { ActiveUsersDTO } from 'apps/websocket-server/dto/activeUsersDTO';
 import type { SendMessageDTO } from 'apps/websocket-server/dto/sendMessageDTO';
@@ -24,13 +30,6 @@ import type { ReadMessageDTO } from 'apps/websocket-server/dto/readMessageDTO';
 import type { CachedUuidsDTO } from 'apps/websocket-server/dto/cachedUuidsDTO';
 import type { ConnectedUserDTO } from 'apps/websocket-server/dto/connectedUserDTO';
 import type { DeleteMessagesDTO } from 'apps/websocket-server/dto/deleteMessagesDTO';
-import { JwtGuardGuard } from 'apps/websocket-server/guard/jwt_guard.guard';
-import { BadRequestExceptionsFilter } from 'apps/websocket-server/filter/filter';
-
-interface isTypingDTO {
-  conv_id: number;
-  user: { id: number; name: string };
-}
 
 @Injectable()
 @WebSocketGateway({
@@ -53,6 +52,7 @@ export class ChatWebsocketService implements WebSocket {
   }
 
   //////////////////////////////////////////////MAIN//////////////////////////////////////////////////////
+
   @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('userChatConnected')
@@ -294,7 +294,6 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
-  // will be changed in next upgrade
   @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('readMessage')
@@ -305,25 +304,20 @@ export class ChatWebsocketService implements WebSocket {
     try {
       const { message, meta_data } = dto;
 
-      const insertionPromises = message.map(async (msg) => {
-        await this.prisma.messages.update({
-          where: { id: msg.id },
-          data: {
-            seen: true,
-          },
-        });
-
-        return await this.prisma.seen_messages.create({
-          data: {
-            message_id: msg.id,
-            user_id: meta_data.seen_user_id,
-            seen_at: new Date().toLocaleTimeString(),
-          },
-        });
+      await this.prisma.messages.update({
+        where: { id: message.id },
+        data: {
+          seen: true,
+        },
       });
 
-      // wait till all manipulations will be done
-      await Promise.all(insertionPromises);
+      await this.prisma.seen_messages.create({
+        data: {
+          message_id: message.id,
+          user_id: meta_data.seen_user_id,
+          seen_at: new Date().toString(),
+        },
+      });
 
       const idx = this.websocketUtilsService.binaryUserSearchByUserId<
         Array<CachedUuidsDTO>

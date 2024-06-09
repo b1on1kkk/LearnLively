@@ -79,6 +79,7 @@ export class WebsocketUtils {
           img_hash_name: dto.message.users.img_hash_name,
           name: dto.message.users.name,
           lastname: dto.message.users.lastname,
+          external_status: dto.message.users.external_status,
         },
         seen_messages: [],
         selected: dto.message.selected,

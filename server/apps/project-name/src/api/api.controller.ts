@@ -134,7 +134,7 @@ export class ApiController {
   @UseGuards(RegistrationAuthGuard)
   @UseInterceptors(ErrorCatcherInterceptor)
   async getSeenMessages(
-    @Body() body: { message_id: number; user_id: number },
+    @Body() body: { message_id: number },
     @Res() res: Response,
   ) {
     return res.json(await this.apiService.getSeenMessages(body));

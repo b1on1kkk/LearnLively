@@ -45,14 +45,16 @@ export function submitFormHandler(
           users: {
             img_hash_name: user.img_hash_name,
             name: user.name,
-            lastname: user.lastname
+            lastname: user.lastname,
+            external_status: user.external_status
           },
           messages: {
             content: chosenMessage.message_data.content,
             users: {
               img_hash_name: chosenMessage.message_data.users.img_hash_name,
               name: chosenMessage.message_data.users.name,
-              lastname: chosenMessage.message_data.users.lastname
+              lastname: chosenMessage.message_data.users.lastname,
+              external_status: user.external_status
             }
           },
           replies_to: chosenMessage.message_data.id,
@@ -80,7 +82,8 @@ export function submitFormHandler(
           users: {
             img_hash_name: user.img_hash_name,
             name: user.name,
-            lastname: user.lastname
+            lastname: user.lastname,
+            external_status: user.external_status
           },
           messages: null,
           replies_to: null,

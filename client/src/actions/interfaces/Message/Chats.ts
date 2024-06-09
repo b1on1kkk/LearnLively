@@ -119,13 +119,4 @@ export interface whoIsTyping {
 
 export interface TSeenMessages {
   seen_at: string;
-  messages: {
-    user_id: number;
-  };
-  users: {
-    id: number;
-    name: string;
-    lastname: string;
-    img_hash_name: string;
-  };
 }

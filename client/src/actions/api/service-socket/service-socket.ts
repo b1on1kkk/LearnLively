@@ -15,6 +15,7 @@ import type { ChatType } from "../../interfaces/api/chatType";
 import type { Student } from "../../interfaces/Students/Main";
 import type { TFriendRequest } from "../../interfaces/api/acceptFriendRequest";
 import type { TSendFriendRequest } from "../../interfaces/api/sendFriendRequest";
+import { SocketUnauthError } from "../../interfaces/api/socketUnauthError";
 
 export class ServiceSocket implements WebSocket {
   private socket: Socket | null;
@@ -109,9 +110,9 @@ export class ServiceSocket implements WebSocket {
   }
 
   // service listeners
-  public connectionErrorHandler() {
-    this.socket?.on("error", (err) => {
-      console.error("Socket.IO general error:", err);
+  public connectionErrorHandler(cb: (err: SocketUnauthError) => void) {
+    this.socket?.on("error", (err: SocketUnauthError) => {
+      if (err) cb(err);
     });
   }
 }

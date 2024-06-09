@@ -12,6 +12,7 @@ export class MessageDTO {
       img_hash_name: string;
       name: string;
       lastname: string;
+      external_status: 'GOOGLE' | 'OPEN_ID';
     };
   } | null;
   replies_to: number | null;
@@ -19,6 +20,7 @@ export class MessageDTO {
     img_hash_name: string;
     name: string;
     lastname: string;
+    external_status: 'GOOGLE' | 'OPEN_ID';
   };
   selected: boolean;
 }

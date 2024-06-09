@@ -16,6 +16,7 @@ import type { MessageData } from "../../interfaces/api/messageData";
 import type { TReadMessage } from "../../interfaces/api/readMessage";
 import type { TDeleteMessages } from "../../interfaces/api/deleteMessages";
 import type { ChosenConv, whoIsTyping } from "../../interfaces/Message/Chats";
+import type { SocketUnauthError } from "../../interfaces/api/socketUnauthError";
 
 export class ChatSocket implements WebSocket {
   private socket: Socket | null;
@@ -138,8 +139,6 @@ export class ChatSocket implements WebSocket {
 
   public getIsTypingMessage() {
     this.socket?.on("getTyping", (data: whoIsTyping) => {
-      console.log(data);
-
       this.reduxDispatch(isTypingActions.initTyping(data));
     });
   }
@@ -151,9 +150,9 @@ export class ChatSocket implements WebSocket {
   }
 
   // service listeners
-  public connectionErrorHandler() {
-    this.socket?.on("error", (err) => {
-      console.error("Socket.IO general error:", err);
+  public connectionErrorHandler(cb: (err: SocketUnauthError) => void) {
+    this.socket?.on("error", (err: SocketUnauthError) => {
+      if (err) cb(err);
     });
   }
 }

@@ -1,37 +1,53 @@
-import { useEffect, useMemo } from "react";
-
+import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
+
 import { RootState } from "../store/store";
 
-const useMarkMessagesAsRead = () => {
-  const { user } = useSelector((u: RootState) => u.user);
+import type { TMessage } from "../interfaces/api/newChat";
+
+const useMarkMessagesAsRead = (message: TMessage) => {
+  const messageRef = useRef(null);
+
   const { chat_socket, chosenConvId } = useSelector(
     (c: RootState) => c.chatSocket
   );
-  const { messages } = useSelector((m: RootState) => m.messages);
 
-  const unreadedMessages = useMemo(() => {
-    if (!messages.length || !user || !chosenConvId) return [];
-
-    return messages
-      .filter((message) => message.user_id !== user.id && !message.seen)
-      .map((message) => ({
-        ...message,
-        seen: true
-      }));
-  }, [messages, user, chosenConvId]);
+  const { user } = useSelector((u: RootState) => u.user);
 
   useEffect(() => {
-    if (unreadedMessages.length > 0 && chosenConvId) {
-      chat_socket?.readMessage({
-        meta_data: {
-          seen_user_id: user!.id,
-          conv_id: chosenConvId.id
-        },
-        message: unreadedMessages
-      });
-    }
-  }, [unreadedMessages]);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (
+            entry.isIntersecting &&
+            message.user_id !== user?.id &&
+            !message.seen &&
+            chosenConvId &&
+            chat_socket
+          ) {
+            chat_socket.readMessage({
+              meta_data: {
+                seen_user_id: user!.id,
+                conv_id: chosenConvId.id
+              },
+              message: message
+            });
+
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (messageRef.current) observer.observe(messageRef.current);
+
+    return () => {
+      if (messageRef.current) observer.unobserve(messageRef.current);
+    };
+  }, [message.id, chat_socket, chosenConvId]);
+
+  return messageRef;
 };
 
 export default useMarkMessagesAsRead;

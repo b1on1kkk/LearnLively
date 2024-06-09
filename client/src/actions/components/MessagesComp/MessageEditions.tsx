@@ -1,3 +1,8 @@
+import { useMemo } from "react";
+
+import useLastSeenMessage from "../../hooks/useLastSeenMessage";
+import useMarkMessagesAsRead from "../../hooks/useMarkMessagesAsRead";
+
 import {
   Dropdown,
   DropdownTrigger,
@@ -6,15 +11,9 @@ import {
   DropdownItem
 } from "@nextui-org/react";
 
-import type {
-  TMessageEditions,
-  TSeenMessages
-} from "../../interfaces/Message/Chats";
+import { lastSeenMsgDateFormatting } from "../../utils/Message/lastSeenMsgDateFormatting";
 
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "../../store/store";
-import useLastSeenMessage from "../../hooks/useLastSeenMessage";
+import type { TMessageEditions } from "../../interfaces/Message/Chats";
 
 export const MessageEditions = ({
   id,
@@ -25,14 +24,11 @@ export const MessageEditions = ({
   message
 }: TMessageEditions) => {
   const seen_message = useLastSeenMessage();
+  const messageRef = useMarkMessagesAsRead(message);
 
-  const { user } = useSelector((u: RootState) => u.user);
-
-  const [seenMessages, setSeenMessages] = useState<Array<TSeenMessages>>([]);
-
-  useEffect(() => {
-    if (seen_message.data) setSeenMessages(seen_message.data);
-  }, [seen_message]);
+  const last_seen = useMemo(() => {
+    if (seen_message.data) return new Date(seen_message.data.seen_at);
+  }, [seen_message.data]);
 
   return (
     <Dropdown
@@ -46,13 +42,12 @@ export const MessageEditions = ({
         id="chat_message"
         message-id={`message_${id}`}
         onContextMenu={(e) => e.preventDefault()}
+        ref={messageRef}
       >
         <DropdownTrigger>
           <div
             className="transition-all duration-200"
-            onClick={() =>
-              seen_message.mutate({ message_id: message.id, user_id: user!.id })
-            }
+            onClick={() => seen_message.mutate({ message_id: message.id })}
           >
             {children}
           </div>
@@ -61,8 +56,13 @@ export const MessageEditions = ({
       <DropdownMenu
         aria-label="message actions"
         classNames={{ base: "bg-[#00010d]" }}
+        disabledKeys={["loading", "last_seen"]}
       >
-        <DropdownSection aria-label="Main">
+        <DropdownSection
+          aria-label="Main"
+          showDivider={last_seen || seen_message.isPending ? true : false}
+          classNames={{ base: "mb-0" }}
+        >
           {functionality.map((item) => {
             return (
               <DropdownItem
@@ -77,6 +77,22 @@ export const MessageEditions = ({
             );
           })}
         </DropdownSection>
+
+        {seen_message.isPending ? (
+          <DropdownSection aria-label="loading" classNames={{ base: "mb-0" }}>
+            <DropdownItem key="loading">loading...</DropdownItem>
+          </DropdownSection>
+        ) : (
+          <DropdownSection
+            aria-label="was seen at"
+            hidden={last_seen ? false : true}
+            classNames={{ base: "mb-0" }}
+          >
+            <DropdownItem key="last_seen">
+              {lastSeenMsgDateFormatting(last_seen)}
+            </DropdownItem>
+          </DropdownSection>
+        )}
       </DropdownMenu>
     </Dropdown>
   );

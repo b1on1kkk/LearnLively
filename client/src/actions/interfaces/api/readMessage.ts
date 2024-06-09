@@ -5,5 +5,5 @@ export interface TReadMessage {
     seen_user_id: number;
     conv_id: number;
   };
-  message: Array<TMessage>;
+  message: TMessage;
 }

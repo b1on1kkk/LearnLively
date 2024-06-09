@@ -18,7 +18,9 @@ import {
 import WebSocket from '../abstract/webSocket';
 
 import { JwtGuardGuard } from 'apps/websocket-server/guard/jwt_guard.guard';
+
 import { BadRequestExceptionsFilter } from 'apps/websocket-server/filter/filter';
+
 import { WebsocketUtils } from 'apps/websocket-server/utils/websocketUtils.service';
 
 import type { ActiveUsersDTO } from 'apps/websocket-server/dto/activeUsersDTO';

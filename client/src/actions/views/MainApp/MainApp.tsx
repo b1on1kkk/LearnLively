@@ -1,11 +1,12 @@
 import { Outlet } from "react-router";
 import { Navigate } from "react-router-dom";
 
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import useMessages from "../../hooks/useMessages";
+import useSocketError from "../../hooks/useSocketError";
 import useChatActivity from "../../hooks/useChatActivity";
 import useCheckUserAuth from "../../hooks/useCheckUserAuth";
 import useGetOnlineUsers from "../../hooks/useGetOnlineUsers";
@@ -37,6 +38,16 @@ export const MainApp = () => {
   const { chat_socket } = useSelector((s: RootState) => s.chatSocket);
   const { chosenConvId } = useSelector((s: RootState) => s.chatSocket);
   const { service_socket } = useSelector((s: RootState) => s.serviceSocket);
+
+  // chat socket error
+  const { error: chatSocketError } = useSocketError(chat_socket);
+
+  // service socket error
+  const { error: serviceSocketError } = useSocketError(service_socket);
+
+  // !!!temporary!!!
+  console.log(chatSocketError);
+  console.log(serviceSocketError);
 
   // get indexes of users that online
   useGetOnlineUsers();
@@ -73,10 +84,6 @@ export const MainApp = () => {
     dispatch,
     disconnectCB
   );
-
-  useEffect(() => {
-    if (chat_socket) chat_socket.connectionErrorHandler();
-  }, [chat_socket]);
 
   // if user is not logged in redirect to log in page
   if ((!data || isError || !data.result) && !isLoading) {

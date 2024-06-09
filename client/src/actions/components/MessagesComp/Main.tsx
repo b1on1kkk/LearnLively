@@ -3,7 +3,6 @@ import useMessages from "../../hooks/useMessages";
 import { useDispatch, useSelector } from "react-redux";
 import useSelectMessage from "../../hooks/useSelectMessage";
 import useScrollToBottom from "../../hooks/useScrollToBottom";
-import useMarkMessagesAsRead from "../../hooks/useMarkMessagesAsRead";
 
 import { Check, CheckCheck } from "lucide-react";
 import { Checkbox, CheckboxGroup, Image } from "@nextui-org/react";
@@ -28,9 +27,6 @@ import type { TMessage } from "../../interfaces/api/newChat";
 import { MessageActionKind } from "../../interfaces/Message/Chats";
 
 export const Main = () => {
-  // hook to make messages readed
-  useMarkMessagesAsRead();
-
   const dispatch = useDispatch<AppDispatch>();
 
   const { user } = useSelector((u: RootState) => u.user);
@@ -44,6 +40,7 @@ export const Main = () => {
     () => new DispatchActionsHandler(dispatch),
     []
   );
+
   const elemToScrollToButton = useScrollToBottom<Array<TMessage>>(messages);
 
   return (
