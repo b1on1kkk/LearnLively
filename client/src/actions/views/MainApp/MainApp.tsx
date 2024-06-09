@@ -1,7 +1,7 @@
 import { Outlet } from "react-router";
 import { Navigate } from "react-router-dom";
 
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -73,6 +73,10 @@ export const MainApp = () => {
     dispatch,
     disconnectCB
   );
+
+  useEffect(() => {
+    if (chat_socket) chat_socket.connectionErrorHandler();
+  }, [chat_socket]);
 
   // if user is not logged in redirect to log in page
   if ((!data || isError || !data.result) && !isLoading) {

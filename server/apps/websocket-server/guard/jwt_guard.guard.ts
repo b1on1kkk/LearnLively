@@ -4,39 +4,55 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from '@prismaORM/prisma';
+
 import { Observable } from 'rxjs';
 
 import { Socket } from 'socket.io';
 
+import { JwtService } from '@nestjs/jwt';
+
 @Injectable()
 export class JwtGuardGuard implements CanActivate {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly jwtService: JwtService) {}
 
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     console.log('socket guard worked!');
 
-    const { device_id, user_id } = context.switchToWs().getClient<Socket>()
-      .handshake.auth;
+    const cookies = this.decodeCookie(
+      context.switchToWs().getClient<Socket>().handshake.headers.cookie,
+    );
 
-    if (device_id && user_id) {
-      return this.prisma.refresh_token_metadata
-        .findFirst({
-          where: {
-            device_id,
-            user_id,
-          },
-        })
-        .then((res) => {
-          if (res) return true;
-        })
-        .catch(() => {
-          throw new UnauthorizedException();
+    if (cookies) {
+      try {
+        this.jwtService.verify(cookies.access, {
+          secret: process.env.JWT_ACCESS_TOKEN,
         });
+        return true;
+      } catch (error) {
+        throw new UnauthorizedException();
+      }
     }
 
     throw new UnauthorizedException();
+  }
+
+  private decodeCookie(cookie: string | undefined) {
+    if (cookie) {
+      const cookies = cookie.split(';');
+
+      const result: { [key: string]: string } = {};
+
+      cookies.forEach((cookie) => {
+        const splitted_cookie = cookie.trim().split('=');
+
+        result[splitted_cookie[0]] = splitted_cookie[1];
+      });
+
+      return result;
+    }
+
+    return undefined;
   }
 }

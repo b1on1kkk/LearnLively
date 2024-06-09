@@ -1,5 +1,12 @@
 import type { TConversations } from "../Message/Chats";
 
+interface UserMessagePayload {
+  img_hash_name: string;
+  name: string;
+  lastname: string;
+  external_status: "GOOGLE" | "OPEN_ID";
+}
+
 export interface TMessage {
   id: number;
   user_id: number;
@@ -11,18 +18,10 @@ export interface TMessage {
   seen: boolean;
   messages: {
     content: string;
-    users: {
-      img_hash_name: string;
-      name: string;
-      lastname: string;
-    };
+    users: UserMessagePayload;
   } | null;
   replies_to: number | null;
-  users: {
-    img_hash_name: string;
-    name: string;
-    lastname: string;
-  };
+  users: UserMessagePayload;
   selected: boolean;
 }
 

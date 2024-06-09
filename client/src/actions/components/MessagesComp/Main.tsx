@@ -21,7 +21,7 @@ import {
   MAIN_MESSAGE_FUNCTIONALITY_SENDER
 } from "../../constants/Message/message_functionality";
 
-import { toImageLink } from "../../utils/Students/toImageLink";
+import { ImageBasedOnType } from "../../utils/Image/ImageBasedOnType";
 import { DispatchActionsHandler } from "../../utils/handlers/dispatchActionsHandler";
 
 import type { TMessage } from "../../interfaces/api/newChat";
@@ -155,7 +155,10 @@ export const Main = () => {
                             <div className="flex items-end">
                               <Image
                                 width={45}
-                                src={toImageLink(message.users.img_hash_name)}
+                                src={ImageBasedOnType(
+                                  message.users.external_status,
+                                  message.users.img_hash_name
+                                )}
                                 className="rounded-full"
                               />
                             </div>
@@ -182,7 +185,10 @@ export const Main = () => {
                           <div className="flex items-end">
                             <Image
                               width={45}
-                              src={toImageLink(message.users.img_hash_name)}
+                              src={ImageBasedOnType(
+                                message.users.external_status,
+                                message.users.img_hash_name
+                              )}
                               className="rounded-full"
                             />
                           </div>

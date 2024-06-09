@@ -17,14 +17,14 @@ import {
 
 import WebSocket from '../abstract/webSocket';
 
+import { JwtGuardGuard } from 'apps/websocket-server/guard/jwt_guard.guard';
+import { BadRequestExceptionsFilter } from 'apps/websocket-server/filter/filter';
 import { WebsocketUtils } from 'apps/websocket-server/utils/websocketUtils.service';
 
 import type { ActiveUsersDTO } from 'apps/websocket-server/dto/activeUsersDTO';
 import type { StudentDataDTO } from 'apps/websocket-server/dto/studentDataDTO';
 import type { CreateGroupDTO } from 'apps/websocket-server/dto/createGroupDTO';
 import type { ConnectedUserDTO } from 'apps/websocket-server/dto/connectedUserDTO';
-import { JwtGuardGuard } from 'apps/websocket-server/guard/jwt_guard.guard';
-import { BadRequestExceptionsFilter } from 'apps/websocket-server/filter/filter';
 
 @Injectable()
 @WebSocketGateway({
@@ -44,7 +44,7 @@ export class ServiceWebsocketService implements WebSocket {
     this.ActiveUsers = [];
   }
 
-  // @UseGuards(JwtGuardGuard)
+  @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('userConnected')
   connectionMessage(
@@ -78,7 +78,7 @@ export class ServiceWebsocketService implements WebSocket {
     }
   }
 
-  // @UseGuards(JwtGuardGuard)
+  @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('sendFriendRequest')
   async sendFriendRequest(
@@ -102,7 +102,7 @@ export class ServiceWebsocketService implements WebSocket {
     );
   }
 
-  // @UseGuards(JwtGuardGuard)
+  @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('acceptFriendRequest')
   async acceptFriendRequest(
@@ -153,7 +153,7 @@ export class ServiceWebsocketService implements WebSocket {
     );
   }
 
-  // @UseGuards(JwtGuardGuard)
+  @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('rejectFriendRequest')
   async rejectFriendRequest(
@@ -170,7 +170,7 @@ export class ServiceWebsocketService implements WebSocket {
     );
   }
 
-  // @UseGuards(JwtGuardGuard)
+  @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('startGroupChat')
   async startGroupChat(

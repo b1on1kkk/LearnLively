@@ -266,6 +266,7 @@ export class ApiService {
             name: true,
             lastname: true,
             img_hash_name: true,
+            external_status: true,
           },
         },
         messages: {
@@ -276,6 +277,7 @@ export class ApiService {
                 name: true,
                 lastname: true,
                 img_hash_name: true,
+                external_status: true,
               },
             },
           },

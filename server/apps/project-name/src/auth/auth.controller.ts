@@ -73,26 +73,26 @@ export class AuthController {
   @Get('google/login')
   @UseInterceptors(ExternalAuthCatcherInterceptor)
   async googleLogin(@Req() req: Request, @Res() res: Response) {
-    const payload = await this.authService.googleLogin(
+    const { tokens } = await this.authService.googleLogin(
       req,
       GetGoogleAuth.getUser(),
     );
 
     return this.responseController.successfulExternalResponse(res, {
-      ...payload.tokens,
+      ...tokens,
     });
   }
 
   @Get('google/signup')
   @UseInterceptors(ExternalAuthCatcherInterceptor)
   async googleSignup(@Req() req: Request, @Res() res: Response) {
-    const payload = await this.authService.googleSignup(
+    const { tokens } = await this.authService.googleSignup(
       req,
       GetGoogleAuth.getUser(),
     );
 
     return this.responseController.successfulExternalResponse(res, {
-      ...payload.tokens,
+      ...tokens,
     });
   }
 
@@ -131,22 +131,14 @@ export class AuthController {
     @Req() req: Request,
     @Body() authPayload: LoginPayloadDTO,
   ) {
-    const payload: ResponsePayload = await this.authService.login(
+    const { tokens }: ResponsePayload = await this.authService.login(
       authPayload,
       req,
     );
 
-    const message = {
-      message: 'Logged in!',
-      payload: { device_id: payload.device_id },
-      status: 200,
-    };
+    const message = { message: 'Logged in!', status: 200 };
 
-    return this.responseController.successfulResponse(
-      res,
-      payload.tokens,
-      message,
-    );
+    return this.responseController.successfulResponse(res, tokens, message);
   }
 
   @HttpCode(200)
@@ -156,10 +148,7 @@ export class AuthController {
   async signup(@Res() res: Response, @Body() authPayload: SignUpDTO) {
     await this.authService.signup(authPayload);
 
-    const message = {
-      message: 'Account created!',
-      status: 200,
-    };
+    const message = { message: 'Account created!', status: 200 };
 
     return res.json(message);
   }

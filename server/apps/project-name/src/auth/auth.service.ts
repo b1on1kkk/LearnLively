@@ -71,7 +71,6 @@ export class AuthService {
     }
 
     return {
-      device_id: device_id,
       tokens: {
         access: access_token,
         refresh: refresh_token,
@@ -102,24 +101,44 @@ export class AuthService {
         },
       });
 
-      // generate unique device id
-      const device_id: string = uuidv4();
-
       // generate tokens
       const { access_token, refresh_token } =
         this.sharedService.tokensGenerator(user_id);
 
+      // generate unique device id
+      const device_id: string = uuidv4();
+
+      try {
+        await this.prisma.refresh_token_metadata.create({
+          data: {
+            user_id: user_id,
+            ip: req.ip,
+            device: req.headers['user-agent'],
+            issuedAt: this.sharedService.decodeToken(refresh_token).iat,
+            device_id: device_id,
+          },
+        });
+      } catch (error) {
+        throw new HttpException(
+          'Sign up error occured',
+          HttpStatus.BAD_GATEWAY,
+        );
+      }
+
       return {
-        device_id: device_id,
         tokens: {
           access: access_token,
           refresh: refresh_token,
         },
       };
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw new HttpException(error.message, error.getStatus());
+      }
+
       throw new HttpException(
         'Error happened while signing up',
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.BAD_GATEWAY,
       );
     }
   }
@@ -170,9 +189,8 @@ export class AuthService {
       const { access_token, refresh_token } =
         this.sharedService.tokensGenerator(user.id);
 
-      // generate new device_id if old is not saved
-      const header_device_id = req.headers['x-header-device_id'] as string;
-      const device_id: string = header_device_id ? header_device_id : uuidv4();
+      // generate device_id
+      const device_id: string = uuidv4();
 
       if (device_id) {
         // update token data
@@ -201,7 +219,6 @@ export class AuthService {
 
       if (JSON.parse(payload.remember_me) === true) {
         return {
-          device_id: device_id,
           tokens: {
             access: access_token,
             refresh: refresh_token,
@@ -210,7 +227,6 @@ export class AuthService {
       }
 
       return {
-        device_id: device_id,
         tokens: {
           access: access_token,
           refresh: null,
