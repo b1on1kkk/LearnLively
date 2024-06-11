@@ -32,9 +32,10 @@ export class WebsocketUtils {
         dto.recipient,
       );
 
-      server
-        .to(ActiveUsers[recipientSocketId].socket_id)
-        .emit('newStudents', recipientStudents);
+      server.to(ActiveUsers[recipientSocketId].socket_id).emit('newStudents', {
+        students: recipientStudents,
+        user_id: dto.sender_id,
+      });
     }
   }
 

@@ -8,12 +8,14 @@ import { chosenUserChatActions } from "../store/features/chosenUserChat.slice";
 
 const useGroupChangeListener = () => {
   const dispatch = useDispatch<AppDispatch>();
+
+  const { user } = useSelector((u: RootState) => u.user);
   const { service_socket } = useSelector((s: RootState) => s.serviceSocket);
 
   // listener
   useEffect(() => {
     // set up listener that get data about all created groups
-    if (service_socket) service_socket.getGroups();
+    if (service_socket && user) service_socket.getGroups(user.id);
 
     // remove all previous data if user leave "message" page after some action
     return () => {
@@ -28,7 +30,7 @@ const useGroupChangeListener = () => {
         messagesActions.messageInit({ chosenMessage: null, messages: [] })
       );
     };
-  }, [service_socket]);
+  }, [service_socket, user]);
 };
 
 export default useGroupChangeListener;

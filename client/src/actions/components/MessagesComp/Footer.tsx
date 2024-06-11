@@ -1,14 +1,16 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { Paperclip } from "lucide-react";
 import { Button } from "@nextui-org/react";
+
 import { SystemButton } from "../SystemButton";
 import { MessageAction } from "./MessageAction";
-import { Paperclip } from "lucide-react";
 import { MessageActionSubmitButton } from "./MessageActionSubmitButton";
 import { SelectedFooterMessagesButtons } from "./SelectedFooterMessagesButtons";
 
 import { AppDispatch, RootState } from "../../store/store";
+
 import { submitFormHandler } from "../../utils/Message/submitFormHandler";
 import { DispatchActionsHandler } from "../../utils/handlers/dispatchActionsHandler";
 
@@ -18,7 +20,9 @@ export const Footer = ({ onOpen }: { onOpen: () => void }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const inputFileRef = useRef<HTMLInputElement | null>(null);
+
   const [messageText, setMessageText] = useState<string>("");
+  const [msgInputFocus, setMsgInputFocus] = useState<boolean>(false);
 
   const { chat_socket, chosenConvId } = useSelector(
     (c: RootState) => c.chatSocket
@@ -61,7 +65,9 @@ export const Footer = ({ onOpen }: { onOpen: () => void }) => {
 
   return (
     <footer
-      className={`p-2 bg-[#00010d] border-slate-900 border-2 rounded-2xl text-slate-400 shadow-2xl mt-2 flex flex-col gap-2`}
+      className={`p-2 bg-[#00010d] ${
+        msgInputFocus ? "border-primary-500" : "border-slate-900"
+      } border-2 rounded-2xl text-slate-400 shadow-2xl mt-2 flex flex-col gap-2 transition-colors`}
     >
       {chosenMessage &&
       chosenMessage.type === MessageActionKind.select_message ? (
@@ -128,11 +134,13 @@ export const Footer = ({ onOpen }: { onOpen: () => void }) => {
                 spellCheck="true"
                 value={messageText}
                 onBlur={() => {
+                  setMsgInputFocus((prev) => !prev);
                   if (chosenConvId && chat_socket) {
                     chat_socket.notTyping(chosenConvId.id);
                   }
                 }}
                 onFocus={() => {
+                  setMsgInputFocus((prev) => !prev);
                   if (chosenConvId && user && chat_socket) {
                     chat_socket.isTyping(chosenConvId.id, {
                       id: user.id,

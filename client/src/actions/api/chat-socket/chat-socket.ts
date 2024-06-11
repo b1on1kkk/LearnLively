@@ -21,9 +21,9 @@ import type { SocketUnauthError } from "../../interfaces/api/socketUnauthError";
 
 export class ChatSocket implements WebSocket {
   private socket: Socket | null;
-  private reduxDispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>;
   private actionsHandler: DispatchActionsHandler;
   private notificationHandler: ServiceNotificationHandler;
+  private reduxDispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>;
 
   constructor(
     url: string,
@@ -103,33 +103,43 @@ export class ChatSocket implements WebSocket {
     });
   }
 
-  public getChangedEditedMessage(messages: Array<TMessage>) {
-    this.socket?.on("getChangedEditedMessage", (message: TMessage) => {
-      this.actionsHandler.messageInitHandler({
-        messages: [
-          ...messages.map((msg) => {
-            if (msg.id === message.id) return { ...message };
-            return msg;
-          })
-        ],
-        chosenMessage: null
-      });
+  public getChangedEditedMessage(messages: Array<TMessage>, id: number) {
+    this.socket?.on(
+      "getChangedEditedMessage",
+      (data: { message: TMessage; user_id: number }) => {
+        const { message, user_id } = data;
 
-      // initialize service notifications modal
-      this.notificationHandler.changeMessage();
-    });
+        this.actionsHandler.messageInitHandler({
+          messages: [
+            ...messages.map((msg) => {
+              if (msg.id === message.id) return { ...message };
+              return msg;
+            })
+          ],
+          chosenMessage: null
+        });
+
+        // initialize service notifications modal
+        if (user_id === id) this.notificationHandler.changeMessage();
+      }
+    );
   }
 
-  public getDeletedMessages() {
-    this.socket?.on("getDeletedMessages", (message: Array<TMessage>) => {
-      this.actionsHandler.messageInitHandler({
-        messages: message,
-        chosenMessage: null
-      });
+  public getDeletedMessages(id: number) {
+    this.socket?.on(
+      "getDeletedMessages",
+      (data: { messages: Array<TMessage>; user_id: number }) => {
+        const { messages } = data;
 
-      // initialize service notifications modal
-      this.notificationHandler.deleteMessage();
-    });
+        this.actionsHandler.messageInitHandler({
+          messages: messages,
+          chosenMessage: null
+        });
+
+        // initialize service notifications modal
+        if (data.user_id === id) this.notificationHandler.deleteMessage();
+      }
+    );
   }
 
   public getReadMessage() {

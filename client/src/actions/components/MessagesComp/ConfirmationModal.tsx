@@ -23,6 +23,8 @@ export const ConfirmationModal = ({
   const { chat_socket, chosenConvId } = useSelector(
     (c: RootState) => c.chatSocket
   );
+  const { user } = useSelector((u: RootState) => u.user);
+
   const { messages, chosenMessage } = useSelector((m: RootState) => m.messages);
 
   const chatSocketController = useMemo(
@@ -55,6 +57,7 @@ export const ConfirmationModal = ({
                   chatSocketController.deleteMsgController(
                     chosenConvId,
                     messages,
+                    user!.id,
                     chosenMessage?.message_data
                   );
 

@@ -235,9 +235,10 @@ export class ServiceWebsocketService implements WebSocket {
       await Promise.all(insertionPromises);
 
       // first new data to sender
-      this.server
-        .to(client.id)
-        .emit('getGroups', await this.apiService.getGroupChats(dto.owner_id));
+      this.server.to(client.id).emit('getGroups', {
+        groups: await this.apiService.getGroupChats(dto.owner_id),
+        user_id: dto.owner_id,
+      });
 
       // then send others that online
       dto.users_idx.forEach(async (id) => {
@@ -246,12 +247,10 @@ export class ServiceWebsocketService implements WebSocket {
         >(this.ActiveUsers, id);
 
         if (idx !== null) {
-          this.server
-            .to(this.ActiveUsers[idx].socket_id)
-            .emit(
-              'getGroups',
-              await this.apiService.getGroupChats(dto.owner_id),
-            );
+          this.server.to(this.ActiveUsers[idx].socket_id).emit('getGroups', {
+            groups: await this.apiService.getGroupChats(dto.owner_id),
+            user_id: dto.owner_id,
+          });
         }
       });
     } catch (error) {

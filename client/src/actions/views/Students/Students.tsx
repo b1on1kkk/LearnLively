@@ -17,6 +17,8 @@ import type { Student } from "../../interfaces/Students/Main";
 
 export const Students = () => {
   const { data, isError, isLoading } = useStudents();
+
+  const { user } = useSelector((u: RootState) => u.user);
   const { chosenUser } = useSelector((cu: RootState) => cu.chosenUserChat);
   const { service_socket } = useSelector((s: RootState) => s.serviceSocket);
 
@@ -32,8 +34,10 @@ export const Students = () => {
 
   // listen if new data comes
   useEffect(() => {
-    service_socket?.getNewStudents(chosenUser, setTempStudents);
-  }, [service_socket, chosenUser]);
+    if (user) {
+      service_socket?.getNewStudents(user.id, chosenUser, setTempStudents);
+    }
+  }, [service_socket, chosenUser, user]);
 
   return (
     <div className="flex h-screen relative px-8 pb-6 pt-12 gap-8">

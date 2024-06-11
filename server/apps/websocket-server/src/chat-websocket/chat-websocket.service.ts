@@ -246,7 +246,10 @@ export class ChatWebsocketService implements WebSocket {
 
       this.server
         .in(this.cachedUsersUuids[idx].uuid)
-        .emit('getChangedEditedMessage', { ...message });
+        .emit('getChangedEditedMessage', {
+          message: { ...message },
+          user_id: message.user_id,
+        });
     } catch (error) {
       console.log(error);
     }
@@ -256,8 +259,10 @@ export class ChatWebsocketService implements WebSocket {
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('deleteMessages')
   async deleteMessages(@MessageBody() dto: DeleteMessagesDTO) {
+    const { message, user_id, conv_id } = dto;
+
     try {
-      const insertionPromises = dto.message.map(async (msg) => {
+      const insertionPromises = message.map(async (msg) => {
         if (msg.selected) {
           await this.prisma.seen_messages.deleteMany({
             where: { message_id: msg.id },
@@ -269,7 +274,7 @@ export class ChatWebsocketService implements WebSocket {
           });
 
           await this.prisma.conversations.update({
-            where: { id: dto.conv_id },
+            where: { id: conv_id },
             data: { last_msg: null },
           });
 
@@ -282,13 +287,14 @@ export class ChatWebsocketService implements WebSocket {
 
       const idx = this.websocketUtilsService.binaryUserSearchByUserId<
         Array<CachedUuidsDTO>
-      >(this.cachedUsersUuids, dto.conv_id);
+      >(this.cachedUsersUuids, conv_id);
 
       this.server
         .in(this.cachedUsersUuids[idx].uuid)
-        .emit('getDeletedMessages', [
-          ...(await this.apiService.getMessages(dto.conv_id)),
-        ]);
+        .emit('getDeletedMessages', {
+          messages: [...(await this.apiService.getMessages(conv_id))],
+          user_id: user_id,
+        });
     } catch (error) {
       console.log(error);
     }

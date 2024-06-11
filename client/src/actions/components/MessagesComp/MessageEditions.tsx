@@ -66,6 +66,7 @@ export const MessageEditions = ({
           {functionality.map((item) => {
             return (
               <DropdownItem
+                textValue="item value"
                 key={item.key}
                 startContent={item.startContent}
                 classNames={item.classNames}
@@ -80,7 +81,9 @@ export const MessageEditions = ({
 
         {seen_message.isPending ? (
           <DropdownSection aria-label="loading" classNames={{ base: "mb-0" }}>
-            <DropdownItem key="loading">loading...</DropdownItem>
+            <DropdownItem key="loading" textValue="loading...">
+              loading...
+            </DropdownItem>
           </DropdownSection>
         ) : (
           <DropdownSection
@@ -88,7 +91,7 @@ export const MessageEditions = ({
             hidden={last_seen ? false : true}
             classNames={{ base: "mb-0" }}
           >
-            <DropdownItem key="last_seen">
+            <DropdownItem key="last_seen" textValue="last seen">
               {lastSeenMsgDateFormatting(last_seen)}
             </DropdownItem>
           </DropdownSection>

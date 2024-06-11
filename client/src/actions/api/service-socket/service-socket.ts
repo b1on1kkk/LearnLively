@@ -5,7 +5,6 @@ import WebSocket from "../abstract/webSocket";
 import { ThunkDispatch, UnknownAction } from "@reduxjs/toolkit";
 
 import { AppDispatch } from "../../store/store";
-
 import { groupsActions } from "../../store/features/groups.slice";
 import { studentsActions } from "../../store/features/students.slice";
 import { chosenUserChatActions } from "../../store/features/chosenUserChat.slice";
@@ -21,8 +20,8 @@ import type { TSendFriendRequest } from "../../interfaces/api/sendFriendRequest"
 
 export class ServiceSocket implements WebSocket {
   private socket: Socket | null;
-  private reduxDispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>;
   private notificationHandler: ServiceNotificationHandler;
+  private reduxDispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>;
 
   constructor(
     url: string,
@@ -86,36 +85,51 @@ export class ServiceSocket implements WebSocket {
   ////////////////////////////////////////listeners////////////////////////////////////////////////
 
   public getNewStudents(
+    id: number,
     chosenUser: Student | null,
     setTempStudents: (c: Array<Student> | null) => void
   ) {
-    this.socket?.on("newStudents", (data: Array<Student>) => {
-      if (chosenUser) {
-        const student = data.find((student) => student.id === chosenUser.id);
-        this.reduxDispatch(
-          chosenUserChatActions.chosenUserInit({
-            chosenGroup: null,
-            chosenUser: student!
-          })
-        );
+    this.socket?.on(
+      "newStudents",
+      (data: { students: Array<Student>; user_id: number }) => {
+        const { students, user_id } = data;
 
-        // initialize service notifications modal
-        this.notificationHandler.confirmFriendRequest(student!.name);
+        if (chosenUser) {
+          const student = students.find(
+            (student) => student.id === chosenUser.id
+          );
+          this.reduxDispatch(
+            chosenUserChatActions.chosenUserInit({
+              chosenGroup: null,
+              chosenUser: student!
+            })
+          );
+
+          // initialize service notifications modal
+          if (user_id === id) {
+            this.notificationHandler.confirmFriendRequest(student!.name);
+          }
+        }
+
+        this.reduxDispatch(studentsActions.initStudents(students));
+
+        setTempStudents(students);
       }
-
-      this.reduxDispatch(studentsActions.initStudents(data));
-
-      setTempStudents(data);
-    });
+    );
   }
 
-  public getGroups() {
-    this.socket?.on("getGroups", (data: Array<TGroups>) => {
-      this.reduxDispatch(groupsActions.initGroups([...data]));
+  public getGroups(id: number) {
+    this.socket?.on(
+      "getGroups",
+      (data: { groups: Array<TGroups>; user_id: number }) => {
+        const { groups, user_id } = data;
 
-      // initialize service notifications modal
-      this.notificationHandler.createGroupRequest();
-    });
+        this.reduxDispatch(groupsActions.initGroups([...groups]));
+
+        // initialize service notifications modal
+        if (user_id === id) this.notificationHandler.createGroupRequest();
+      }
+    );
   }
 
   // service listeners

@@ -31,10 +31,12 @@ export class ChatSocketController {
   public deleteMsgController(
     chosenConv: ChosenConv | null,
     message: Array<TMessage>,
+    user_id: number,
     chosenMessage?: TMessage
   ) {
     if (chosenConv) {
       this.socket?.deleteMessages({
+        user_id: user_id,
         conv_id: chosenConv.id,
         message: this.controllerDeleteOneMsg(message, chosenMessage)
       });
