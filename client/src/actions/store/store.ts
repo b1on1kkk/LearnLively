@@ -10,19 +10,21 @@ import chatsSlice from "./features/chats.slice";
 import groupsSlice from "./features/groups.slice";
 import onlineUsersSlice from "./features/onlineUsers.slice";
 import isTypingSlice from "./features/isTyping.slice";
+import serviceMsgPayloadSlice from "./features/serviceMsgPayload.slice";
 
 export const store = configureStore({
   reducer: {
     user: userSlice,
-    serviceSocket: serviceSocketSlice,
-    chatSocket: chatSocketSlice,
-    students: studentsSlice,
-    chosenUserChat: chosenUserChatSlice,
-    messages: messagesSlice,
     chats: chatsSlice,
     groups: groupsSlice,
+    typed: isTypingSlice,
+    students: studentsSlice,
+    messages: messagesSlice,
+    chatSocket: chatSocketSlice,
     onlineUsers: onlineUsersSlice,
-    typed: isTypingSlice
+    serviceSocket: serviceSocketSlice,
+    chosenUserChat: chosenUserChatSlice,
+    serviceMessage: serviceMsgPayloadSlice
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

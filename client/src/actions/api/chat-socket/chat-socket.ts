@@ -10,6 +10,7 @@ import { chatSocketAcitons } from "../../store/features/chatSocket.slice";
 import { onlineUsersActions } from "../../store/features/onlineUsers.slice";
 
 import { DispatchActionsHandler } from "../../utils/handlers/dispatchActionsHandler";
+import { ServiceNotificationHandler } from "../../utils/Students/serviceNotificationHandler";
 
 import type { TMessage } from "../../interfaces/api/newChat";
 import type { MessageData } from "../../interfaces/api/messageData";
@@ -22,6 +23,7 @@ export class ChatSocket implements WebSocket {
   private socket: Socket | null;
   private reduxDispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>;
   private actionsHandler: DispatchActionsHandler;
+  private notificationHandler: ServiceNotificationHandler;
 
   constructor(
     url: string,
@@ -33,7 +35,9 @@ export class ChatSocket implements WebSocket {
 
     this.connectUser(user_id);
     this.reduxDispatch = dispatch;
+
     this.actionsHandler = new DispatchActionsHandler(dispatch);
+    this.notificationHandler = new ServiceNotificationHandler(dispatch);
   }
 
   ////////////////////////////////////////emitters////////////////////////////////////////////////
@@ -110,6 +114,9 @@ export class ChatSocket implements WebSocket {
         ],
         chosenMessage: null
       });
+
+      // initialize service notifications modal
+      this.notificationHandler.changeMessage();
     });
   }
 
@@ -119,6 +126,9 @@ export class ChatSocket implements WebSocket {
         messages: message,
         chosenMessage: null
       });
+
+      // initialize service notifications modal
+      this.notificationHandler.deleteMessage();
     });
   }
 
@@ -150,9 +160,9 @@ export class ChatSocket implements WebSocket {
   }
 
   // service listeners
-  public connectionErrorHandler(cb: (err: SocketUnauthError) => void) {
+  public connectionErrorHandler() {
     this.socket?.on("error", (err: SocketUnauthError) => {
-      if (err) cb(err);
+      if (err) this.notificationHandler.errorHandler();
     });
   }
 }

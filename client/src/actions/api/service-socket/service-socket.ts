@@ -10,16 +10,19 @@ import { groupsActions } from "../../store/features/groups.slice";
 import { studentsActions } from "../../store/features/students.slice";
 import { chosenUserChatActions } from "../../store/features/chosenUserChat.slice";
 
+import { ServiceNotificationHandler } from "../../utils/Students/serviceNotificationHandler";
+
 import type { TGroups } from "../../interfaces/Message/Chats";
 import type { ChatType } from "../../interfaces/api/chatType";
 import type { Student } from "../../interfaces/Students/Main";
 import type { TFriendRequest } from "../../interfaces/api/acceptFriendRequest";
+import type { SocketUnauthError } from "../../interfaces/api/socketUnauthError";
 import type { TSendFriendRequest } from "../../interfaces/api/sendFriendRequest";
-import { SocketUnauthError } from "../../interfaces/api/socketUnauthError";
 
 export class ServiceSocket implements WebSocket {
   private socket: Socket | null;
   private reduxDispatch: ThunkDispatch<AppDispatch, undefined, UnknownAction>;
+  private notificationHandler: ServiceNotificationHandler;
 
   constructor(
     url: string,
@@ -31,6 +34,8 @@ export class ServiceSocket implements WebSocket {
 
     this.connectUser(user_id);
     this.reduxDispatch = dispatch;
+
+    this.notificationHandler = new ServiceNotificationHandler(dispatch);
   }
 
   ////////////////////////////////////////emitters////////////////////////////////////////////////
@@ -93,6 +98,9 @@ export class ServiceSocket implements WebSocket {
             chosenUser: student!
           })
         );
+
+        // initialize service notifications modal
+        this.notificationHandler.confirmFriendRequest(student!.name);
       }
 
       this.reduxDispatch(studentsActions.initStudents(data));
@@ -103,16 +111,17 @@ export class ServiceSocket implements WebSocket {
 
   public getGroups() {
     this.socket?.on("getGroups", (data: Array<TGroups>) => {
-      console.log(data);
-
       this.reduxDispatch(groupsActions.initGroups([...data]));
+
+      // initialize service notifications modal
+      this.notificationHandler.createGroupRequest();
     });
   }
 
   // service listeners
-  public connectionErrorHandler(cb: (err: SocketUnauthError) => void) {
+  public connectionErrorHandler() {
     this.socket?.on("error", (err: SocketUnauthError) => {
-      if (err) cb(err);
+      if (err) this.notificationHandler.errorHandler();
     });
   }
 }

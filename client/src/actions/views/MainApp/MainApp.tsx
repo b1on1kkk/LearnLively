@@ -23,9 +23,11 @@ import { Navigation } from "../../components/NavigationComp/Navigation";
 import { AppDispatch, RootState } from "../../store/store";
 
 import { SOCKETS_ROOT } from "../../constants/Sockets/sockets";
+import { ServiceNotification } from "../../components/ServiceNotification/ServiceNotification";
 
 export const MainApp = () => {
   const { pathname } = useLocation();
+
   const dispatch = useDispatch<AppDispatch>();
 
   // cached chosen chat id for connecting and disconnecting if user choose another chat
@@ -39,15 +41,9 @@ export const MainApp = () => {
   const { chosenConvId } = useSelector((s: RootState) => s.chatSocket);
   const { service_socket } = useSelector((s: RootState) => s.serviceSocket);
 
-  // chat socket error
-  const { error: chatSocketError } = useSocketError(chat_socket);
-
-  // service socket error
-  const { error: serviceSocketError } = useSocketError(service_socket);
-
-  // !!!temporary!!!
-  console.log(chatSocketError);
-  console.log(serviceSocketError);
+  // socket errors listeners
+  useSocketError(chat_socket);
+  useSocketError(service_socket);
 
   // get indexes of users that online
   useGetOnlineUsers();
@@ -112,6 +108,8 @@ export const MainApp = () => {
         <div className="absolute h-40 w-screen right-0 top-0 bg-gradient-to-r from-10% via-sky-500 via-30% to-90% from-pink-500 to-red-500 rounded-tr-3xl mr-3 mt-3"></div>
 
         {isLoading ? <Loading /> : <Outlet />}
+
+        <ServiceNotification />
       </div>
     </main>
   );

@@ -120,3 +120,8 @@ export interface whoIsTyping {
 export interface TSeenMessages {
   seen_at: string;
 }
+
+export interface ConfirmationPayload {
+  isOpen: boolean;
+  onOpenChange: () => void;
+}

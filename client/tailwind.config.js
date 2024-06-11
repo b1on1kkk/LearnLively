@@ -9,7 +9,22 @@ module.exports = {
     "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}"
   ],
   theme: {
-    extend: {}
+    extend: {
+      keyframes: {
+        popup: {
+          "0%": { transform: "translateY(200px)" },
+          "100%": { transform: "translateY(0px)" }
+        },
+        popuout: {
+          "0%": { opacity: 100 },
+          "100%": { opacity: 0 }
+        }
+      },
+      animation: {
+        popup: "popup 0.3s ease",
+        popuout: "popuout 1s ease"
+      }
+    }
   },
   darkMode: "class",
   plugins: [

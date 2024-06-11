@@ -128,9 +128,10 @@ export const Main = ({ isLoading, isError }: TMainStudents) => {
                         </>
                       ) : (
                         <RequestsButton
-                          placement="right"
-                          content="Send friend request!"
                           status="accept"
+                          placement="right"
+                          classNameStatus="positive"
+                          content="Send friend request!"
                           image={<Plus width={20} height={20} />}
                           onClick={() => {
                             socketController?.sendFriendRequest(
@@ -138,7 +139,6 @@ export const Main = ({ isLoading, isError }: TMainStudents) => {
                               student.id
                             );
                           }}
-                          classNameStatus="positive"
                         />
                       )}
                     </div>

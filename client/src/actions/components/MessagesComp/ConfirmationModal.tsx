@@ -14,12 +14,12 @@ import { RootState } from "../../store/store";
 
 import { ChatSocketController } from "../../api/chat-socket/chat-socket-controller";
 
-interface TConfirmation {
-  isOpen: boolean;
-  onOpenChange: () => void;
-}
+import type { ConfirmationPayload } from "../../interfaces/Message/Chats";
 
-export const ConfirmationModal = ({ isOpen, onOpenChange }: TConfirmation) => {
+export const ConfirmationModal = ({
+  isOpen,
+  onOpenChange
+}: ConfirmationPayload) => {
   const { chat_socket, chosenConvId } = useSelector(
     (c: RootState) => c.chatSocket
   );
