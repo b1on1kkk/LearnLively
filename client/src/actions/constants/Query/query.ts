@@ -1,1 +1,1 @@
-export const QUERY_ROOT = "http://localhost:3000/";
+export const QUERY_ROOT = "https://learnlively-server.onrender.com";
