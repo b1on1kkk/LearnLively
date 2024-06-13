@@ -19,6 +19,6 @@ async function bootstrap() {
       'Origin, X-Requested-With, Content-Type, Accept, X-Header-Device_id',
   });
 
-  await app.listen(parseInt(process.env.PORT));
+  await app.listen(parseInt(process.env.PORT) || 3000);
 }
 bootstrap();

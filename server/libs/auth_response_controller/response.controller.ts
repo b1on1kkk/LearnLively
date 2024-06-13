@@ -15,13 +15,13 @@ export class AuthResponseController {
         .cookie('access', payload.access, {
           httpOnly: true,
           maxAge: 3600000, // alive 1h
-          sameSite: 'strict',
+          sameSite: 'none',
           secure: true,
         })
         .cookie('refresh', payload.refresh, {
           httpOnly: true,
           maxAge: 86400000, // alive 1d
-          sameSite: 'strict',
+          sameSite: 'none',
           secure: true,
         })
         .json(message);
@@ -31,7 +31,7 @@ export class AuthResponseController {
       .cookie('access', payload.access, {
         httpOnly: true,
         maxAge: 3600000, // alive 1h
-        sameSite: 'strict',
+        sameSite: 'none',
         secure: true,
       })
       .json(message);
@@ -44,12 +44,12 @@ export class AuthResponseController {
     return res
       .clearCookie('access', {
         httpOnly: true,
-        sameSite: 'strict',
+        sameSite: 'none',
         secure: true,
       })
       .clearCookie('refresh', {
         httpOnly: true,
-        sameSite: 'strict',
+        sameSite: 'none',
         secure: true,
       })
       .json(data);
@@ -64,13 +64,13 @@ export class AuthResponseController {
         .cookie('access', payload.tokens.access, {
           httpOnly: true,
           maxAge: 3600000, // alive 1h
-          sameSite: 'strict',
+          sameSite: 'none',
           secure: true,
         })
         .cookie('refresh', payload.tokens.refresh, {
           httpOnly: true,
           maxAge: 86400000, // alive 1d
-          sameSite: 'strict',
+          sameSite: 'none',
           secure: true,
         })
         .send(payload.message);
@@ -80,7 +80,7 @@ export class AuthResponseController {
       .cookie('access', payload.tokens.access, {
         httpOnly: true,
         maxAge: 3600000, // alive 1h
-        sameSite: 'strict',
+        sameSite: 'none',
         secure: true,
       })
       .send(payload.message);
@@ -94,13 +94,13 @@ export class AuthResponseController {
       .cookie('access', tokens.access, {
         httpOnly: true,
         maxAge: 3600000, // alive 1h
-        sameSite: 'strict',
+        sameSite: 'none',
         secure: true,
       })
       .cookie('refresh', tokens.refresh, {
         httpOnly: true,
         maxAge: 86400000, // alive 1d
-        sameSite: 'strict',
+        sameSite: 'none',
         secure: true,
       })
       .redirect(process.env.CLIENT_ROOT_DOMAIN);
