@@ -5,7 +5,6 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
 
 import * as cookieParser from 'cookie-parser';
-import * as cors from 'cors';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -13,14 +12,12 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.use(cookieParser());
 
-  app.use(
-    cors({
-      origin: 'http://localhost:5173',
-      credentials: true,
-      allowedHeaders:
-        'Origin, X-Requested-With, Content-Type, Accept, X-Header-Device_id',
-    }),
-  );
+  app.enableCors({
+    origin: process.env.PRODUCTION_ORIGIN,
+    credentials: true,
+    allowedHeaders:
+      'Origin, X-Requested-With, Content-Type, Accept, X-Header-Device_id',
+  });
 
   await app.listen(3000);
 }

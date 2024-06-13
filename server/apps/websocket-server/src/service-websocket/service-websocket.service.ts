@@ -30,7 +30,7 @@ import type { ConnectedUserDTO } from 'apps/websocket-server/dto/connectedUserDT
 
 @Injectable()
 @WebSocketGateway({
-  cors: { origin: process.env.CLIENT_ORIGIN, credentials: true },
+  cors: { origin: process.env.PRODUCTION_ORIGIN, credentials: true },
   namespace: 'service_logic',
 })
 export class ServiceWebsocketService implements WebSocket {

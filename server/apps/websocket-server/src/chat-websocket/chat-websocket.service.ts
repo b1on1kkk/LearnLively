@@ -33,7 +33,7 @@ import type { DeleteMessagesDTO } from 'apps/websocket-server/dto/deleteMessages
 
 @Injectable()
 @WebSocketGateway({
-  cors: { origin: process.env.CLIENT_ORIGIN, credentials: true },
+  cors: { origin: process.env.PRODUCTION_ORIGIN, credentials: true },
   namespace: 'chat',
 })
 export class ChatWebsocketService implements WebSocket {
