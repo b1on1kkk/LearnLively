@@ -1,3 +1,3 @@
-export const QUERY_ROOT = "http://localhost:3000/";
+export const QUERY_ROOT = "https://learnlively-server.onrender.com/";
 
 //this is for production deployment https://learnlively-server.onrender.com/
