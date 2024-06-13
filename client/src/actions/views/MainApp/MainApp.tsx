@@ -19,11 +19,11 @@ import { Loading } from "../../components/Loading/Loading";
 import { Main } from "../../components/NavigationComp/Main";
 import { Header } from "../../components/NavigationComp/Header";
 import { Navigation } from "../../components/NavigationComp/Navigation";
+import { ServiceNotification } from "../../components/ServiceNotification/ServiceNotification";
 
 import { AppDispatch, RootState } from "../../store/store";
 
 import { SOCKETS_ROOT } from "../../constants/Sockets/sockets";
-import { ServiceNotification } from "../../components/ServiceNotification/ServiceNotification";
 
 export const MainApp = () => {
   const { pathname } = useLocation();

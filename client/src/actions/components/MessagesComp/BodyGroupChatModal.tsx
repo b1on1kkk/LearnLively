@@ -1,7 +1,14 @@
 import useStudents from "../../hooks/useStudents";
 import useFirstChatLetter from "../../hooks/useFirstChatLetter";
 
-import { Checkbox, Input, Textarea, User, cn } from "@nextui-org/react";
+import {
+  cn,
+  User,
+  Input,
+  Spinner,
+  Checkbox,
+  Textarea,
+} from "@nextui-org/react";
 
 import { UsersRound } from "lucide-react";
 import { Notification } from "../Notification";
@@ -28,15 +35,17 @@ export const BodyGroupChatModal = ({
   return (
     <>
       {isLoading ? (
-        <>Loading...</>
+        <div className="flex w-full items-center justify-center">
+          <Spinner size="md" />
+        </div>
       ) : (
         <div
           className={`flex w-[896px] h-full absolute transition-transform ${
             next.slide && "-translate-x-[448px]"
-          } ease-in`}
+          } ease-in gap-2`}
         >
           {/* slide 1 */}
-          <div className="flex gap-1.5 flex-col flex-1 px-5 py-2">
+          <div className="flex gap-1.5 flex-col flex-1 px-5 py-2 overflow-auto">
             {extendedStudents.length > 0 ? (
               <>
                 {extendedStudents.map((student) => {

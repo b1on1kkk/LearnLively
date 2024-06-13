@@ -13,7 +13,7 @@ export const RegistrationGuard = ({ children }: { children: ReactElement }) => {
 
   if (isLoading) return <Loading></Loading>;
 
-  if (isError || !data) return children;
+  if (isError || !data?.user) return children;
 
   if (data) return <Navigate to="/dashboard" replace />;
 

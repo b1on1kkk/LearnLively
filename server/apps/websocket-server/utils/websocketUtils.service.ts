@@ -16,16 +16,19 @@ export class WebsocketUtils {
     server: Server,
     client: Socket,
   ) {
-    const recipientSocketId = this.binaryUserSearchByUserId(
-      ActiveUsers,
-      dto.recipient,
-    );
-
     const senderStudents = await this.sharedService.getStudentsByPrisma(
       dto.sender_id,
     );
 
-    server.to(client.id).emit('newStudents', senderStudents);
+    server.to(client.id).emit('newStudents', {
+      students: senderStudents,
+      user_id: dto.sender_id,
+    });
+
+    const recipientSocketId = this.binaryUserSearchByUserId(
+      ActiveUsers,
+      dto.recipient,
+    );
 
     if (recipientSocketId !== null) {
       const recipientStudents = await this.sharedService.getStudentsByPrisma(

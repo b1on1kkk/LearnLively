@@ -34,8 +34,8 @@ export const Students = () => {
 
   // listen if new data comes
   useEffect(() => {
-    if (user) {
-      service_socket?.getNewStudents(user.id, chosenUser, setTempStudents);
+    if (user && service_socket) {
+      service_socket.getNewStudents(user.id, chosenUser, setTempStudents);
     }
   }, [service_socket, chosenUser, user]);
 

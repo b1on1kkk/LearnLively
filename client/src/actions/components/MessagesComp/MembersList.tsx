@@ -29,7 +29,10 @@ export const MembersList = ({ chosenGroup }: { chosenGroup: Group }) => {
           const { users } = user;
 
           return (
-            <div className="flex gap-3 hover:bg-gray-600 px-2 py-1 select-none transition-colors rounded-lg">
+            <div
+              className="flex gap-3 hover:bg-gray-600 px-2 py-1 select-none transition-colors rounded-lg"
+              key={users.id}
+            >
               <div className="w-[40px] h-[40px]">
                 <Image
                   src={toImageLink(users.img_hash_name)}

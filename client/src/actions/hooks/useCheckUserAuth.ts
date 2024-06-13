@@ -22,7 +22,11 @@ const useCheckUserAuth = (path: string) => {
       return await axios
         .get<TUserCheck>(`${QUERY_ROOT}api/user`, { withCredentials: true })
         .then((res) => {
-          if (!user) dispatch(userActions.createUser({ user: res.data.user }));
+          const { user: res_user, result: res_result } = res.data;
+
+          if (!user && res_user && res_result) {
+            dispatch(userActions.createUser({ user: res.data.user }));
+          }
 
           return res.data;
         })

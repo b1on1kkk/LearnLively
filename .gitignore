@@ -2,6 +2,7 @@
 /server/dist
 /server/.env
 /server/README.md
+/server/prisma/migrations
 
 /client/node_modules
 /client/vite.config.ts.timestamp-1714132807645-7a93b1327f178.mjs

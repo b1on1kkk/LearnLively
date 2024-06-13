@@ -87,7 +87,7 @@ export class ApiController {
         user: data.user,
         result: true,
       });
-    } else if (data && !data.update) {
+    } else if (data && !data.update && data.user) {
       return res.json({ user: data.user, result: true });
     }
 

@@ -1,4 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
+
 import useSocketControllerContext from "../../hooks/useSocketControllerContext";
 
 import { Notification } from "../Notification";
@@ -8,11 +9,11 @@ import { Spinner, Button } from "@nextui-org/react";
 
 import {
   Plus,
-  CircleCheckBig,
-  UserRoundPlus,
-  UserRoundX,
   UserRound,
-  UsersRound
+  UsersRound,
+  UserRoundX,
+  UserRoundPlus,
+  CircleCheckBig
 } from "lucide-react";
 
 import { AppDispatch, RootState } from "../../store/store";
