@@ -19,6 +19,7 @@ export const chosenUserChat = createSlice({
   reducers: {
     chosenUserInit: (state, action: PayloadAction<ChosenUserChatSlice>) => {
       return {
+        ...state,
         chosenGroup: action.payload.chosenGroup,
         chosenUser: action.payload.chosenUser
       };

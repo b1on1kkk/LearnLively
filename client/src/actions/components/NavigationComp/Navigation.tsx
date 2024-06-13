@@ -1,17 +1,11 @@
-import { useState } from "react";
 import { NavLink } from "react-router-dom";
 
 import { NAVIGATION_TABS } from "../../constants/MainApp/navigation";
 
-import type { TNavigationTabs } from "../../interfaces/MainApp/TNavigationTabs";
-
 export const Navigation = () => {
-  const [navigationTabs, setNavigationTabs] =
-    useState<Array<TNavigationTabs>>(NAVIGATION_TABS);
-
   return (
     <div className="flex-1 flex flex-col mt-2 gap-2">
-      {navigationTabs.map((tab) => {
+      {NAVIGATION_TABS.map((tab) => {
         return (
           <NavLink
             key={tab.id}

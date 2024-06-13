@@ -13,6 +13,7 @@ export const messagesSlice = createSlice({
   reducers: {
     messageInit: (state, action: PayloadAction<ActionPayload>) => {
       return {
+        ...state,
         chosenMessage: action.payload.chosenMessage,
         messages: action.payload.messages
       };

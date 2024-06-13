@@ -11,7 +11,7 @@ export const serviceMsgPayload = createSlice({
   initialState,
   reducers: {
     serviceMsgInit: (state, action: PayloadAction<SystemMessage>) => {
-      return action.payload;
+      return { ...state, ...action.payload };
     }
   }
 });

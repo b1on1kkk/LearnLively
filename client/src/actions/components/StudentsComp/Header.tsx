@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
 
 import {
   Button,
@@ -9,29 +10,24 @@ import {
 } from "@nextui-org/react";
 import { ChevronDown, Filter } from "lucide-react";
 
-import { userFiltration } from "../../utils/Students/userFiltration";
-import { selectedValueSplitting } from "../../utils/Students/selectedValueSplitting";
+import { AppDispatch } from "../../store/store";
 
-import { DROPDOWN_FILTER } from "../../constants/Students/dropdown_filter";
+import { userFiltration } from "../../utils/Students/userFiltration";
+
 import { HEADER } from "../../constants/Students/header";
+import { DROPDOWN_FILTER } from "../../constants/Students/dropdown_filter";
 
 import type { THeader } from "../../interfaces/Students/Header";
-
-import { AppDispatch } from "../../store/store";
-import { useDispatch } from "react-redux";
 
 export const Header = ({ tempStudents }: THeader) => {
   const dispatch = useDispatch<AppDispatch>();
   const [dropdownStatus, setDropdownStatus] = useState<boolean>(false);
 
-  const [selectedKeys, setSelectedKeys] = useState(new Set(["all_students"]));
-  const selectedValue = useMemo(() => {
-    return selectedValueSplitting(selectedKeys);
-  }, [selectedKeys]);
+  const [selectedKeys, setSelectedKeys] = useState("all_students");
 
   useEffect(() => {
-    userFiltration(selectedValue, tempStudents, dispatch);
-  }, [selectedValue]);
+    userFiltration(selectedKeys, tempStudents, dispatch);
+  }, [selectedKeys]);
 
   return (
     <header className="flex flex-col gap-8">
@@ -73,7 +69,6 @@ export const Header = ({ tempStudents }: THeader) => {
               aria-label="Static Actions"
               selectionMode="single"
               selectedKeys={selectedKeys}
-              onSelectionChange={setSelectedKeys}
               color="primary"
             >
               {DROPDOWN_FILTER.map((item) => {
@@ -82,6 +77,7 @@ export const Header = ({ tempStudents }: THeader) => {
                     key={item.key}
                     description={item.description}
                     startContent={item.startContent}
+                    onAction={(e) => setSelectedKeys(e as string)}
                     classNames={{
                       wrapper: "hover:bg-gray-900"
                     }}
