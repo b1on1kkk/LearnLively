@@ -1,6 +1,6 @@
 import { Server, Socket } from 'socket.io';
 
-import { Injectable, UseFilters, UseGuards } from '@nestjs/common';
+import { Injectable, UseFilters } from '@nestjs/common';
 
 import {
   ConnectedSocket,
@@ -17,8 +17,6 @@ import WebSocket from '../abstract/webSocket';
 import { ApiService } from 'apps/project-name/src/api/api.service';
 
 import { WebsocketUtils } from 'apps/websocket-server/utils/websocketUtils.service';
-
-import { JwtGuardGuard } from 'apps/websocket-server/guard/jwt_guard.guard';
 
 import { BadRequestExceptionsFilter } from 'apps/websocket-server/filter/filter';
 
@@ -53,7 +51,6 @@ export class ChatWebsocketService implements WebSocket {
 
   //////////////////////////////////////////////MAIN//////////////////////////////////////////////////////
 
-  @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('userChatConnected')
   connectionMessage(
@@ -97,7 +94,6 @@ export class ChatWebsocketService implements WebSocket {
 
   //////////////////////////////////////////////MAIN END//////////////////////////////////////////////////
 
-  @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('connectToChatRoom')
   async connectToChatRoom(
@@ -133,7 +129,6 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
-  @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('leaveChatRoom')
   async leaveChatRoom(
@@ -153,7 +148,6 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
-  @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('sendMessage')
   async sendMessage(@MessageBody() dto: SendMessageDTO) {
@@ -198,7 +192,6 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
-  @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('isTyping')
   isTyping(@MessageBody() dto: isTypingDTO, @ConnectedSocket() client: Socket) {
@@ -209,7 +202,6 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
-  @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('notTyping')
   notTyping(
@@ -225,7 +217,6 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
-  @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('changeEditedMessage')
   async changeEditedMessage(@MessageBody() dto: SendMessageDTO) {
@@ -255,7 +246,6 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
-  @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('deleteMessages')
   async deleteMessages(@MessageBody() dto: DeleteMessagesDTO) {
@@ -300,7 +290,6 @@ export class ChatWebsocketService implements WebSocket {
     }
   }
 
-  @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('readMessage')
   async readMessage(

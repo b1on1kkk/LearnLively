@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { Server, Socket } from 'socket.io';
 
-import { Injectable, UseFilters, UseGuards } from '@nestjs/common';
+import { Injectable, UseFilters } from '@nestjs/common';
 import { PrismaService } from '@prismaORM/prisma';
 
 import { ApiService } from 'apps/project-name/src/api/api.service';
@@ -16,8 +16,6 @@ import {
 } from '@nestjs/websockets';
 
 import WebSocket from '../abstract/webSocket';
-
-import { JwtGuardGuard } from 'apps/websocket-server/guard/jwt_guard.guard';
 
 import { BadRequestExceptionsFilter } from 'apps/websocket-server/filter/filter';
 
@@ -46,7 +44,6 @@ export class ServiceWebsocketService implements WebSocket {
     this.ActiveUsers = [];
   }
 
-  @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('userConnected')
   connectionMessage(
@@ -80,7 +77,6 @@ export class ServiceWebsocketService implements WebSocket {
     }
   }
 
-  @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('sendFriendRequest')
   async sendFriendRequest(
@@ -104,7 +100,6 @@ export class ServiceWebsocketService implements WebSocket {
     );
   }
 
-  @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('acceptFriendRequest')
   async acceptFriendRequest(
@@ -155,7 +150,6 @@ export class ServiceWebsocketService implements WebSocket {
     );
   }
 
-  @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('rejectFriendRequest')
   async rejectFriendRequest(
@@ -172,7 +166,6 @@ export class ServiceWebsocketService implements WebSocket {
     );
   }
 
-  @UseGuards(JwtGuardGuard)
   @UseFilters(BadRequestExceptionsFilter)
   @SubscribeMessage('startGroupChat')
   async startGroupChat(
