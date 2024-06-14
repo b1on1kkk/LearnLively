@@ -48,6 +48,9 @@ export class AuthController {
     const { type }: { type: 'signup' | 'login' } = JSON.parse(query);
     GetGoogleAuth.setType(type);
 
+    console.log(type);
+    console.log(process.env.SERVER_ROOT_DOMAIN);
+
     return res.redirect(
       `${process.env.SERVER_ROOT_DOMAIN}/auth/google/callback`,
     );
