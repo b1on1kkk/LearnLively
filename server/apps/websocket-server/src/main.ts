@@ -17,6 +17,6 @@ async function bootstrap() {
     allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept',
   });
 
-  await app.listen(3001);
+  await app.listen(parseInt(process.env.SERVER2_PORT) || 3001);
 }
 bootstrap();

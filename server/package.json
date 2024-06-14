@@ -6,14 +6,18 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
+    "build": "concurrently -c \"cyan.bold, red.bold\" \"npm:building-*\"",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
     "start:dev": "concurrently -c \"cyan.bold, red.bold\" \"npm:dev-*\"",
+    "building-server1-app": "nest build",
+    "building-server2-app": "nest build websocket-server",
     "dev-my-app": "nest start --watch",
     "dev-my-app2": "nest start --watch websocket-server",
+    "server-prod1": "node dist/apps/project-name/main",
+    "server-prod2": "node dist/apps/websocket-server/main",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/apps/project-name/main",
+    "start:prod": "concurrently -c \"cyan.bold, red.bold\" \"npm:server-*\"",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -51,7 +55,8 @@
     "passport-local": "^1.0.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "webpack": "^5.92.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
