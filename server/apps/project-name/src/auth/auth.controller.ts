@@ -48,7 +48,9 @@ export class AuthController {
     const { type }: { type: 'signup' | 'login' } = JSON.parse(query);
     GetGoogleAuth.setType(type);
 
-    return res.redirect('/auth/google/callback');
+    return res.redirect(
+      `${process.env.SERVER_ROOT_DOMAIN}/auth/google/callback`,
+    );
   }
 
   @Get('google/callback')
@@ -60,9 +62,13 @@ export class AuthController {
 
     switch (GetGoogleAuth.getType()) {
       case 'login':
-        return res.redirect('/auth/google/login');
+        return res.redirect(
+          `${process.env.SERVER_ROOT_DOMAIN}/auth/google/login`,
+        );
       case 'signup':
-        return res.redirect('/auth/google/signup');
+        return res.redirect(
+          `${process.env.SERVER_ROOT_DOMAIN}/auth/google/signup`,
+        );
       default:
         return res.redirect(
           `${process.env.CLIENT_ROOT_DOMAIN}registration/login`,
