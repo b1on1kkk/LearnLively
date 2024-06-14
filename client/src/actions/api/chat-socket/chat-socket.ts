@@ -172,6 +172,8 @@ export class ChatSocket implements WebSocket {
   // service listeners
   public connectionErrorHandler() {
     this.socket?.on("error", (err: SocketUnauthError) => {
+      console.log(err);
+
       if (err) this.notificationHandler.errorHandler();
     });
   }

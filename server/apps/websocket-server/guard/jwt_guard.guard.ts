@@ -20,9 +20,15 @@ export class JwtGuardGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     console.log('socket guard worked!');
 
+    console.log(
+      context.switchToWs().getClient<Socket>().handshake.headers.cookie,
+    );
+
     const cookies = this.decodeCookie(
       context.switchToWs().getClient<Socket>().handshake.headers.cookie,
     );
+
+    console.log(cookies, '--------------');
 
     if (cookies) {
       try {
