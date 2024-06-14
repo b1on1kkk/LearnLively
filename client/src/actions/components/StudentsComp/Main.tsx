@@ -55,7 +55,7 @@ export const Main = ({ isLoading, isError }: TMainStudents) => {
                         )
                       }
                     >
-                      <span className="flex-[2]">
+                      <span className="flex-[2] max-w-[290px] truncate">
                         {student.name} {student.lastname} {student.surname}
                       </span>
                       <span className="flex-1">{student.id}</span>
